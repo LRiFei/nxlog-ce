@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="xm_perl_funcproc"><title>Functions and procedures exported by xm_perl</title>
+
+<section id="xm_perl_procedures"><title>Procedures exported by xm_perl</title>
+  <variablelist>
+   <varlistentry>
+     <term>
+       <anchor id="xm_perl_proc_call"/>
+       <function>call(string subroutine);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Calls the perl subroutine provided in the first argument.</simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>subroutine</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_perl_proc_perl_call"/>
+       <function>perl_call(string subroutine);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Calls the perl subroutine provided in the first argument.</simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>subroutine</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+  </variablelist>
+</section>
+</section>

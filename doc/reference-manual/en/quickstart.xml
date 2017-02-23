@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="quickstart">
+  <title>Installation and quickstart</title>
+  <para>
+    This chapter will guide to quickly get nxlog set up and running.
+  </para>
+  <section id="quickstart_windows">
+   <title>Microsoft Windows</title>
+   <para>
+     <variablelist>
+       <varlistentry>
+	 <term>Install the MSI pacakge</term>
+	 <listitem>
+	   <para>
+	     Run the nxlog installer using the MSI package, accept the license agreement and click finish.
+	   </para>
+	 </listitem>
+       </varlistentry>
+
+       <varlistentry>
+	 <term>Edit nxlog.conf</term>
+	 <listitem>
+	   <para>
+	     The nxlog configuration file <filename>nxlog.conf</filename> is put under
+	     <filename class='directory'>C:\Program Files\nxlog\conf</filename> or 
+	     <filename class='directory'>C:\Program Files (x86)\nxlog\conf</filename> on 64bit 
+	     architectures.
+	     Using a text editor such as notepad.exe, open <filename>nxlog.conf</filename>.
+	   </para>
+	 </listitem>
+       </varlistentry>
+
+       <varlistentry>
+	 <term>Verify the ROOT path in nxlog.conf</term>
+	 <listitem>
+	   <para>
+	     The windows installer uses the <filename class='directory'>C:\Program Files\nxlog</filename>
+	     directory for the installation.
+	     On 64bit machines this is <filename class='directory'>C:\Program Files (x86)\nxlog</filename>.
+	     We refer to this as the <filename class='directory'>ROOT</filename> path.
+	     Please verify the <filename>nxlog.conf</filename> configuration file and use the appropriate
+	     ROOT path:
+	     <programlisting><![CDATA[
+define ROOT C:\Program Files\nxlog
+ or
+define ROOT C:\Program Files (x86)\nxlog
+]]></programlisting>
+	   </para>
+	 </listitem>
+       </varlistentry>
+
+       <varlistentry>
+	 <term>Configure nxlog</term>
+	 <listitem>
+	   <para>
+	     The most common use-case for nxlog on windows is to collect logs from the EventLog
+	     subsystem and forward it over the network.
+	     Here is a simple configuration which reads the EventLog and forwards it over UDP
+	     in the SNARE agent format.
+	     <programlisting><![CDATA[
+<Extension syslog>
+    Module      xm_syslog
+</Extension>
+
+<Input internal>
+    Module      im_internal
+</Input>
+
+<Input eventlog>
+    Module      im_msvistalog
+</Input>
+
+<Output out>
+    Module      om_udp
+    Host        192.168.1.1
+    Port        514
+    Exec        to_syslog_snare();
+</Output>
+
+<Route 1>
+    Path        eventlog, internal => out
+</Route>]]></programlisting>
+	     There are endless configurations for Windows systems depending on what to collect
+	     and how to send or store. Please read the relevant chapters from this manual:
+	     <simplelist>
+	       <member>
+		 <link linkend="sources">Reading and receiving logs</link>
+	       </member>
+	       <member>
+		 <link linkend="processing">Processing logs</link>
+	       </member>
+	       <member>
+		 <link linkend="forwarding">Forwarding and storing logs</link>
+	       </member>
+	     </simplelist>
+	   </para>
+	 </listitem>
+       </varlistentry>
+
+       <varlistentry>
+	 <term>Start nxlog</term>
+	 <listitem>
+	   <para>
+	     nxlog can be started using the following methods:
+	     <simplelist>
+	       <member>
+		 Start the Service Manager, find 'nxlog' in the list. Select it and
+		 start the service.
+	       </member>
+	       <member>
+		 Double-click on <filename>nxlog.exe</filename>.
+	       </member>
+	     </simplelist>
+	   </para>
+	 </listitem>
+       </varlistentry>
+
+       <varlistentry>
+	 <term>Check the logs</term>
+	 <listitem>
+	   <para>
+	     The default configuration instructs nxlog to write its own logs to the file located
+	     at <filename>C:\Program Files\nxlog\data\nxlog.log</filename> or
+	     <filename>C:\Program Files (x86)\nxlog\data\nxlog.log</filename>.
+	     Open it with notepad.exe and check for errors. Note that some text editors
+	     (such as wordpad) need exclusive locking and will refuse to open the log file while
+	     nxlog is running.
+	   </para>
+	 </listitem>
+       </varlistentry>
+      </variablelist>
+   </para>
+  </section>
+
+  <section id="quickstart_linux">
+   <title>GNU/Linux</title>
+   <section id="quickstart_linux_deb">
+     <title>Installing from DEB packages (Debian, Ubuntu)</title>
+     <para>
+
+       <variablelist>
+	 <varlistentry>
+	   <term>Install the dependencies first</term>
+	   <listitem>
+	     <para>
+	       To list the dependencies, use the following command:
+	       <programlisting><![CDATA[dpkg-deb -f nxlog_1.4.581_amd64.deb Depends]]></programlisting>
+	       Then make sure all listed dependencies are installed.
+	       Alternatively you can run <command>apt-get install -f</command> after trying
+	       to install the package with dpkg and getting an error due to the missing
+	       dependencies.
+	     </para>
+	   </listitem>
+	 </varlistentry>
+
+	 <varlistentry>
+	   <term>Install the deb package</term>
+	   <listitem>
+	     <para>
+	       To install the deb package, issue the following command as root:
+	       <programlisting><![CDATA[dpkg -i nxlog_1.4.581_amd64.deb]]></programlisting>
+	     </para>
+	   </listitem>
+	 </varlistentry>
+
+       </variablelist>
+     </para>
+   </section>
+   <section id="quickstart_linux_rpm">
+     <title>Installing from RPM packages (CentOS, RedHat)</title>
+     <para>
+       Install the rpm package with the following command:
+       <programlisting><![CDATA[rpm –ivh nxlog-1.4.581-1.x86_64.rpm]]></programlisting>
+     </para>
+   </section>
+
+   <section id="quickstart_linux_common">
+     <title>Configuring nxlog on GNU/Linux</title>
+     <para>
+       After the package is installed check and edit the configuration file located at 
+       <filename>/etc/nxlog/nxlog.conf</filename>. It contains an example configuration which
+       you will likely want to modify to suit your needs.
+       Please read the relevant chapters from this manual on how to configure nxlog:
+       <simplelist>
+	 <member>
+	   <link linkend="sources">Reading and receiving logs</link>
+	 </member>
+	 <member>
+	   <link linkend="processing">Processing logs</link>
+	 </member>
+	 <member>
+	   <link linkend="forwarding">Forwarding and storing logs</link>
+	 </member>
+       </simplelist>
+     </para>
+   </section>
+  </section>
+</chapter>

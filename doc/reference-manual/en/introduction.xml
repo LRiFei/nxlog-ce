@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="introduction">
+  <title>Introduction</title>
+
+  <section id="intro_overview">
+   <title>Overview</title>
+   <para>
+     Today's IT infrasturcture can be very demanding in terms of event logs. Hundreds of different
+     devices, applications, appliances produce vast amounts of event log messages. These must be
+     handled in real time, forwarded or stored in a central location after filtering,
+     message classification, correlation and other typical log processing tasks. In most
+     organizations these tasks are solved by connecting a dozen different scripts and programs
+     which all have their custom format and configuration.
+     nxlog is a high-performance multi-platform log management solution aimed at solving these
+     tasks and doing it all in one place.
+   </para>
+   <para>
+    nxlog can work in a heterogenous environment collecting event logs from thousands of different
+    sources in many formats. nxlog can accept event logs from tcp, udp, file, database and
+    various other sources in different formats such as syslog, windows event log etc.
+    It can perform log rewrite, correlation, alerting, pattern matching, execute scheduled jobs,
+    or even log rotation.
+    It was designed to be able to fully utilize todays multi-core CPU systems. Its multi-threaded
+    architecture enables input, log processing and output tasks to be executed in parallel. 
+    Using a high-performance I/O layer it is capable of handling thousands of simultaneous
+    client connections and process log volumes above the 100.000 EPS range. 
+    nxlog tries hard to minimize loosing log messages, it does not drop any unless instructed to.
+    It can process input sources in a prioritized order, meaning that a higher priority source
+    will be always processed before others. This can further help avoiding UDP message loss
+    for example. In case of network congestion or other log transmission problems, nxlog can
+    buffer messages on the disk or in memory.
+    Using loadable modules it supports different input sources and log formats, not only 
+    limited to syslog but windows event log, audit logs or even custom binary application logs.
+    It is possible to further extend its functionality by using custom loadable modules
+    similarly to the Apache Web server.
+    In addition to the online log processing mode it can be used to process logs in batch mode
+    in an offline fashion.
+    A powerful configuration language with an Apache style configuration file syntax enables
+    it to rewrite logs, send alerts, execute external scripts or do virtually anything based
+    on any criteria specified using the nxlog configuration language.
+   </para>
+  </section> <!-- end overview -->
+
+  <section id="intro_features">
+   <title>Features</title>
+
+   <section id="features_multiplatform">
+    <title>Multiplatform</title>
+    <para>
+      nxlog is built to utilize the Apache Portable Runtime Library (libapr), the same solid 
+      foundation as the Apache Webserver is built on which enables nxlog to run on many different
+      operating systems including different Unix flavors (Linux, HP-UX, Solaris, *BSD etc).
+      It compiles and runs as a native Windows application without requiring the CygWin
+      libraries on Microsoft Windows platforms.
+    </para>
+   </section>
+
+   <section id="features_modular">
+    <title>Modular architecture</title>
+    <para>
+      nxlog has a lightweight modular architecture, pluggable modules are available to 
+      provide different features and functions similarly to the Apache HTTP server.
+      Log format parsers, transmission protocol handlers, database handlers and nxlog language 
+      extensions are such modules. A module is only loaded if it is necessary, this helps
+      reduce memory as well.
+      The core of nxlog only contains code to handle files and sockets in addition to the
+      configuration parser and the lightweight built-in language engine. All transport
+      protocol handlers, format parsers (such as syslog) etc reside in modules.
+      Modules have a common API, developers can easily write new modules and extend the
+      functionality of nxlog.
+    </para>
+   </section>
+
+   <section id="features_client_server_mode">
+    <title>Client-server mode</title>
+    <para>
+      nxlog can act as a client and/or a server. It can collect logs from local files and
+      the operating system then forward it to to a remote server. It can accept connections
+      and receive logs over the network then write these to a database or files or forward
+      it further. It all depends how it is configured.
+    </para>
+   </section>
+
+   <section id="features_srcdst">
+    <title>Log message sources and destinations</title>
+    <para>
+      In addition to reading from and writing to log files, nxlog supports different
+      protocols on the network and transport layer such as TCP, UDP, TLS/SSL and
+      Unix Domain Socket. It can both read and write from such sources and can convert
+      between then, read input from an UDP socket and send out in TCP for example.
+    </para>
+    <para>
+      Many database servers are supported (PostgreSQL, MySQL, Oracle, MsSQL, SqlLite, Sybase, etc)
+      through database input and output modules so that log messages or data extracted from 
+      log messages can be stored or read from a database.
+    </para>
+   </section>
+
+   <section id="features_security">
+    <title>Importance of security</title>
+    <para>
+      On unix systems nxlog can be instructed to run as a normal user by dorpping its root
+      privileges. Modules requiring special privileges (e.g. kernel, tcp port bind below 1024) 
+      use Linux capabilites and do not require it to be running as root.
+    </para>
+    <para>
+      To secure data and event logs, nxlog provides TLS/SSL transport so that messages cannot
+      be intercepted and/or altered during transmission.
+    </para>
+   </section>
+
+   <section id="features_scalable">
+    <title>Scalable multi-threaded architecture</title>
+    <para>
+      Using an event based architecture, tasks within nxlog are processed in a parallel fashion.
+      Non-blocking I/O is used wherever possible and a worker thread pool takes care of
+      handling ready to be processed log messages. Reading input, writing output and
+      log processing (parsing, pattern matching, etc) are all handled in parallel.
+      For example when single threaded syslog daemons block trying to write output to a file
+      or database, UDP input will be lost. The multi-threaded architecture of nxlog not only
+      avoids this problem but enables to fully utilize today's multi-core and multi-processor
+      systems for maximum throughput.
+    </para>
+   </section>
+
+   <section id="features_io">
+    <title>High performance I/O</title>
+    <para>
+     Traditional POSIX systems provide the select(2) and/or poll(2) system calls to
+     monitor file descriptors, unfortunately using these methods is not scalable.
+     Modern operating systems have some I/O readiness notification API to enable 
+     handling a large number of open files and network connections simultaneously.
+     nxlog is capable of using these high-performance I/O readieness notification
+     APIs and can handle thousands of simultaneous network connections. Together
+     with its massively multi-threaded architecture, this enables nxlog to process log messages
+     from thousands of simultaneous network connections above the hundred thousand event
+     per second (EPS) range.
+    </para>
+   </section>
+
+   <section id="features_buffering">
+    <title>Message buffering</title>
+    <para>
+      When write blocks on the sending side, because of a network trouble for example, 
+      nxlog will throttle back on the input side using flow control. In some cases it is preferable that the logs
+      are continued to be read on the input side, to avoid dropping UDP syslog messages for example.
+      There is a module avalable which makes it possible to buffer log messages to disk
+      and/or memory. When the problems are solved and the system is back in order
+      and can send out messages faster then being received, then the buffer is automatically 
+      emptied.
+      <!-- FIXME -->
+      Together with the nxlog language it is also possible to do conditional buffering
+      based on different parameters (time or system load for example).
+    </para>
+   </section>
+
+   <section id="features_prioritized_processing">
+    <title>Prioritized processing</title>
+    <para>
+      Not all log sources are always equally important. Some systems send critical logs
+      which should be processed at a higher priority than others.
+      nxlog supports assigning priorites to log routes, this ensures that higher priority
+      log messages are dealt with (read, processed and written/sent out) first, only then
+      are the messages with lower priorities handled.
+      For example this can help avoiding the situation where a TCP input can overload the
+      system leading to dropped incoming UDP syslog messages.
+    </para>
+   </section>
+
+   <section id="features_no_message_dropping">
+    <title>Avoiding lost messages</title>
+    <para>
+      Built-in flow control ensures that nxlog does not drop log messages and you will not
+      see any logs such as the following:
+      <programlisting>Dec 18 18:42:42 server syslog-ng[1234]: STATS: dropped 42</programlisting>
+      Though nxlog can be explicitly instructed to drop log messages depending on certain 
+      conditions in order to avoid a possible resource exhaustion or filter out unwanted messages.
+    </para>
+
+    <para>
+      UDP syslog is a typical case where a message can be lost due to the nature of the UDP
+      protocol. If the kernel buffer becomes full because it is not read, the operating
+      system will drop any further received UDP messages.
+      If a log processing system is busy processing logs, reading from TCP and UDP and
+      writing to database or disk, the kernel UDP buffer can fill quickly.
+      Utilizing the above mentioned 
+      <link linkend="features_scalable">parallel processing</link>,
+      <link linkend="features_buffering">buffering</link> and
+      <link linkend="features_prioritized_processing">I/O prioritization</link>
+      features it is possible to greatly reduce losing UDP syslog messages.
+      Of course using TCP can help avoiding message loss, unfortunately there
+      are many archaic devices which only support UDP syslog.
+    </para>
+   </section>
+
+   <section id="features_config_syntax">
+    <title>Apache-style configuration syntax</title>
+    <para>
+      nxlog uses Apache style configuration file syntax. This format is in use by many other
+      popular system daemons and tools as it is easy to read and/or generate by both humans
+      and scripts.
+    </para>
+   </section>
+
+   <section id="features_config_language">
+    <title>Built-in config language</title>
+    <para>
+      A built-in configuration language enables administrators to create complex rules,
+      format or rewrite messages or execute some action. Using this language it is
+      possible to do virtually anything without the need to forward messages to an external
+      script. Loadable modules can register their own procedures and functions to further
+      extend the capabilities of the nxlog language.
+    </para>
+    <para>
+      Perl is a highly popular language in solving log processing tasks. The built-in nxlog
+      language is very similar in syntax to Perl.
+      In addition to the normal operations it supports polymorphic functions and procedures,
+      regular expressions with captured substrings.
+      It should be fairly trivial to write and understand by people experienced in Perl
+      programming unlike some macro based configuration languages found in other solutions.
+    </para>
+   </section>
+
+   <section id="features_scheduling">
+    <title>Scheduled tasks</title>
+    <para>
+      nxlog has a built-in scheduler similar to cron, but with more advanced capabilities
+      to specify the timings. Using this feature, administrators can automate tasks such 
+      as log rotation or system health check from within nxlog without having to use
+      external scheduler tools.
+      Each module can schedule any number of actions to be executed through the built-in
+      nxlog language.
+    </para>
+   </section>
+
+   <section id="features_log_rotation">
+    <title>Log rotation</title>
+    <para>
+      Log files can be rotated by size or time without the need of external log rotation
+      tools. Log rotation can also be scheduled in order to guarantee timely file rotation.
+    </para>
+    <para>
+      The file input reader module supports external log-rotation scripts, it can detect when
+      an input file was moved/renamed and will reopen its input. Similarly, the file output
+      writer module can also monitor when the file being written to is rotated and will
+      reopen its original output.
+      This way it is possible to keep using external log rotation tools without the need
+      to migrate to the built-in log rotation.
+    </para>
+   </section>
+
+   <section id="features_formats">
+    <title>Different log message formats</title>
+    <para>
+      Nxlog supports both the older legacy syslog format (RFC 3164) and the newer IETF Syslog
+      standard (RFC 5424) and it can also produce syslog in the Snare Agent format.
+      nxlog is not only a syslog daemon but can handle many other protocols and log file
+      formats such as Windows Event Log, Checkpoint logs through LEA, OS audit logs,
+      log message data in comma separated (CSV) format or delimited, GELF, JSON, XML or custom
+      application logs. It can parse and generate most of these formats as well.
+      It is only a matter of selecting the appropriate log format parser.
+      Log format parsers are also provided by loadable modules, nxlog  will only use
+      parsers which are configured and required for its log processing.
+      For example if the log processing task does not deal with any syslog data,
+      then there is no need to load the syslog module at all.
+    </para>
+    <para>
+      Using regular expressions and string operation functions of the built-in nxlog
+      language, any data can be extracted from log messages and can be converted
+      to any format required.
+      It is possible to configure nxlog in such a way that it reads log messages in
+      one format then converts it internally to a different one and sends the output
+      to another destination enabling on-the-fly log conversion. For example it is
+      possible to convert Windows Event Log to syslog on a Windows host and send it
+      to a central syslog server.
+    </para>
+    <para>
+      By using log format parser functions, nxlog can handle multi-line log messages (such
+      as the Apache Tomcat log) or even custom binary formats.
+      A special nxlog message format can preserve the parsed fields of log messages and 
+      transfer these across the network or store in files which alleviates the need to
+      parse the messages again at the reception without loosing any information.
+    </para>
+   </section>
+
+   <section id="feature_processing">
+    <title>Advanced message processing capabilites</title>
+    <para>
+      In addition to the features provided by the above mentioned built-in nxlog language,
+      using additional modules nxlog is capable to solve all tasks related to log message
+      processing such as message classification, event correlation, pattern matching, 
+      message filtering, rewrite, conditional alerting etc.
+    </para>
+   </section>
+
+   <section id="features_offline_mode">
+    <title>Offline processing mode</title>
+    <para>
+      Sometimes messages need to be processed in an offline fashion, convert log files to
+      another format, filter out messages or load files into a database for log analysis 
+      purposes.
+      nxlog can also work in an offline mode when it processes log messages until there is
+      no more input and then exits, so it is possible to do batch processing tasks
+      with it as well.
+    </para>
+    <para>
+      It is an important factor that in offline mode the time of the event and the current
+      time are not the same and are not even close. Many log processing tools assume the
+      event time to be the current time, thus making offline processing impossible.
+      Due to network problems and buffering it is possible that log messages are not 
+      received instantly but with some delay. Making decisions based on event reception time 
+      instead of the timestamp provided in the message is a big mistake and can lead to
+      false alarms in event correlation engines for example.
+      By using the event time available in messages, nxlog can work properly in both offline
+      and online mode with log messages. This is escpecially important to be able to do proper
+      time based event correlation in real-time and in offline mode as well.
+    </para>
+   </section>
+
+   <section id="features_i18n">
+    <title>Character set and i18n support</title>
+    <para>
+      Log messages can be emitted in different languages and character sets. It is 
+      also a common problem that the messages use different character sets even for one 
+      language. For example Microsoft Windows systems use the UTF-16 character set,
+      other systems can create messages using the UTF-8 encoding. UTF-8 has become a 
+      standard on Unix systems, yet some legacy applications and system settings
+      create log messages using another codepage, for example latin-2 or ISO-8859-2 in
+      Eastern Europe or EUC-JP in Japan.
+    </para>
+    <para>
+      Comparing two strings in different character sets can likely fail.
+      Also some database engines only support storing text data in one character set only,
+      trying to insert text in a different character set can result in an error and
+      data loss.
+      It is a good practice to normalize logs to a common character set such as UTF-8
+      in order to overcome these problems.
+    </para>
+    <para>
+      nxlog supports explicit character set conversion from one character set to another.
+      In addition it can also detect the character set of a string and convert it to
+      a specific character set. Using charset autodetection, nxlog is capable of normalizing
+      log messages which can contain strings in mixed character sets even without knowing
+      the exact encoding of the source log message.
+    </para>
+   </section>
+
+  </section> <!-- end features -->
+
+</chapter>

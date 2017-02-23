@@ -1,0 +1,302 @@
+<fields>
+  <module>im_msvistalog</module>
+  <field>
+    <name>raw_event</name>
+    <type>string</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	Contains the EventTime, Hostname, Severity EventID and Message from the event.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Message</name>
+    <type>string</type>
+    <persist>FALSE</persist>
+    <lookup>FALSE</lookup>
+    <description>
+      <en>
+	Contains the message from the event.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>EventTime</name>
+    <type>datetime</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	Will be set to the EvtSystemTimeCreated field.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Hostname</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	Contains the EvtSystemComputer field.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>SourceName</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	The event source which produced the event, this is the EvtSystemProviderName field.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>EventID</name>
+    <type>integer</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	The event id as in EvtSystemEventID.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Task</name>
+    <type>integer</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	The task number as in EvtSystemTask.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Category</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	The category name resolved from Task.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Keywords</name>
+    <type>integer</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	The value of the Keywords field from EvtSystemKeywords.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Channel</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The Channel (e.g. Security, Application) of the event source.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>AccountName</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The username associated with the event.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>AccountType</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The type of the account. Possible values are: User, Group, Domain, Alias, Well Known Group, Deleted Account, Invalid, Unknown, Computer.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Domain</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The domain name of the user.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>UserID</name>
+    <type>string</type>
+    <persist>FALSE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The SID which resolves to AccountName, stored in EvtSystemUserID.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>SeverityValue</name>
+    <type>integer</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	Normalized severity number of the event.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Severity</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	Normalized severity name of the event (CRITICAL|ERROR|WARNING|INFO|DEBUG).
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>EventType</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The type of the event which is a string describing the severity.
+	This is translated to its string representation from EvtSystemLevel.
+	It takes the following values: "CRITICAL", "ERROR", "AUDIT_FAILURE", "AUDIT_SUCCESS", "INFO", "WARNING", "VERBOSE"
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>ProviderGuid</name>
+    <type>string</type>
+    <persist>FALSE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The GUI of the event's provider as stored in EvtSystemProviderGuid. This corresponds to the name of the provider stored in the SourceName field.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Version</name>
+    <type>integer</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	The Version number of the event as in EvtSystemVersion.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>OpcodeValue</name>
+    <type>integer</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	The Opcode number of the event as in EvtSystemOpcode.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Opcode</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	The opcode string resolved from OpcodeValue.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>ActivityID</name>
+    <type>string</type>
+    <persist>FALSE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The ActivityID as stored in EvtSystemActivityID.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>RelatedActivityID</name>
+    <type>string</type>
+    <persist>FALSE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The RelatedActivityID as stored in EvtSystemRelatedActivityID.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>ProcessID</name>
+    <type>integer</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	The process identifier of the event producer as in EvtSystemProcessID.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>ThreadID</name>
+    <type>integer</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	The thread identifier of the event producer as in EvtSystemThreadID.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>RecordNumber</name>
+    <type>integer</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	The number of the event record.
+      </en>
+    </description>
+  </field>
+
+</fields>

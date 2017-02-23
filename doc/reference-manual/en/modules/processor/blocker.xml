@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="pm_blocker">
+  <title>Blocker (pm_blocker)</title>
+  <para>
+    This module can block log messages and can be used to simulate when a route is blocked.
+    When the module blocks the data flow, log messages are first accumulated in the buffers,
+    and then the flow-control mechanism pauses the input modules.
+    Using the <link linkend="pm_blocker_proc_block">block()</link> procedure it is possibile
+    to programatically stop or resume the data flow. It can be useful for real-world scenarios
+    as well as testing. See the examples below.
+    When the module starts, the blocking mode is disabled by default, i.e. it operate
+    just like <link linkend="pm_null">pm_null</link> would.
+  </para>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../apidoc-pm_blocker.xml" />
+
+  <section id="pm_blocker_config_examples">
+    <title>Configuration examples</title>
+    <example>
+      <title>Using the pm_blocker module</title>
+      <para>
+	In this example we collect messages received over UDP and forward it to another host
+	via TCP. The log data is forwarded during non-working hours between 19 pm and 8 am.
+	During the other half of the day data is buffered on the disk to be sent out only after
+	19 pm.
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-pm_blocker.xml" />
+      </para>
+    </example>
+  </section>
+
+</section>

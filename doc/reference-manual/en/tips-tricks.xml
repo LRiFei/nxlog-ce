@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="tips">
+  <title>Tips and tricks</title>
+   <para>
+     This chapter addresses some common problems or log management requirements.
+   </para>
+   <section id="tips_no_logs">
+     <title>Detecting a dead agent or log source</title>
+     <para>
+       It is a common requirement to be able to detect conditions when there are no log
+       messages coming from a source. This usually indicates a problem with the log source,
+       such as a broken network connection, server down or an application/system service
+       is stuck.
+       Usually this problem should be detected by monitoring tools (nagios, openview etc),
+       but the absence of logs can be also a good reason to investigate such a situation.
+     </para>
+
+     <note>
+       <para>
+	 The <link linkend="im_mark">im_mark</link> module exists for a similar purpose.
+	 It can emit messages periodically in order to show that the system logger
+	 is not suffering problems.
+       </para>
+     </note>
+
+     <para>
+       The solution to this problem is the combined use of 
+       <link linkend="lang_stat">statistical counters</link> and
+       <link linkend="config_module_schedule">Scheduled</link> checks.
+       The input module can update a statistical counter configured to calculate
+       events per hour for example. In the same input module a 
+       <link linkend="config_module_schedule">Schedule</link> block is defined
+       which checks the value of the statistical counter periodically. 
+       When the event rate is zero or drops below a certain limit, an appropriate 
+       action can be <link linkend="config_module_schedule_exec">executed</link> such
+       as sending out an alert email or generating an internal warning message.
+       Note that probably there are other ways to solve this issue and this method
+       might not be the optimal for all situations.
+     </para>
+     <example>
+       <title>Alerting on absence of log messages</title>
+       <para>
+	 The following configuration example creates a statistical counter in the context of
+	 the im_tcp module to calculate the number of events received per hour.
+	 The <link linkend="config_module_schedule">Schedule</link> block within the
+	 context of the same module checks the value of the "msgrate" statistical counter
+	 and generates an internal error message when there were no logs received in the
+	 past hour.
+       </para>
+       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/config-example-detect_no_logs.xml"/>
+     </example>
+   </section>
+
+</chapter>

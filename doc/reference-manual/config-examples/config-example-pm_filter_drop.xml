@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programlisting><![CDATA[
+<Input file>
+    Module	im_file
+    File	"/var/log/myapp/*.log"
+    Exec 	if not ($raw_event =~ /failed/ or $raw_event =~ /error/) drop();
+</Input>
+
+<Output out>
+    Module	om_file
+    File	"/var/log/myapp/errors.txt"
+</Output>
+
+<Route 1>
+    Path file => => out
+</Route>
+]]></programlisting>

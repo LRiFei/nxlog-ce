@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programlisting><![CDATA[
+if $raw_event =~ /^Debug/ drop();
+]]></programlisting>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="om_file_funcproc"><title>Functions and procedures exported by om_file</title>
+
+<section id="om_file_functions"><title>Functions exported by om_file</title>
+  <variablelist>
+   <varlistentry>
+     <term>
+       <anchor id="om_file_func_file_name"/>
+       <function>string file_name();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Return the name of the file currently open which was specified using the
+       File directive.
+       Note that this will be the old name if the file name changes dynamically.
+       If you want the new name, use the expression you specified for the File
+       directive instead of usng this function.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_string">string</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="om_file_func_file_size"/>
+       <function>integer file_size();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Return the size of the currently open output file in bytes.
+       It will return undef if the file is not open. This can happend if
+       'File' is not a string literal expression and there was no log message.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_integer">integer</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+  </variablelist>
+</section>
+
+<section id="om_file_procedures"><title>Procedures exported by om_file</title>
+  <variablelist>
+   <varlistentry>
+     <term>
+       <anchor id="om_file_proc_rotate_to"/>
+       <function>rotate_to(string filename);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Rotate the current file to the filename specified. The module will then open
+       the original file specified with the 'File' directive. 
+       Note that the rename(2) system call is used internally which does not support 
+       moving files across different devices on some platforms. If this is a problem,
+       first rotate the file on the same device and then using the exec_async() procedure
+       of the xm_exec module you can copy it to another device or file system or 
+       use the file_copy() procedure call provided by the xm_fileop module.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>filename</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="om_file_proc_reopen"/>
+       <function>reopen();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Reopen the File. This function should be called if the file has been
+       removed or renamed e.g. with the file_cycle(), file_remove(), file_rename() functions
+       of the xm_file module.
+       This does not need to be called after rotate_to() because that reopens
+       the file automatically.
+     </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+  </variablelist>
+</section>
+</section>

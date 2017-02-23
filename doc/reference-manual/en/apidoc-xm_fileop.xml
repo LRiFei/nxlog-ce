@@ -1,0 +1,1184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="xm_fileop_funcproc"><title>Functions and procedures exported by xm_fileop</title>
+
+<section id="xm_fileop_functions"><title>Functions exported by xm_fileop</title>
+  <variablelist>
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_func_file_read"/>
+       <function>string file_read(string file);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Return the contents of the file as a string value.
+       On error undef is returned and an error is logged.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>file</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_string">string</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_func_file_exists"/>
+       <function>boolean file_exists(string file);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Return TRUE if the file exists and is a regular file.</simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>file</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_boolean">boolean</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_func_file_basename"/>
+       <function>string file_basename(string file);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Strip the directory name from the full file path. 
+       basename('/var/log/app.log') will return 'app.log'.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>file</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_string">string</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_func_file_dirname"/>
+       <function>string file_dirname(string file);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Return the directory name of the full file file path. 
+       basename('/var/log/app.log') will return '/var/log'.
+       Returns an empty string if 'file' does not contain any directory separators.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>file</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_string">string</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_func_file_mtime"/>
+       <function>datetime file_mtime(string file);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Return the last modification time of the file.
+       On error undef is returned and an error is logged.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>file</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_datetime">datetime</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_func_file_ctime"/>
+       <function>datetime file_ctime(string file);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Return the creation or inode-changed time of the file.
+       On error undef is returned and an error is logged.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>file</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_datetime">datetime</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_func_file_type"/>
+       <function>string file_type(string file);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Return the type of the file. The following string values can be returned:
+       FILE, DIR, CHAR, BLOCK, PIPE, LINK, SOCKET, UNKNOWN.
+       On error undef is returned and an error is logged.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>file</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_string">string</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_func_file_size"/>
+       <function>integer file_size(string file);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Return the size of the file.
+       On error undef is returned and an error is logged.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>file</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_integer">integer</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_func_file_inode"/>
+       <function>integer file_inode(string file);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Return the inode number of the file.
+       On error undef is returned and an error is logged.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>file</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_integer">integer</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_func_dir_temp_get"/>
+       <function>string dir_temp_get();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Return the name of a directory suitable as a temporary storage location.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_string">string</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_func_dir_exists"/>
+       <function>boolean dir_exists(string path);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Return TRUE if the 'path' exists and is a directory.
+       On error undef is returned and an error is logged.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>path</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_boolean">boolean</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+  </variablelist>
+</section>
+
+<section id="xm_fileop_procedures"><title>Procedures exported by xm_fileop</title>
+  <variablelist>
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_proc_file_cycle"/>
+       <function>file_cycle(string file);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Do a cyclic rotation on 'file'. 'file' will be moved to "'file'.1". If 
+       "'file'.1" already exists it will be moved to "'file'.2" and so on.
+       This procedure will reopen the LogFile if this is cycled.
+       An error is logged if the operation fails.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>file</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <function>file_cycle(string file, integer max);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Do a cyclic rotation on 'file'. 'file' will be moved to "'file'.1". If 
+       "'file'.1" already exists it will be moved to "'file'.2" and so on.
+       'max' specifies the maximum number of files to keep. E.g. if 'max' is 5, "'file'.6" 
+       will be deleted.
+       This procedure will reopen the LogFile if this is cycled.
+       An error is logged if the operation fails.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>file</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+            <varlistentry>
+             <term>max</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_integer">integer</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_proc_file_rename"/>
+       <function>file_rename(string old, string new);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Rename the file 'old' to 'new'. If the file 'new' exists, it will be overwritten.
+       Moving files or directories across devices may not be possible.
+       This procedure will reopen the LogFile if this is renamed.
+       An error is logged if the operation fails.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>old</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+            <varlistentry>
+             <term>new</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_proc_file_copy"/>
+       <function>file_copy(string src, string dst);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Copy the file 'src' to 'dst'. 
+       If file 'dst' already exists, its contents will be overwritten. 
+       An error is logged if the operation fails.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>src</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+            <varlistentry>
+             <term>dst</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_proc_file_remove"/>
+       <function>file_remove(string file);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Remove the file 'file'. It is possible to specify a wildcard in filenames 
+       (but not in the path). If you use backslash as the directory separator with wildcards,
+       make sure to escape this (e.g. 'C:\\test\\*.log').
+       This procedure will reopen the LogFile if this is removed.
+       An error is logged if the operation fails.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>file</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <function>file_remove(string file, datetime older);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Remove the file 'file' if its creation time is older than the value specified in 'older'.
+       It is possible to specify a wildcard in filenames (but not in the path).
+       If you use backslash as the directory separator with wildcards,
+       make sure to escape this (e.g. 'C:\\test\\*.log').
+       This procedure will reopen the LogFile if this is removed.
+       An error is logged if the operation fails.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>file</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+            <varlistentry>
+             <term>older</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_datetime">datetime</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_proc_file_link"/>
+       <function>file_link(string src, string dst);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Create a hardlink from 'src' to 'dst'.
+       An error is logged if the operation fails.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>src</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+            <varlistentry>
+             <term>dst</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_proc_file_append"/>
+       <function>file_append(string src, string dst);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Append the contents of the file 'src' to 'dst'. 'dst' will be created if it does
+       not exist.
+       An error is logged if the operation fails.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>src</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+            <varlistentry>
+             <term>dst</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_proc_file_write"/>
+       <function>file_write(string file, string value);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Write value into 'file'. 'file' will be created if it does not exist.
+       An error is logged if the operation fails.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>file</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+            <varlistentry>
+             <term>value</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_proc_file_truncate"/>
+       <function>file_truncate(string file);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Truncate the file to zero length. If 'file' does not exist, it will be created.
+       An error is logged if the operation fails.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>file</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <function>file_truncate(string file, integer offset);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Truncate the file to the size specified in 'offset'. If 'file' does not exist, it will be created.
+       An error is logged if the operation fails.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>file</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+            <varlistentry>
+             <term>offset</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_integer">integer</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_proc_file_chown"/>
+       <function>file_chown(string file, integer uid, integer gid);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Change file ownership. This function is only implemented on POSIX systems where chown() is 
+       available in the underlying OS.
+       An error is logged if the operation fails.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>file</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+            <varlistentry>
+             <term>uid</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_integer">integer</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+            <varlistentry>
+             <term>gid</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_integer">integer</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <function>file_chown(string file, string user, string group);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Change file ownership. This function is only implemented on POSIX systems where chown() is 
+       available in the underlying OS.
+       An error is logged if the operation fails.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>file</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+            <varlistentry>
+             <term>user</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+            <varlistentry>
+             <term>group</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_proc_file_chmod"/>
+       <function>file_chmod(string file, integer mode);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Change file permission. This function is only implemented on POSIX systems where chmod() is 
+       available in the underlying OS.
+       An error is logged if the operation fails.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>file</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+            <varlistentry>
+             <term>mode</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_integer">integer</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_proc_file_touch"/>
+       <function>file_touch(string file);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Update the last modification time of 'file' or create it if 'file' does not exist.
+       An error is logged if the operation fails.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>file</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_proc_dir_make"/>
+       <function>dir_make(string path);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Create a directory recursively (i.e. as 'mkdir -p').
+       It succeeds if the directory already exists.
+       An error is logged if the operation fails.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>path</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_fileop_proc_dir_remove"/>
+       <function>dir_remove(string file);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Remove the directory from the filesystem.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>file</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+  </variablelist>
+</section>
+</section>

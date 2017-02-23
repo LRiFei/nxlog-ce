@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programlisting><![CDATA[
+# drop privileges after being started as root
+User nxlog
+Group nxlog
+
+<Input kern>
+    Module      im_kernel
+</Input>
+
+<Output fileout>
+    Module      om_file
+    File        "tmp/output"
+</Output>
+
+<Route 1>
+    Path        kern => fileout
+</Route>
+]]></programlisting>

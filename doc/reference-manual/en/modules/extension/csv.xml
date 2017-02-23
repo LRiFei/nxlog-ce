@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="xm_csv">
+  <title>CSV (xm_csv)</title>
+  <para>
+    This module provides functions and procedures to process data formatted as
+    comma separated values (CSV) and allows to convert to CSV and parse CSV into
+    <link linkend="lang_fields">fields</link>.
+  </para>
+  <para>
+    The <link linkend="pm_transformer">pm_transformer</link> module also provides a simple
+    interface to parse and generate CSV lines, but with the API this xm_csv module exports
+    to the nxlog language, it is possible to solve a lot more complex tasks involving CSV
+    formatted data.
+  </para>
+  <note>
+    <para>
+      It is possible to use more than one xm_csv module instance with different options in order
+      to support different CSV formats at the same time.
+      For this reason, functions and procedures exported by the module are public and 
+      must be referenced by the module instance name.
+    </para>
+  </note>
+
+  <section id="xm_csv_config">
+    <title>Configuration</title>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the xm_csv module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="xm_csv_config_quotechar"/>QuoteChar</term>
+	  <listitem>
+	    <para>
+	      This optional directive takes a single character 
+	      (see <link linkend="xm_csv_config_char">below</link>)
+	      as argument to specify the quote 
+	      character used to enclose fields.
+	      If <link linkend="xm_csv_config_quoteoptional">QuoteOptional</link> is
+	      TRUE, then only <link linkend="lang_type_string">string</link> type fields
+	      are quoted.
+	      If this directive is not specified, the default quote character is the double-quote
+	      character (&quot;).
+  	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="xm_csv_config_escapechar"/>EscapeChar</term>
+	  <listitem>
+	    <para>
+	      This optional directive takes a single character 
+	      (see <link linkend="xm_csv_config_char">below</link>)
+	      as argument to specify the escape 
+	      character used to escape special characters.
+	      The escape character is used to prefix the following characters:
+	      the escape character itself,
+	      the <link linkend="xm_csv_config_quotechar">quote character</link> and
+	      the <link linkend="xm_csv_config_delimiter">delimiter character</link>.
+	      If <link linkend="xm_csv_config_escapecontrol">EscapeControl</link> is TRUE,
+	      the \n, \r, \t, \b (newline, carriage-return, tab, backspace) control characters
+	      are also escaped.
+	      If this directive is not specified, the default escape character is the backslash
+	      character (\).
+  	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="xm_csv_config_delimiter"/>Delimiter</term>
+	  <listitem>
+	    <para>
+	      This optional directive takes a single character 
+	      (see <link linkend="xm_csv_config_char">below</link>)
+	      as argument to specify the
+	      delimiter character used to separate fields.
+	      If this directive is not specified, the default escape character is the comma
+	      character (,).
+	      Note that there is no delimiter after the last field.
+  	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="xm_csv_config_quoteoptional"/>QuoteOptional</term>
+	  <listitem>
+	    <para>
+	      This directive has been deprecated in favor of
+	      <link linkend="xm_csv_config_quotemethod">QuoteMethod</link>, please use
+	      that instead.
+  	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="xm_csv_config_quotemethod"/>QuoteMethod</term>
+	  <listitem>
+	    <para>
+	      This optional directive can take the following values:
+	      <variablelist>
+		<varlistentry>
+		  <term>String</term>
+		  <listitem>
+		    <para>
+		      Only <link linkend="lang_type_string">string</link> type fields will be quoted.
+		      Has the same effect as <link linkend="xm_csv_config_quoteoptional">QuoteOptional</link>
+		      set to <replaceable>TRUE</replaceable>. This is the default behavior if the
+		      QuoteMethod directive is not specified.
+  		    </para>
+		  </listitem>
+		</varlistentry>
+		<varlistentry>
+		  <term>All</term>
+		  <listitem>
+		    <para>
+		      All fields will be quoted.
+  		    </para>
+		  </listitem>
+		</varlistentry>
+		<varlistentry>
+		  <term>None</term>
+		  <listitem>
+		    <para>
+		      Nothing will be quoted. This can be problematic if the field value (typically 
+		      text that can contain any character) can contain the delimiter character.
+		      Make sure that this is escaped or replaced with something else.
+  		    </para>
+		  </listitem>
+		</varlistentry>
+	      </variablelist>
+
+	      Note that this directive only effects CSV generation when using
+	      <link linkend="xm_csv_func_to_csv">to_csv()</link>.
+	      The CSV parser can automatically detect the quotation.
+  	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="xm_csv_config_escapecontrol"/>EscapeControl</term>
+	  <listitem>
+	    <para>
+	      If this optional boolean directive is set to TRUE, control characters
+	      are also escaped. 
+	      See the <link linkend="xm_csv_config_escapechar">EscapeChar</link>
+	      directive for details.
+	      If this directive is not specified, control characters are escaped by default.
+	      Note that this is necessary in order to allow single line CSV field lists
+	      which contain line-breaks.
+  	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="xm_csv_config_fields"/>Fields</term>
+	  <listitem>
+	    <para>
+	      This is a comma separated list of fields which will be filled from the input
+	      parsed. Field names with or without the dollar sign "$" are also accepted.
+	      This directive is mandatory.
+	      The fields will be stored as <link linkend="lang_type_string">strings</link>
+	      by default unless their type is explicitely specified with the
+	      <link linkend="xm_csv_config_fieldtypes">FieldTypes</link> directive.
+  	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="xm_csv_config_fieldtypes"/>FieldTypes</term>
+	  <listitem>
+	    <para>
+	      This optional directive specifies the list of types corresponding to the
+	      field names defined in <link linkend="xm_csv_config_fields">Fields</link>.
+	      If specified, the number of types must match the number of field names specified
+	      with <link linkend="xm_csv_config_fields">Fields</link>.
+	      If this directive is omitted, all fields will be stored as 
+	      <link linkend="lang_type_string">strings</link>.
+	      This directive has no effect on the fields-to-csv conversion.
+  	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="xm_csv_config_undefvalue"/>UndefValue</term>
+	  <listitem>
+	    <para>
+	      This optional directive specifies a string which will be treated as an undefined value.
+	      This is particularly useful when <link linkend="processing_parsers_w3c">parsing the W3C format</link> where
+	      the dash "-" marks an omitted field.
+  	    </para>
+	  </listitem>
+	</varlistentry>
+
+      </variablelist>
+    </para>
+    
+    <section id="xm_csv_config_char">
+      <title>Specifying characters for quote, escape and delimiter</title>
+      <para>
+	The <link linkend="xm_csv_config_quotechar">QuoteChar</link>, 
+	<link linkend="xm_csv_config_escapechar">EscapeChar</link> and
+	<link linkend="xm_csv_config_delimiter">Delimiter</link> can be specified in different ways, 
+	mainly due to the nature of the config file format.
+	As of this writing, the module does not support multi character strings for these parameters.
+	<variablelist>
+	  <varlistentry>
+	    <term><anchor id="xm_csv_config_char_single"/>Unquoted single character</term>
+	    <listitem>
+	      <para>
+		Printable characters can be specified as an unquoted character,
+		except for the backslash '\'. Example:
+		<programlisting><![CDATA[Delimiter ;]]></programlisting>
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><anchor id="xm_csv_config_char_control"/>Control characters</term>
+	    <listitem>
+	      <para>
+		The following non-printable characters can be specified with escape sequences:
+		<variablelist>
+		  <varlistentry>
+		    <term>\a</term>
+		    <listitem>
+		      <simpara>
+			audible alert (bell)
+  		      </simpara>
+		    </listitem>
+		  </varlistentry>
+		  <varlistentry>
+		    <term>\b</term>
+		    <listitem>
+		      <simpara>
+			backspace
+  		      </simpara>
+		    </listitem>
+		  </varlistentry>
+		  <varlistentry>
+		    <term>\t</term>
+		    <listitem>
+		      <simpara>
+			horizontal tab
+  		      </simpara>
+		    </listitem>
+		  </varlistentry>
+		  <varlistentry>
+		    <term>\n</term>
+		    <listitem>
+		      <simpara>
+			newline
+  		      </simpara>
+		    </listitem>
+		  </varlistentry>
+		  <varlistentry>
+		    <term>\v</term>
+		    <listitem>
+		      <simpara>
+			vertical tab
+  		      </simpara>
+		    </listitem>
+		  </varlistentry>
+		  <varlistentry>
+		    <term>\f</term>
+		    <listitem>
+		      <simpara>
+			formfeed
+  		      </simpara>
+		    </listitem>
+		  </varlistentry>
+		  <varlistentry>
+		    <term>\r</term>
+		    <listitem>
+		      <simpara>
+			carriage return
+  		      </simpara>
+		    </listitem>
+		  </varlistentry>
+		</variablelist>
+		To use TAB delimiting:
+		<programlisting><![CDATA[Delimiter \t]]></programlisting>
+  	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><anchor id="xm_csv_config_char_single_quote"/>A character in single quotes</term>
+	    <listitem>
+	      <para>
+		The config parser strips whitespace, so it is not possible to define space as
+		the delimiter unless it is enclosed within quotes:
+		<programlisting><![CDATA[Delimiter ' ']]></programlisting>
+		Printable characters can also be enclosed:
+		<programlisting><![CDATA[Delimiter ';']]></programlisting>
+		The backslash can be specified when enclosed within quotes:
+		<programlisting><![CDATA[Delimiter '\']]></programlisting>
+  	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><anchor id="xm_csv_config_char_double_quote"/>A character in double quotes</term>
+	    <listitem>
+	      <para>
+		Double quotes can be used similarly to single quotes:
+		<programlisting><![CDATA[Delimiter " "]]></programlisting>
+		The backslash can be specified when enclosed within double quotes:
+		<programlisting><![CDATA[Delimiter "\"]]></programlisting>
+  	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+	
+      </para>
+    </section>
+
+  </section>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../apidoc-xm_csv.xml" />
+
+  <section id="xm_csv_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example id="xm_csv_example1">
+	<title>Complex CSV format conversion</title>
+	<para>
+	  This example illustrates the power of nxlog and the xm_csv module.
+	  It shows that not only can the module parse and create CSV formatted input and
+	  output, but using multiple xm_csv modules it is possible to reorder, add, remove or
+	  modify fields and output these in a different CSV format.
+	</para>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_csv.xml" />
+	<para>
+	  Samples for the input and output files processed by the above config are shown below.
+	  <programlisting><![CDATA[1, "John K.", 42
+2, "Joe F.", 43]]>
+</programlisting>
+	  <programlisting><![CDATA[1;42;"John K.";2011-01-15 23:45:20
+2;43;"Joe F.";2011-01-15 23:45:20]]>
+</programlisting>
+	</para>
+      </example>
+    </para>
+  </section>
+
+</section>

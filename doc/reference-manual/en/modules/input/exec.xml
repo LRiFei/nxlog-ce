@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="im_exec">
+  <title>Program (im_exec)</title>
+  <para>
+    This module will execute a program or script on startup and will read its standard
+    output.
+    It can be used to easily integrate with exotic log sources which can be read only with the
+    help of scripts or programs.
+  </para>
+
+  <section id="im_exec_config">
+    <title>Configuration</title>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the im_exec module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="im_exec_config_command"/>Command</term>
+	  <listitem>
+	    <simpara>
+	      This directive is mandatory. It specifies the name of the script/program
+	      to be executed.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><anchor id="im_exec_config_arg"/>Arg</term>
+	  <listitem>
+	    <simpara>
+	      This is an optional parameter, multiple can be specified for each
+	      argument needed to pass to the 
+	      <link linkend="im_exec_config_command">Command</link>.
+	      Note that specifying multiple arguments with one Arg directive separated with
+	      spaces will not work because the Command will receive it as one argument,
+	      so you will need to split them up.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><anchor id="im_exec_config_inputtype"/>InputType</term>
+	  <listitem>
+	    <simpara>
+	      See the description about <link linkend="config_inputtype">InputType</link>
+	      in the global module config section.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><anchor id="im_exec_config_restart"/>Restart</term>
+	  <listitem>
+	    <simpara>
+	      Restart the process if it exits. There is a 1 second delay before it is restarted
+	      in order not to DOS the system when a process is not behaving nicely.
+	      Looping should be implemented in the script itself, this directive is only to
+	      provide some safety against malfunctioning scripts and programs.
+	      This boolean directive defaults to FALSE.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
+
+  <section id="im_exec_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Emulating im_file</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-im_exec.xml" />
+      </example>
+      This exact same configuration is not recommended for real use because
+      <link linkend="im_file">im_file</link> was designed to read log messages from files.
+      This example only demonstrates the use of the im_exec module.
+    </para>
+  </section>
+
+</section>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programlisting><![CDATA[
+if $raw_event =~ /^(\d+-\d+-\d+\t\d+:\d+:\d+) GMT/ {
+    $EventTime = strptime($1, '%Y-%m-%d%t%H:%M:%S');
+}
+]]></programlisting>

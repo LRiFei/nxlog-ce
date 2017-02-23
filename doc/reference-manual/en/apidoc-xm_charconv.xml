@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="xm_charconv_funcproc"><title>Functions and procedures exported by xm_charconv</title>
+
+<section id="xm_charconv_functions"><title>Functions exported by xm_charconv</title>
+  <variablelist>
+   <varlistentry>
+     <term>
+       <anchor id="xm_charconv_func_convert"/>
+       <function>string convert(string source, string srcencoding, string dstencoding);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       This function converts the source string to the encoding specified in 'dstencoding' from
+       'srcencoding'. 'srcencoding' can be 'auto' to request auto detection.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>source</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+            <varlistentry>
+             <term>srcencoding</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+            <varlistentry>
+             <term>dstencoding</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_string">string</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+  </variablelist>
+</section>
+
+<section id="xm_charconv_procedures"><title>Procedures exported by xm_charconv</title>
+  <variablelist>
+   <varlistentry>
+     <term>
+       <anchor id="xm_charconv_proc_convert_fields"/>
+       <function>convert_fields(string srcencoding, string dstencoding);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Convert all string type fields of a log message from 'srcencoding' to 'dstencoding'.
+       'srcencoding' can be "auto" to request auto detection.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>srcencoding</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+            <varlistentry>
+             <term>dstencoding</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+  </variablelist>
+</section>
+</section>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programlisting><![CDATA[
+Moduledir ../../../src/modules
+Pidfile ../../../tmp/nxlog.pid
+Cachedir ../../../test/tmp
+LogLevel info
+define CERTDIR ../../../test/cert
+define CONFDIR /tmp
+]]></programlisting>

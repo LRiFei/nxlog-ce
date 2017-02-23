@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="xm_xml">
+  <title>XML (xm_xml)</title>
+  <para>
+    This module provides functions and procedures to process data formatted as
+    Extensible Markup Language (XML) and allows to convert to XML and parse XML into
+    <link linkend="lang_fields">fields</link>.
+  </para>
+
+  <section id="xm_xml_config">
+    <title>Configuration</title>
+    <para>
+      The module does not have any module specific configuration directives.
+    </para>
+  </section>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../apidoc-xm_xml.xml" />
+
+  <section id="xm_xml_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example id="xm_xml_example1">
+	<title>Syslog to XML format conversion</title>
+	<para>
+	  The following configuration accepts Syslog (both legacy and RFC5424) and converts it to XML.
+	</para>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-syslog2xml.xml" />
+	<para>
+	  A sample is shown for the input and its corresponding output:
+	  <programlisting><![CDATA[<30>Sep 30 15:45:43 host44.localdomain.hu acpid: 1 client rule loaded]]>
+	  </programlisting>
+	  <programlisting><![CDATA[<Event><MessageSourceAddress>127.0.0.1</MessageSourceAddress><EventReceivedTime>2012-03-08 15:05:39</EventReceivedTime>\
+<SyslogFacilityValue>3</SyslogFacilityValue><SyslogFacility>DAEMON</SyslogFacility><SyslogSeverityValue>6</SyslogSeverityValue>\
+<SyslogSeverity>INFO</SyslogSeverity><SeverityValue>2</SeverityValue><Severity>INFO</Severity><Hostname>host44.localdomain.hu</Hostname>\
+<EventTime>2012-09-30 15:45:43</EventTime><SourceName>acpid</SourceName><Message>1 client rule loaded</Message></Event>]]>
+	  </programlisting>
+	</para>
+      </example>
+
+      <example id="xm_xml_example2">
+	<title>Converting Windows EventLog to Syslog encapsulated XML</title>
+	<para>
+	  The following configuration reads the Windows EventLog and converts it into the legacy syslog
+	  format where the message part contains the fields in XML.
+	</para>
+	  <programlisting><![CDATA[
+<Extension syslog>
+    Module      xm_syslog
+</Extension>
+
+<Extension xml>
+    Module      xm_xml
+</Extension>
+
+<Input in>
+    Module      im_msvistalog
+    Exec        $Message = to_xml(); to_syslog_bsd();
+</Input>
+
+<Output out>
+    Module      om_tcp
+    Host        192.168.1.1
+    Port        1514
+</Output>
+
+
+<Route r>
+    Path        in => out
+</Route>
+]]>
+</programlisting>
+
+	<para>
+	  A sample output is shown:
+	  <programlisting><![CDATA[<14>Mar  8 15:12:12 WIN-OUNNPISDHIG Service_Control_Manager: <Event><EventTime>2012-03-08 15:12:12</EventTime>\
+<EventTimeWritten>2012-03-08 15:12:12</EventTimeWritten><Hostname>WIN-OUNNPISDHIG</Hostname><EventType>INFO</EventType>\
+<SeverityValue>2</SeverityValue><Severity>INFO</Severity><SourceName>Service Control Manager</SourceName>\
+<FileName>System</FileName><EventID>7036</EventID><CategoryNumber>0</CategoryNumber><RecordNumber>6791</RecordNumber>\
+<Message>The nxlog service entered the running state. </Message><EventReceivedTime>2012-03-08 15:12:14</EventReceivedTime></Event>]]>
+</programlisting>
+	</para>
+      </example>    </para>
+  </section>
+
+</section>

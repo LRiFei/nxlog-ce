@@ -1,0 +1,166 @@
+<?iml version="1.0" encoding="UTF-8"?>
+<section id="im_ssl">
+  <title>TLS/SSL (im_ssl)</title>
+  <para>
+    The im_ssl module provides an SSL/TLS transport using the OpenSSL library beneath the
+    surface. It behaves similarly to the <link linkend="im_tcp">im_tcp</link> module,
+    except that an SSL handshake is performed at connection time and the data is sent over a
+    secure channel.
+    Because log messages transferred over plain TCP can be eavasdropped or even altered with a 
+    man-in-the-middle attack, using the im_ssl module provides a secure log message transport.
+  </para>
+
+  <section id="im_ssl_config">
+    <title>Configuration</title>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the im_ssl module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="im_ssl_config_host"/>Host</term>
+	  <listitem>
+	    <simpara>
+	      This specifies the IP address or a dns hostname which the module should 
+	      listen on to accept connections.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="im_ssl_config_port"/>Port</term>
+	  <listitem>
+	    <simpara>
+	      This specifies the port number which the module will listen on for
+	      incoming conenctions.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="im_ssl_config_certfile"/>CertFile</term>
+	  <listitem>
+	    <simpara>
+	      This specifies the path of the certificate file to be used in
+	      the SSL handshake.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="im_ssl_config_certkeyfile"/>CertKeyFile</term>
+	  <listitem>
+	    <simpara>
+	      This specifies the path of the certificate key file to be used in
+	      the SSL handshake.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="im_ssl_config_keypass"/>KeyPass</term>
+	  <listitem>
+	    <simpara>
+	      Optional password of the certificate key file defined in 
+ 	      <link linkend="im_ssl_config_certkeyfile">CertKeyFile</link>.
+	      For passwordless private keys the directive is not needed.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="im_ssl_config_cafile"/>CAFile</term>
+	  <listitem>
+	    <simpara>
+	      This specifies the path of the certificate of the CA which
+	      will be used to check the certificate of the remote socket against.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="im_ssl_config_cadir"/>CADir</term>
+	  <listitem>
+	    <simpara>
+	      This specifies the path of CA certificates which will be 
+	      used to check the certificate of the remote socket against.
+	      The cert file names in this directory must be in the OpenSSL hashed format.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="im_ssl_config_crlfile"/>CRLFile</term>
+	  <listitem>
+	    <simpara>
+	      This specifies the path of the certificate revocation list (CRL) which
+	      will be used to check the certificate of the remote socket against.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="im_ssl_config_crldir"/>CRLDir</term>
+	  <listitem>
+	    <simpara>
+	      This specifies the path of certificate revocation lists (CRLs) which will be
+	      used to check the certificate of the remote socket against.
+	      The file names in this directory must be in the OpenSSL hashed format.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="im_ssl_config_requirecert"/>RequireCert</term>
+	  <listitem>
+	    <simpara>
+	      This takes a boolean value of TRUE or FALSE and specifies whether
+	      the remote must present a certificate.
+	      If set to TRUE and there is no certificate presented during the handshake 
+	      of the accepted connection, the connection will be refused.
+	      The default value is TRUE if this directive is not specified, meaning that
+	      all connections must use a certificate by default.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="im_ssl_config_allowuntrusted"/>AllowUntrusted</term>
+	  <listitem>
+	    <simpara>
+	      This takes a boolean value of TRUE or FALSE and specifies whether
+	      the remote connection should be allowed without certificate verification.
+
+	      If set to TRUE the remote will be able to connect with unknown and self-signed
+	      certificates.
+	      The default value is FALSE if this directive is not specified, meaning that
+	      all connections must present a trusted certificate by default.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="im_ssl_config_inputtype"/>InputType</term>
+	  <listitem>
+	    <simpara>
+	      See the description about <link linkend="config_inputtype">InputType</link>
+	      in the global module config section.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../fields-im_ssl.xml" />
+
+  <section id="im_ssl_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Reading binary data forwarded from another nxlog agent</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-im_ssl.xml" />
+      </example>
+    </para>
+  </section>
+
+</section>

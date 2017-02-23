@@ -1,0 +1,1 @@
+if not $success log_error("failure");

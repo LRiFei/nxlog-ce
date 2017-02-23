@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programlisting><![CDATA[
+if defined 1 log_info("1");
+if defined(2) log_info("2");
+if defined undef log_info("never printed");
+]]></programlisting>

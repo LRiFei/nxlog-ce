@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="xm_multiline_funcproc"><title>Functions and procedures exported by xm_multiline</title>
+
+<section id="xm_multiline_functions"><title>Functions exported by xm_multiline</title>
+  <variablelist>
+   <varlistentry>
+     <term>
+       <anchor id="xm_multiline_func_process_multiline"/>
+       <function>boolean process_multiline();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Process multiline logs</simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_boolean">boolean</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <function>boolean process_multiline(string line);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Process multiline logs</simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>line</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_boolean">boolean</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+  </variablelist>
+</section>
+
+<section id="xm_multiline_procedures"><title>Procedures exported by xm_multiline</title>
+  <variablelist>
+   <varlistentry>
+     <term>
+       <anchor id="xm_multiline_proc_process_multiline"/>
+       <function>process_multiline();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Process multiline logs</simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <function>process_multiline(string line);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Process multiline logs</simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>line</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+  </variablelist>
+</section>
+</section>

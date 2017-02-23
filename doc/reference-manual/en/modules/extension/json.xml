@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="xm_json">
+  <title>JSON (xm_json)</title>
+  <para>
+    This module provides functions and procedures to process data formatted as
+    <ulink url="http://json.org">JSON</ulink> and allows to convert to JSON and parse JSON into
+    <link linkend="lang_fields">fields</link>.
+  </para>
+
+  <section id="xm_json_config">
+    <title>Configuration</title>
+    <para>
+      The module does not have any module specific configuration directives.
+    </para>
+  </section>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../apidoc-xm_json.xml" />
+
+  <section id="xm_json_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example id="xm_json_example1">
+	<title>Syslog to JSON format conversion</title>
+	<para>
+	  The following configuration accepts syslog (both legacy and RFC5424) and converts it to JSON.
+	</para>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-syslog2json.xml" />
+	<para>
+	  A sample is shown for the input and its corresponding output:
+	  <programlisting><![CDATA[<30>Sep 30 15:45:43 host44.localdomain.hu acpid: 1 client rule loaded]]>
+	  </programlisting>
+	  <programlisting><![CDATA[{"MessageSourceAddress":"127.0.0.1","EventReceivedTime":"2011-03-08 14:22:41","SyslogFacilityValue":1,\
+"SyslogFacility":"DAEMON","SyslogSeverityValue":5,"SyslogSeverity":"INFO","SeverityValue":2,"Severity":"INFO",\
+"Hostname":"host44.localdomain.hu","EventTime":"2011-09-30 14:45:43","SourceName":"acpid","Message":"1 client rule loaded "}]]>
+	  </programlisting>
+	</para>
+      </example>
+
+      <example id="xm_json_example2">
+	<title>Converting Windows EventLog to Syslog encapsulated JSON</title>
+	<para>
+	  The following configuration reads the Windows EventLog and converts it into the legacy syslog
+	  format where the message part contains the fields in JSON.
+	</para>
+	  <programlisting><![CDATA[
+<Extension syslog>
+    Module      xm_syslog
+</Extension>
+
+<Extension json>
+    Module      xm_json
+</Extension>
+
+<Input in>
+    Module      im_msvistalog
+    Exec        $Message = to_json(); to_syslog_bsd();
+</Input>
+
+<Output out>
+    Module      om_tcp
+    Host        192.168.1.1
+    Port        1514
+</Output>
+
+
+<Route r>
+    Path        in => out
+</Route>
+]]>
+</programlisting>
+
+	<para>
+	  A sample output is shown:
+	  <programlisting><![CDATA[<14>Mar  8 14:40:11 WIN-OUNNPISDHIG Service_Control_Manager: {"EventTime":"2012-03-08 14:40:11","EventTimeWritten":"2012-03-08 14:40:11",\
+"Hostname":"WIN-OUNNPISDHIG","EventType":"INFO","SeverityValue":2,"Severity":"INFO","SourceName":"Service Control Manager",\
+"FileName":"System","EventID":7036,"CategoryNumber":0,"RecordNumber":6788,"Message":"The nxlog service entered the running state. ",\
+"EventReceivedTime":"2012-03-08 14:40:12"}]]>
+</programlisting>
+	</para>
+      </example>
+    </para>
+  </section>
+
+</section>

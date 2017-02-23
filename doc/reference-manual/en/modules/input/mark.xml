@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="im_mark">
+  <title>Mark (im_mark)</title>
+  <para>
+    Mark messages are used to indicate periodic activity in order to be assured that
+    the logger is running in case there are no log messages coming in from other sources.
+  </para>
+  <para>
+    By default, without specifying any of the module specific directives, a log message
+    is emitted every 30 minutes containing "-- MARK --".
+  </para>
+  <note>
+    <para>
+      If you require mark messages in syslog format, you need to explicitely convert them
+      with <link linkend="pm_transformer">pm_transformer</link> or using the
+      <link linkend="xm_syslog_proc_to_syslog_bsd">to_syslog_bsd()</link> procedure of
+      the <link linkend="xm_syslog">xm_syslog</link> module, because the 
+      <link linkend="im_mark_field_raw_event">$raw_event</link> field is not generated in
+      syslog format.
+    </para>
+  </note>
+
+  <note>
+    <para>
+      The functionality of the im_mark module can be also achieved using the
+      <link linkend="config_module_schedule">Schedule</link> block with a
+      <link linkend="core_proc_log_info">log_info("--MARK--")</link> Exec statement which would
+      insert the messages via the <link linkend="im_internal">im_internal</link>
+      module into a route.
+      Using a single module for this task can simplify and possibly make the configuration
+      easier to understand. Just wanted to point out that 
+      "there is more than one way to do it" :)
+    </para>
+  </note>
+
+  <section id="im_mark_config">
+    <title>Configuration</title>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the im_mark module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="im_mark_config_mark"/>Mark</term>
+	  <listitem>
+	    <simpara>
+	      This optional directive can set the string for the mark message.
+	      If not specified, the default is "-- MARK --".
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><anchor id="im_mark_config_markinterval"/>MarkInterval</term>
+	  <listitem>
+	    <simpara>
+	      This optional directive sets the interval for mark messages in minutes.
+	      If not specified, the default value of 30 minutes is used.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../fields-im_mark.xml" />
+
+  <section id="im_mark_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Using the im_mark module</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-im_mark.xml" />
+      </example>
+    </para>
+  </section>
+
+</section>

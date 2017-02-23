@@ -1,0 +1,82 @@
+<fields>
+  <module>im_mark</module>
+  <field>
+    <name>raw_event</name>
+    <type>string</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	Will be set to "-- MARK --" or the value defined with the 
+	Mark configuration directive.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Message</name>
+    <type>string</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	Set to the same value as $raw_event.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>SeverityValue</name>
+    <type>integer</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	Its value will be set to 6 which is the "info" severity level.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Severity</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The severity name of the event.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>EventTime</name>
+    <type>datetime</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	Will be set to the current time.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>SourceName</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	Will be set to 'nxlog'.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>ProcessID</name>
+    <type>integer</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	The field is filled with the process id of the nxlog process.
+      </en>
+    </description>
+  </field>
+
+</fields>

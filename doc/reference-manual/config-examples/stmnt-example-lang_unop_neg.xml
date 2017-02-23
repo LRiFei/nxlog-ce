@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programlisting><![CDATA[
+#FIXME
+#if - -1 != 1 log_error("this should never be printed");
+log_info("FIXME");
+]]></programlisting>

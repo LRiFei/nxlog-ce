@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="im_uds">
+  <title>Unix Domain Socket (im_uds)</title>
+  <para>
+    This module allows log messages to be received over a unix domain socket.
+    Traditionally unix systems have a socket, typically /dev/log used by the system
+    logger to accept messages from. Applications wishing to send messages to the system log
+    use the syslog(3) system call.
+  </para>
+
+  <note>
+    <para>
+      This module supports SOCK_DGRAM type sockets only. SOCK_STREAM type sockets may be supported
+      in the future.
+    </para>
+  </note>
+
+  <note>
+    <para>
+      It is recommended to disable <link linkend="config_module_flowcontrol">FlowControl</link>
+      when this module is used to collect local syslog from the <filename>/dev/log</filename>
+      unix domain socket. Otherwise the syslog() system call will block in all programs which
+      are trying to write to the system log if the Output queue becomes full and this will result
+      in an unresponsive system.
+    </para>
+  </note>
+
+  <para>
+    For parsing syslog messages, take a look at the
+    <link linkend="pm_transformer">pm_transformer</link> module or the
+    <link linkend="xm_syslog_proc_to_syslog_bsd">parse_syslog_bsd()</link> procedure of
+    the <link linkend="xm_syslog">xm_syslog</link>.
+  </para>
+
+  <section id="im_uds_config">
+    <title>Configuration</title>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the im_uds module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="im_uds_config_uds"/>UDS</term>
+	  <listitem>
+	    <simpara>
+	      This specifies the path of the unix domain socket.
+	      The default is /dev/log if this is not specified.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="im_uds_config_inputtype"/>InputType</term>
+	  <listitem>
+	    <simpara>
+	      See the description about <link linkend="config_inputtype">InputType</link>
+	      in the global module config section.
+	      This defaults to <replaceable>dgram</replaceable> if not specified because
+	      unix domain sockets are SOCK_DGRAM type on Linux and the module does not yet support
+	      SOCK_STREAM sockets.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
+
+  <section id="im_uds_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Using the im_uds module</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-im_uds.xml" />
+      </example>
+    </para>
+  </section>
+
+</section>

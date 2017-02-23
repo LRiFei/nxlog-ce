@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programlisting><![CDATA[
+<Extension json>
+    Module      xm_json
+</Extension>
+
+<Extension syslog>
+    Module      xm_syslog
+</Extension>
+
+<Extension kvp>
+    Module      xm_kvp
+    KVDelimiter =
+    KVPDelimiter ,
+</Extension>
+
+<Input in>
+    Module	im_file
+    SavePos     FALSE
+    ReadFromLast FALSE
+    File        "modules/extension/kvp/cisco_acs.in"
+    Exec	parse_syslog_bsd();
+    Exec	if ( $Message =~ /^CisACS_(\d\d)_(\S+) (\S+) (\d+) (\d+) (.*)$/ ) \
+                { \
+                   $ACSCategoryNumber = $1; \
+                   $ACSCategoryName = $2; \
+                   $ACSMessageId = $3; \
+                   $ACSTotalSegments = $4; \
+                   $ACSSegmentNumber = $5; \
+                   $Message = $6; \
+                   kvp->parse_kvp($Message); \
+                } \
+                else log_warning("does not match: " + to_json());   
+</Input>
+
+<Output out>
+    Module	om_file
+    File	"tmp/output"
+    Exec	delete($EventReceivedTime);
+    Exec	to_json();
+</Output>
+
+<Route 1>
+    Path	in => out
+</Route>
+
+]]></programlisting>

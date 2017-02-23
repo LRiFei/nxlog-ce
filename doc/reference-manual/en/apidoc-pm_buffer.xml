@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="pm_buffer_funcproc"><title>Functions and procedures exported by pm_buffer</title>
+
+<section id="pm_buffer_functions"><title>Functions exported by pm_buffer</title>
+  <variablelist>
+   <varlistentry>
+     <term>
+       <anchor id="pm_buffer_func_buffer_size"/>
+       <function>integer buffer_size();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Return the size of the memory buffer in bytes.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_integer">integer</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="pm_buffer_func_buffer_count"/>
+       <function>integer buffer_count();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Return the number of log messages held in the memory buffer.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_integer">integer</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+  </variablelist>
+</section>
+</section>

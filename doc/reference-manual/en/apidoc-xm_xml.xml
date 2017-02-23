@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="xm_xml_funcproc"><title>Functions and procedures exported by xm_xml</title>
+
+<section id="xm_xml_functions"><title>Functions exported by xm_xml</title>
+  <variablelist>
+   <varlistentry>
+     <term>
+       <anchor id="xm_xml_func_to_xml"/>
+       <function>string to_xml();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Converts the fields to XML and returns it as a string value.
+       Fields having a leading dot (.) or underscore (_) and the 'raw_event' will be automatically
+       excluded.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_string">string</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+  </variablelist>
+</section>
+
+<section id="xm_xml_procedures"><title>Procedures exported by xm_xml</title>
+  <variablelist>
+   <varlistentry>
+     <term>
+       <anchor id="xm_xml_proc_parse_xml"/>
+       <function>parse_xml();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Parse the raw_event field as xml input</simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <function>parse_xml(string source);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Parse the given string as XML format</simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>source</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_xml_proc_to_xml"/>
+       <function>to_xml();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Convert the fields to XML and put this into the 'raw_event' field.
+       Fields having a leading dot (.) or underscore (_) and the 'raw_event' will be automatically
+       excluded.
+     </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+  </variablelist>
+</section>
+</section>

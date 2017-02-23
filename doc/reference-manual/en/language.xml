@@ -1,0 +1,1656 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="lang">
+  <title>Language</title>
+   <para>
+     The nxlog core contains support for using a built-in interpreted language. This language
+     can be used to make complex decisions or build expressions in the nxlog configuration
+     file.
+     The code written in the nxlog language is similar to Perl which is a common tool for
+     developers and administrators to solve log processing tasks. When nxlog starts
+     and reads its configuration file, directives containing nxlog language code are
+     parsed and compiled into a pseudo-code. If a syntax error is found, nxlog will print
+     the error. The pseudo-code is then evaluated at run-time, similarly to other interpreted
+     languages.
+   </para>
+   <para>
+     The nxlog language can be used in two ways. Some module directives (e.g. file names) require
+     a value, for these <link linkend="lang_expressions">expressions</link> can be used if
+     supported by the module.
+     Other directives such as <link linkend="config_module_exec">Exec</link> take a
+     <link linkend="lang_statements">statement or statements</link> as argument.
+   </para>
+   <para>
+     In addition to the built-in <link linkend="lang_functions">functions</link> and
+     <link linkend="lang_statement_procedures">procedures</link> provided by the nxlog core,
+     modules can register additional functions and procedures. This enables developers to
+     extend the language through loadable modules so that additional processing features can be
+     executed such as message formatters and parsers or data lookup functions.
+   </para>
+   <para>
+     Due to the simplicity of the language there is no error handling (except for function
+     return values) available to the
+     administrator. If an error occurs during the execution of the nxlog pseudo-code, 
+     usually the error is printed in the nxlog logs. If an error occurs during log message 
+     processing it is also possible for the message to be dropped. In case sophisticated
+     error handling or more complex processing is a requirement, the message processing
+     can be implemented in an external script or program, in a dedicated nxlog module or
+     in perl via the <link linkend="xm_perl">xm_perl</link> module.
+   </para>
+
+  <section id="lang_types">
+   <title>Types</title>
+   <para>
+     The nxlog language is a typed language, this allows stricter syntax checking when
+     parsing the configuration while trying to enforce type-safety.
+     Though <link linkend="lang_fields">fields</link> and some
+     functions can return values with a type which can only be determined at run-time.
+     The language provides only simple types, complex types such as arrays and
+     hashes (associative arrays) are not supported. 
+     See <link linkend="xm_perl">xm_perl</link> if you require such complex processing
+     rules.
+     The language also supports the 
+     <link linkend="lang_literal_undef">undefined</link> value similarly to Perl.
+     The following types are provided by the nxlog language:
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="lang_type_unknown"/>Unknown</term>
+	  <listitem>
+	    <simpara>
+	      This is a special type for values where the type cannot be determined at
+	      compile time and for values which are uninitialized. The
+	      <link linkend="lang_literal_undef">undef literal</link> and
+	      <link linkend="lang_fields">fields</link> without a value have also an
+	      unknown type.
+	      The unknown type can be also thought of as 'any' in case of function and 
+	      procedure api declarations.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="lang_type_boolean"/>Boolean</term>
+	  <listitem>
+	    <simpara>
+	      A boolean value which is either TRUE, FALSE or undefined.
+	      Note that an undefined boolean is not the same as a FALSE value.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="lang_type_integer"/>Integer</term>
+	  <listitem>
+	    <simpara>
+	      An integer which can hold a signed 64 bit value in addition to the
+	      undefined value. Floating point values are not supported.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="lang_type_string"/>String</term>
+	  <listitem>
+	    <simpara>
+	      A string is an array of characters in any character set. The
+	      <link linkend="lang_type_binary">binary</link> type should be used for values
+	      where the NUL byte can also occur.
+	      An undefined string is not the same as an empty string.
+	      Strings have a limited length to prevent resource exhaustion problems, this
+	      is a compile-time value currently set to 1M.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="lang_type_datetime"/>Datetime</term>
+	  <listitem>
+	    <simpara>
+	      A datetime holds a microsecond value elapsed since the Epoch and is always
+	      stored in UTC/GMT.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="lang_type_ip4addr"/>IPv4 Address</term>
+	  <listitem>
+	    <simpara>
+	      Stores a dotted quad IPv4 address in an internal format (integer).
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="lang_type_ip6addr"/>IPv6 Address</term>
+	  <listitem>
+	    <simpara>
+	      Stores an IPv6 address in an internal format.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="lang_type_regexp"/>Regular expression</term>
+	  <listitem>
+	    <simpara>
+	      A regular expression can only be used with the 
+	      <link linkend="lang_binop_regmatch">=~</link> or
+	      <link linkend="lang_binop_notregmatch">!~</link> operators.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="lang_type_binary"/>Binary</term>
+	  <listitem>
+	    <simpara>
+	      This type can hold an array of bytes.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="lang_type_varargs"/>Variadic arguments</term>
+	  <listitem>
+	    <simpara>
+	      This is a special type only used in function and procedure api declarations
+	      to indicate variadic arguments.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+   </para>
+  </section>
+
+  <section id="lang_expressions">
+   <title>Expressions</title>
+   <para>
+     Expressions are a subset of the nxlog languge. Some module directives take an
+     expression as a parameter which is then dynamically evaluated at run-time to a value.
+     Expressions can also be used in statements.
+   </para>
+   <para>
+     The following language elements are expressions:
+     <link linkend="lang_literals">literals</link>,
+     <link linkend="lang_fields">fields</link>,
+     <link linkend="lang_operations">binary and unary operations</link>,
+     <link linkend="lang_functions">functions</link>.
+     In addition, brackets can be used around expressions as shown in the example below.
+     Brackets can also help in writing more readable code.
+     <example>
+       <title>Using brackets around expressions</title>
+       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_expr_brackets.xml" />
+     </example>
+
+   </para>
+   <section id="lang_literals">
+     <title>Literals</title>
+     <para>
+       A literal is a representation of a fixed value.
+       A literal is an <link linkend="lang_expressions">expression</link>.
+       <variablelist>
+	 <varlistentry>
+	   <term><anchor id="lang_literal_undef"/>Undef</term>
+	   <listitem>
+	     <para>
+	       The undef literal has an <link linkend="lang_type_unknown">unknown</link> type.
+	       It can be also used in an 
+	       <link linkend="lang_statement_assignment">assignment</link> to unset a value 
+	       of a <link linkend="lang_fields">field</link>, for example:
+	       <example>
+		 <title>Unsetting a value of a field</title>
+		 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_stmnt_assign.xml" />
+	       </example>
+	     </para>
+	   </listitem>
+	 </varlistentry>
+
+	 <varlistentry>
+	   <term><anchor id="lang_literal_boolean"/>Boolean</term>
+	   <listitem>
+	     <para>
+	       A boolean literal is either TRUE or FALSE. It is case insensitive, so
+	       True, False, true, false are also valid.
+	     </para>
+	   </listitem>
+	 </varlistentry>
+
+	 <varlistentry>
+	   <term><anchor id="lang_literal_integer"/>Integer</term>
+	   <listitem>
+	     <para>
+	       An integer starts with a minus "-" sign if it is negative. The "0X" or "0x"
+	       prepended modifier means a hexadecimal notation.
+	       The "K", "M" and "G" modifiers are also supported which can be appended to
+	       mean Kilo (1024), Mega (1024^2) and Giga (1024^3).
+	       <example>
+		 <title>Setting an integer value</title>
+		 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_literal_integer.xml" />
+	       </example>
+	     </para>
+	   </listitem>
+	 </varlistentry>
+	 
+	 <varlistentry>
+	   <term><anchor id="lang_literal_string"/>String</term>
+	   <listitem>
+	     <para>
+	       String literals are quoted characters using either single or double quotes.
+	       String literals specified with double quotes can contain the following escape
+	       sequences.
+	       <variablelist>
+		 <varlistentry>
+		   <term>\\</term>
+		   <listitem>
+		     <para>
+		       The backslash (<replaceable>\</replaceable>) character.
+		     </para>
+		   </listitem>
+		 </varlistentry>
+		 <varlistentry>
+		   <term>\&quot;</term>
+		   <listitem>
+		     <para>
+		       The double quote (<replaceable>&quot;</replaceable>) character.
+		     </para>
+		   </listitem>
+		 </varlistentry>
+		 <varlistentry>
+		   <term>\n</term>
+		   <listitem>
+		     <para>
+		       Line feed (LF).
+		     </para>
+		   </listitem>
+		 </varlistentry>
+		 <varlistentry>
+		   <term>\r</term>
+		   <listitem>
+		     <para>
+		       Carriage return (CR).
+		     </para>
+		   </listitem>
+		 </varlistentry>
+		 <varlistentry>
+		   <term>\t</term>
+		   <listitem>
+		     <para>
+		       Horizontal tab.
+		     </para>
+		   </listitem>
+		 </varlistentry>
+		 <varlistentry>
+		   <term>\b</term>
+		   <listitem>
+		     <para>
+		       Audible bell.
+		     </para>
+		   </listitem>
+		 </varlistentry>
+		 <varlistentry>
+		   <term>\xXX</term>
+		   <listitem>
+		     <para>
+		       A single byte in the form of a two digit hexadecimal number.
+		       For example the line-feed character can also be expressed as
+		       <replaceable>\x0A</replaceable>.
+		     </para>
+		   </listitem>
+		 </varlistentry>
+
+	       </variablelist>
+	       <note>
+		 <para>
+		   String literals in single quotes do not process the escape sequences. 
+		   <replaceable>"\n"</replaceable> is a single character (LF) while 
+		   <replaceable>'\n'</replaceable> is two characters.
+		   The following comparison is FALSE for this reason:
+		   <programlisting><![CDATA["\n" == '\n']]></programlisting>
+		   Extra care should be taken with the backslash when using double
+		   quoted string literals to specify file paths on windows.
+		   See <link linkend="im_file_config_file_note">this note</link> for the file directive of im_file about the possible complications.
+		 </para>
+	       </note>
+	       <example>
+		 <title>Setting a string value</title>
+		 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_literal_string.xml" />
+	       </example>
+	     </para>
+	   </listitem>
+	 </varlistentry>
+
+	 <varlistentry>
+	   <term><anchor id="lang_literal_regexp"/>Regular expression</term>
+	   <listitem>
+	     <para>
+	       Regular expressions must be quoted with slashes as in Perl. Captured substrings
+	       are accessible through a numeric reference such as $1. The full subject
+	       string is placed into $0.
+	       <example>
+		 <title>A regular expression match operation</title>
+		 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_literal_regexp.xml" />
+	       </example>
+	     </para>
+	   </listitem>
+	 </varlistentry>
+
+	 <varlistentry>
+	   <term><anchor id="lang_literal_datetime"/>Datetime</term>
+	   <listitem>
+	     <para>
+	       The datetime literal is an unquoted representation of a time value expressing
+	       local time in the format of YYYY-MM-DD hh:mm:ss
+	       <example>
+		 <title>Setting a datetime value</title>
+		 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_literal_datetime.xml" />
+	       </example>
+	     </para>
+	   </listitem>
+	 </varlistentry>
+
+	 <varlistentry>
+	   <term><anchor id="lang_literal_ip4addr"/>IPv4 Address</term>
+	   <listitem>
+	     <para>
+	       An IPv4 literal value is expressed in dotted quad notation such as 
+	       <replaceable>192.168.1.1</replaceable>.
+	     </para>
+	   </listitem>
+	 </varlistentry>
+
+	 <varlistentry>
+	   <term><anchor id="lang_literal_ip6addr"/>IPv6 Address</term>
+	   <listitem>
+	     <para>
+	       An IPv6 literal value is expressed by 8 groups of 16-bit hexadecimal values
+	       separated by colons (:) such as 
+	       <replaceable>2001:0db8:85a3:0000:0000:8a2e:0370:7334</replaceable>.
+	     </para>
+	   </listitem>
+	 </varlistentry>
+       </variablelist>
+     </para>
+   </section>
+
+   <section id="lang_fields">
+     <title>Fields</title>
+     <para>
+       A log message can be broken up into fields by parsers or is already emitted as a list
+       of fields as discussed <link linkend="arch_concept_field">earlier</link>.
+       The field has a name and in the nxlog language it is represented with the dollar "$"
+       sign prepended to the name of the field, similarly to Perl's scalar variables.
+       The name of the field is allowed to have the following characters:
+<programlisting>[[:alpha:]_][[:alnum:]\._]*</programlisting>
+       A field which does not exist has an <link linkend="lang_type_unknown">unknown</link>
+       type.
+       A field is an <link linkend="lang_expressions">expression</link> which evaluates to a
+       value.
+       Fields are only available in an evaluation context which is triggered by a log
+       message.
+       For example using a value of a field in the 
+       <link linkend="config_module_schedule_exec">Exec directive of a schedule block</link>
+       will result in a run-time error because this scheduled execution is not triggered 
+       by a log message.
+       Fields are passed along the route and are available in each successive module in the
+       chain. Eventually the output module is responsible for writing these.
+       Stream oriented modules emit the data contained in $raw_event unless
+       <link linkend="config_outputtype">OutputType</link> is set to something else (i.e. Binary).
+     </para>
+   </section>
+
+   <section id="lang_operations">
+     <title>Operations</title>
+     <para>
+       Similarly to other programming languages and especially Perl, the nxlog language
+       has unary and binary operations which are 
+       <link linkend="lang_expressions">expressions</link> and evaluate to a value.
+     </para>
+     <section id="lang_unary_operations">
+       <title>Unary operations</title>
+       <para>
+	 Unary operations work with a single operand. Currently the following unary operations are 
+	 available. It is possible to use brackets around the operand to which makes it look like
+	 a function call as in <link linkend="lang_defined_example">this example</link>.
+
+	 <variablelist>
+	   <varlistentry>
+	     <term><anchor id="lang_unop_not"/>not</term>
+	     <listitem>
+	       <para>
+		 The 'not' operator expects a boolean value. It will evaluate to undef if
+		 the value is undefined. If it receives an unknown value which evaluates to
+		 a non-boolean, it will result in a run-time execution error.
+		 <example>
+		   <title>Typical use of the 'not' operand</title>
+		   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_unop_not.xml" />
+		 </example>
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	   <varlistentry>
+	     <term><anchor id="lang_unop_neg"/>-</term>
+	     <listitem>
+	       <para>
+		 The unary negation operator before an integer is very similar to a negative 
+		 integer, except that two or more minus "-" signs are not valid for an integer
+		 literal.
+		 <example>
+		   <title>Unary negation</title>
+<!--FIXME		   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_unop_neg.xml" />-->
+		   <programlisting>if - -1 != 1 log_error("this should never be printed");</programlisting>
+		 </example>
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	   <varlistentry>
+	     <term><anchor id="lang_unop_defined"/>defined</term>
+	     <listitem>
+	       <para>
+		 The defined operation will evaluate to TRUE if the operand is defined,
+		 otherwise it is FALSE.
+		 <example id="lang_defined_example">
+		   <title>Use of the unary 'defined' operation</title>
+		   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_unop_defined.xml" />
+		 </example>
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	 </variablelist>
+       </para>
+     </section>
+     <section id="lang_binary_operations">
+       <title>Binary operations</title>
+       <para>
+	 Binary operations work with two operands and evaluate to a value. The type of
+	 the evaluated value depends on the type of the operands.
+	 Execution might result in a run-time error if the type of the operands are unknown
+	 at compile time and evaluate to types which are incompatible with the binary operation.
+	 The operations are described with the following syntax:
+	 <programlisting>TYPE_OF_LEFT_OPERAND BINARY_OPERATION TYPE_OF_RIGHT_OPERAND = TYPE_OF_EVALUATED_VALUE</programlisting>
+	 Below is a list of currently supported binary operations.
+
+	 <variablelist>
+	   <varlistentry>
+	     <term><anchor id="lang_binop_regmatch"/>=~</term>
+	     <listitem>
+	       <para>
+		 This is the regular expression match operation as in Perl. The PCRE engine is used to to execute
+		 the regular expressions. This operation takes a string and
+		 a regexp operand and evaluates to a boolean value which will be TRUE if the regular
+		 expression matches the subject string.
+		 Captured substrings are accessible through a numeric reference such as $1.
+		 The full subject string is placed into $0.
+		 <variablelist>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_string">string</link>
+		       =~
+		       <link linkend="lang_type_regexp">regexp</link>
+		       =
+		       <link linkend="lang_type_boolean">boolean</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_regexp">regexp</link>
+		       =~
+		       <link linkend="lang_type_string">string</link>
+		       =
+		       <link linkend="lang_type_boolean">boolean</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+	   
+		 </variablelist>
+		 <example>
+		   <title>Regular expression based string matching</title>
+		   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_binop_regmatch.xml" />
+		 </example>
+
+		 Regexp based string substitution is also supported with the 
+		 <replaceable>s///</replaceable> operator.
+	       </para>
+	       <para>
+		 The following regular expression modiers are supported:
+
+		 <variablelist>
+		   <varlistentry>
+		     <term>g</term>
+		     <listitem>
+		       <para>
+			 The <replaceable>/g</replaceable>
+			 modifier can be used for global replacement.
+			 <example>
+			   <title>Replace whitespace occurences</title>
+			   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_binop_regmatch_replace.xml" />
+			 </example>
+		       </para>
+		     </listitem>
+		   </varlistentry>
+		   <varlistentry>
+		     <term>s</term>
+		     <listitem>
+		       <para>
+			 The <replaceable>.</replaceable> normally matches any character except newline.
+			 The <replaceable>/s</replaceable>
+			 modifier can be used to have the <replaceable>.</replaceable> match all 
+			 characters including line terminator characters (LF and CRLF).
+			 <example>
+			   <title>Dot matches all characters</title>
+			   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_binop_regmatch_dotall.xml" />
+			 </example>
+		       </para>
+		     </listitem>
+		   </varlistentry>
+	   
+		   <varlistentry>
+		     <term>m</term>
+		     <listitem>
+		       <para>
+			 The <replaceable>/m</replaceable>
+			 modifier can be used to treat the string as multiple lines, i.e. 
+			 <replaceable>^</replaceable> and <replaceable>$</replaceable> match newlines within data.
+		       </para>
+		     </listitem>
+		   </varlistentry>
+
+		   <varlistentry>
+		     <term>i</term>
+		     <listitem>
+		       <para>
+			 The <replaceable>/i</replaceable>
+			 modifier does case insensitive matching.
+		       </para>
+		     </listitem>
+		   </varlistentry>
+		 </variablelist>
+
+		 Variables and captured substring references cannot be used inside the reqular expression
+		 or the regexp substitution operator, these will be treated literally as is.
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	   <varlistentry>
+	     <term><anchor id="lang_binop_notregmatch"/>!~</term>
+	     <listitem>
+	       <para>
+		 This is the opposite of <link linkend="lang_binop_regmatch">=~</link>,
+		 the expression will evaluate to TRUE if the regular expresion does not match
+		 on the subject string.
+		 It can be also written as 
+		 <link linkend="lang_unop_not">not</link>
+		 LEFT_OPERAND
+		 <link linkend="lang_binop_regmatch">=~</link>
+		 RIGHT_OPERAND
+		 <variablelist>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_string">string</link>
+		       !~
+		       <link linkend="lang_type_regexp">regexp</link>
+		       =
+		       <link linkend="lang_type_boolean">boolean</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_regexp">regexp</link>
+		       !~
+		       <link linkend="lang_type_string">string</link>
+		       =
+		       <link linkend="lang_type_boolean">boolean</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		 </variablelist>
+		 The <replaceable>s///</replaceable> substitution operator is also supported.
+		 <example>
+		   <title>Regular expression based string matching</title>
+		   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_binop_notregmatch.xml" />
+		 </example>
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	   <varlistentry>
+	     <term><anchor id="lang_binop_equal"/>==</term>
+	     <listitem>
+	       <para>
+		 This operator compares two values for equality.
+		 Comparing a defined value with an undefined results in 
+		 <link linkend="lang_literal_undef">undef</link>!
+		 <variablelist>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_literal_undef">undef</link>
+		       ==
+		       <link linkend="lang_literal_undef">undef</link>
+		       =
+		       <link linkend="lang_literal_boolean">TRUE</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_string">string</link>
+		       ==
+		       <link linkend="lang_type_string">string</link>
+		       =
+		       <link linkend="lang_type_boolean">boolean</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_integer">integer</link>
+		       ==
+		       <link linkend="lang_type_integer">integer</link>
+		       =
+		       <link linkend="lang_type_boolean">boolean</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_boolean">boolean</link>
+		       ==
+		       <link linkend="lang_type_boolean">boolean</link>
+		       =
+		       <link linkend="lang_type_boolean">boolean</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_datetime">datetime</link>
+		       ==
+		       <link linkend="lang_type_datetime">datetime</link>
+		       =
+		       <link linkend="lang_type_boolean">boolean</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+
+		 </variablelist>
+		 <example>
+		   <title>Comparing integers</title>
+		   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_binop_equal.xml" />
+		 </example>
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	   <varlistentry>
+	     <term><anchor id="lang_binop_notequal"/>!=</term>
+	     <listitem>
+	       <para>
+		 This operator compares two values for inequality.
+		 Comparing a defined value with an undefined results in 
+		 <link linkend="lang_literal_undef">undef</link>!
+		 <variablelist>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_literal_undef">undef</link>
+		       !=
+		       <link linkend="lang_literal_undef">undef</link>
+		       =
+		       <link linkend="lang_literal_boolean">FALSE</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_string">string</link>
+		       !=
+		       <link linkend="lang_type_string">string</link>
+		       =
+		       <link linkend="lang_type_boolean">boolean</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_integer">integer</link>
+		       !=
+		       <link linkend="lang_type_integer">integer</link>
+		       =
+		       <link linkend="lang_type_boolean">boolean</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_boolean">boolean</link>
+		       !=
+		       <link linkend="lang_type_boolean">boolean</link>
+		       =
+		       <link linkend="lang_type_boolean">boolean</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_datetime">datetime</link>
+		       !=
+		       <link linkend="lang_type_datetime">datetime</link>
+		       =
+		       <link linkend="lang_type_boolean">boolean</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		 </variablelist>
+		 <example>
+		   <title>Comparing for inequality</title>
+		   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_binop_notequal.xml" />
+		 </example>
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	   <varlistentry>
+	     <term><anchor id="lang_binop_less"/>&lt;</term>
+	     <listitem>
+	       <para>
+		 This operation will evaluate to TRUE if the left operand is less than the operand
+		 on the right, FALSE otherwise.
+		 Comparing a defined value with an undefined results in 
+		 <link linkend="lang_literal_undef">undef</link>!
+		 <variablelist>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_integer">integer</link>
+		       &lt;
+		       <link linkend="lang_type_integer">integer</link>
+		       =
+		       <link linkend="lang_type_boolean">boolean</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_datetime">datetime</link>
+		       &lt;
+		       <link linkend="lang_type_datetime">datetime</link>
+		       =
+		       <link linkend="lang_type_boolean">boolean</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		 </variablelist>
+		 <example>
+		   <title>Less</title>
+		   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_binop_less.xml" />
+		 </example>
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	   <varlistentry>
+	     <term><anchor id="lang_binop_le"/>&lt;=</term>
+	     <listitem>
+	       <para>
+		 This operation will evaluate to TRUE if the left operand is less than or
+		 equal to the operand on the right, FALSE otherwise.
+		 Comparing a defined value with an undefined results in 
+		 <link linkend="lang_literal_undef">undef</link>!
+		 <variablelist>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_integer">integer</link>
+		       &lt;=
+		       <link linkend="lang_type_integer">integer</link>
+		       =
+		       <link linkend="lang_type_boolean">boolean</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_datetime">datetime</link>
+		       &lt;=
+		       <link linkend="lang_type_datetime">datetime</link>
+		       =
+		       <link linkend="lang_type_boolean">boolean</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		 </variablelist>
+		 <example>
+		   <title>Less or equal</title>
+		   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_binop_le.xml" />
+		 </example>
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	   <varlistentry>
+	     <term><anchor id="lang_binop_greater"/>&gt;</term>
+	     <listitem>
+	       <para>
+		 <variablelist>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_integer">integer</link>
+		       &gt;
+		       <link linkend="lang_type_integer">integer</link>
+		       =
+		       <link linkend="lang_type_boolean">boolean</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_datetime">datetime</link>
+		       &gt;
+		       <link linkend="lang_type_datetime">datetime</link>
+		       =
+		       <link linkend="lang_type_boolean">boolean</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		 </variablelist>
+		 <example>
+		   <title>Greater</title>
+		   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_binop_greater.xml" />
+		 </example>
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	   <varlistentry>
+	     <term><anchor id="lang_binop_ge"/>&gt;=</term>
+	     <listitem>
+	       <para>
+		 <variablelist>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_integer">integer</link>
+		       &gt;=
+		       <link linkend="lang_type_integer">integer</link>
+		       =
+		       <link linkend="lang_type_boolean">boolean</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_datetime">datetime</link>
+		       &gt;=
+		       <link linkend="lang_type_datetime">datetime</link>
+		       =
+		       <link linkend="lang_type_boolean">boolean</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		 </variablelist>
+		 <example>
+		   <title>Greater or equal</title>
+		   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_binop_ge.xml" />
+		 </example>
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	   <varlistentry>
+	     <term><anchor id="lang_binop_and"/>and</term>
+	     <listitem>
+	       <para>
+		 This is the boolean 'and' operation which evaluates to TRUE if and
+		 only if both operands are TRUE.
+		 The operation will evaluate to 
+		 <link linkend="lang_literal_undef">undef</link> if either operand is
+		 undefined.
+		 <variablelist>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_boolean">boolean</link>
+		       and
+		       <link linkend="lang_type_boolean">boolean</link>
+		       =
+		       <link linkend="lang_type_boolean">boolean</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		 </variablelist>
+		 <example>
+		   <title>And operation</title>
+		   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_binop_and.xml" />
+		 </example>
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	   <varlistentry>
+	     <term><anchor id="lang_binop_or"/>or</term>
+	     <listitem>
+	       <para>
+		 This is the boolean 'and' operation which evaluates to TRUE if either
+		 operand is TRUE.
+		 The operation will evaluate to 
+		 <link linkend="lang_literal_undef">undef</link> if both operands are
+		 undefined.
+		 <variablelist>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_boolean">boolean</link>
+		       or
+		       <link linkend="lang_type_boolean">boolean</link>
+		       =
+		       <link linkend="lang_type_boolean">boolean</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		 </variablelist>
+		 <example>
+		   <title>Or</title>
+		   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_binop_or.xml" />
+		 </example>
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	   <varlistentry>
+	     <term><anchor id="lang_binop_plus"/>+</term>
+	     <listitem>
+	       <para>
+		 This operation will result in an integer if both operands are integers.
+		 If either operand is a string, the result will be a string where 
+		 non-string typed values are converted to a string. In this case it acts as
+		 a concatenation operator (which is the dot "." operator in Perl).
+		 Adding an undefined value to a non-string will result in undef.
+		 <variablelist>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_integer">integer</link>
+		       +
+		       <link linkend="lang_type_integer">integer</link>
+		       =
+		       <link linkend="lang_type_integer">integer</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_string">string</link>
+		       +
+		       <link linkend="lang_literal_undef">undef</link>
+		       =
+		       <link linkend="lang_type_string">string</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_literal_undef">undef</link>
+		       +
+		       <link linkend="lang_type_string">string</link>
+		       =
+		       <link linkend="lang_type_string">string</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_literal_undef">undef</link>
+		       +
+		       <link linkend="lang_literal_undef">undef</link>
+		       =
+		       <link linkend="lang_literal_undef">undef</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_string">string</link>
+		       +
+		       <link linkend="lang_type_string">string</link>
+		       =
+		       <link linkend="lang_type_string">string</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+			 Concatenate two strings.
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_datetime">datetime</link>
+		       +
+		       <link linkend="lang_type_integer">integer</link>
+		       =
+		       <link linkend="lang_type_datetime">datetime</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+			 Add the number of seconds in the right value to the datetime stored in the left value.
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_integer">integer</link>
+		       +
+		       <link linkend="lang_type_datetime">datetime</link>
+		       =
+		       <link linkend="lang_type_datetime">datetime</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+			 Add the number of seconds in the left value to the datetime stored in the right value.
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+
+		 </variablelist>
+		 <example>
+		   <title>Concatenation</title>
+		   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_binop_plus.xml" />
+		 </example>
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	   <varlistentry>
+	     <term><anchor id="lang_binop_minus"/>-</term>
+	     <listitem>
+	       <para>
+		 Subtraction. The result will be undef if either operand is undefined.
+		 <variablelist>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_integer">integer</link>
+		       -
+		       <link linkend="lang_type_integer">integer</link>
+		       =
+		       <link linkend="lang_type_integer">integer</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+			 Subtract two integers.
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_datetime">datetime</link>
+		       -
+		       <link linkend="lang_type_datetime">datetime</link>
+		       =
+		       <link linkend="lang_type_integer">integer</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+			 Subtract two datetime types. The result is the difference between to two expressed in microseconds.
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_datetime">datetime</link>
+		       -
+		       <link linkend="lang_type_integer">integer</link>
+		       =
+		       <link linkend="lang_type_datetime">datetime</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+			 Subtract the number of seconds from the datetime stored in the left value.
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+
+		 </variablelist>
+		 <example>
+		   <title>Subtraction</title>
+		   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_binop_minus.xml" />
+		 </example>
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	   <varlistentry>
+	     <term><anchor id="lang_binop_mul"/>*</term>
+	     <listitem>
+	       <para>
+		 Multiply an integer with another. The result will be undef if either
+		 operand is undefined.
+		 <variablelist>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_integer">integer</link>
+		       *
+		       <link linkend="lang_type_integer">integer</link>
+		       =
+		       <link linkend="lang_type_integer">integer</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		 </variablelist>
+		 <example>
+		   <title>Multiplication</title>
+		   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_binop_mul.xml" />
+		 </example>
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	   <varlistentry>
+	     <term><anchor id="lang_binop_div"/>/</term>
+	     <listitem>
+	       <para>
+		 Divide an integer with another. The result will be undef if either
+		 operand is undefined. Since the result is an integer, fractional
+		 parts are lost.
+		 <variablelist>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_integer">integer</link>
+		       /
+		       <link linkend="lang_type_integer">integer</link>
+		       =
+		       <link linkend="lang_type_integer">integer</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		 </variablelist>
+		 <example>
+		   <title>Division</title>
+		   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_binop_div.xml" />
+		 </example>
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	   <varlistentry>
+	     <term><anchor id="lang_binop_mod"/>%</term>
+	     <listitem>
+	       <para>
+		 This is the modulo operation. Divides an integer with another and returns
+		 the remainder. The result will be undef if either
+		 operand is undefined. 
+		 <variablelist>
+		   <varlistentry>
+		     <term>
+		       <link linkend="lang_type_integer">integer</link>
+		       %
+		       <link linkend="lang_type_integer">integer</link>
+		       =
+		       <link linkend="lang_type_integer">integer</link>
+		     </term>
+		     <listitem>
+		       <simpara>
+		       </simpara>
+		     </listitem>
+		   </varlistentry>
+		 </variablelist>
+		 <example>
+		   <title>Modulo</title>
+		   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_binop_mod.xml" />
+		 </example>
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	 </variablelist>
+       </para>
+     </section>
+   </section>
+
+   <section id="lang_functions">
+     <title>Functions</title>
+     <para>
+       A function is an <link linkend="lang_expressions">expression</link> which always returns
+       a value. A function cannot be used without using its return value. In contrast to
+       procedures, a function never modifies its arguments, the state of the nxlog engine or
+       the state of a module.
+       Functions can be polymorphic, the same function can take different arguments. 
+       Some functions also support variadic arguments denoted by the
+       <link linkend="lang_type_varargs">varargs</link> argument type.
+       <!--      FIXME: private, public and global functions -->
+       See the <link linkend="lang_exported_funcproc">list of available functions</link>.
+       <example>
+	 <title>Function call</title>
+	 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_func.xml" />
+       </example>
+     </para>
+   </section>
+
+  </section> <!-- end of section lang_expressions -->
+
+  <section id="lang_statements">
+   <title>Statements</title>
+   <para>
+     Directives such as <link linkend="config_module_exec">Exec</link> take a statement as
+     argument.
+     After a statement is evaluated, usually the result will be a change in the state of
+     the nxlog engine, the state of a module or the log message. 
+     A statement is terminated by a semicolon ";". Multiple statements can be specified and
+     these will be evaluated and executed in order.
+     The following elements can be used in statements. There is no loop operation (for, while)
+     in the nxlog language.
+   </para>
+
+   <section id="lang_statement_assignment">
+     <title>Assignment</title>
+     <para>
+       The assignment operation "=" loads the value from the expression evaluated on the right
+       into a <link linkend="lang_fields">field</link> on the left.
+      <example>
+	<title>Assignment</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_stmnt_assign2.xml" />
+      </example>
+     </para>
+   </section>
+
+   <section id="lang_statement_block">
+     <title>Block</title>
+     <para>
+       A block consists of one or more statements within curly braces "{}". This is
+       typically used with <link linkend="lang_statement_if">conditional statements</link>
+       as in the example below.
+      <example>
+	<title>Conditional statement block</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_stmnt_block.xml" />
+      </example>
+     </para>
+   </section>
+
+   <section id="lang_statement_procedures">
+     <title>Procedures</title>
+     <para>
+       Though both functions can take arguments, procedures are the opposite of function calls.
+       Procedures never return a value, thus these can be used as
+       <link linkend="lang_statements">statements</link>.
+       A procedure can modify its argument if it is a field, or it can modify the state of
+       the nxlog engine, the state of a module or the log message.
+       Procedures can also be polymorphic, the same procedure can take different arguments. 
+       Some procedures also support variadic arguments denoted by the
+       <link linkend="lang_type_varargs">varargs</link> argument type.
+       <!--      FIXME: private, public and global procedures -->
+       See the <link linkend="lang_exported_funcproc">list of available procedures</link>.
+     </para>
+     <example>
+       <title>Procedure call</title>
+       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_stmnt_proc.xml" />
+     </example>
+   </section>
+
+   <section id="lang_statement_if">
+     <title>If-Else</title>
+     <para>
+       A conditional statement starts with the "if" keyword followed by a boolean
+       expression and a statement. The "else" with another statement is optional.
+       Brackets around the expression are also optional.
+      <example>
+	<title>Conditional statements</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_stmnt_if.xml" />
+      </example>
+      Simliarly to Perl, the nxlog language doesn't have a switch statement. This can be
+      accomplished by the appropriate use of conditional if-else statements as in the example 
+      below.
+      <example>
+	<title>Emulating switch with if-else</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_stmnt_if_switch.xml" />
+      </example>
+     </para>
+     <note>   
+       <para>
+	 The Perl shorthand "elsif" is not supported. There is no "unless" either.
+       </para>
+     </note>
+   </section>
+
+  </section>
+
+  <section id="lang_variables">
+    <title>Variables</title>
+    <para>
+      <link linkend="lang_fields">Fields</link> are not persistent because the scope of these
+      is the log message itself, though fields can be used for storing temporary data during
+      the processing of one log message or to pass values across modules along the route.
+      Unfortunately if we need to store some value persistently, for example to set a state
+      on a condition, then the fields cannot be used.
+    </para>
+    <para>
+      The nxlog engine supports module variables for this purpose. A module variable is
+      referenced by a string value. A module variable can only be accessed from the
+      same module due to concurrency reasons. A module variable with the same name is a different
+      variable when referenced from another module.
+      A module variable can be created with an expiry value or it can have an infinite 
+      lifetime. If a variable is created with a lifetime, it will be destroyed automatically
+      when the lifetime expires. This can be also used as a means of a garbage collection
+      method, or it can reset the value of the variable automatically.
+      The module variables can store values of any type. Module variables are supported
+      by all modules automatically.
+      See <link linkend="core_proc_create_var">create_var()</link>,
+      <link linkend="core_proc_delete_var">delete_var()</link>,
+      <link linkend="core_proc_set_var">set_var()</link> and 
+      <link linkend="core_func_get_var">get_var()</link> for using module variables.
+      <example id="lang_variable_example_corr">
+	<title>Simple event correlation using module variables</title>
+	<simpara>
+	  If the number of login failures exceeds 3 within 45 seconds, then
+	  we generate an internal log message.
+	</simpara>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_variable.xml" />
+	<simpara id="lang_variable_example_corr_note">
+	  Note that this method is a bad example for this task, becuase the lifetime of the
+	  variable is not affected by <link linkend="core_proc_set_var">set_var()</link>.
+	  For example if there is one login failure at time 0s, then three login failures
+	  at 45s, 46s and 47sec, then this algorithm will not be able to detect this,
+	  because the variable will be automatically cleared at 45s, and the last three
+	  login failures are not noticed even though they happened within 3 seconds.
+	  Also note that this method can only work in real time because the timing
+	  is not based on values available in the log message, though this can be 
+	  reprogrammed by storing the event time in another variable.
+	</simpara>
+      </example>
+    </para>
+
+  </section>
+
+  <section id="lang_stat">
+    <title>Statistical counters</title>
+    <para>
+      Statistical counters are similar to <link linkend="lang_variables">variables</link>
+      but these only support integers. The difference is that statistical counters
+      can use different algorithms to recalculate their value every time they are updated
+      or read.
+      A statistical counter can be created with the 
+      <link linkend="core_proc_create_stat">create_stat()</link> procedure calls.
+      The following types are available for statistical counters:
+      <variablelist>
+	<varlistentry>
+	  <term>COUNT</term>
+	  <listitem>
+	    <simpara>
+	      This will aggregate the values added, so the value of the counter 
+	      will increase if only positive integers are added until the counter
+	      is destroyed, or indefinitely if the counter has no expiry.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>COUNTMIN</term>
+	  <listitem>
+	    <simpara>
+	      This will calculate the minimum value of the counter.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>COUNTMAX</term>
+	  <listitem>
+	    <simpara>
+	      This will calculate the maximum value of the counter.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>AVG</term>
+	  <listitem>
+	    <simpara>
+	      This algorithm calculates the average over the specified interval.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>AVGMIN</term>
+	  <listitem>
+	    <simpara>
+	      This algorithm calculates the average over the specified interval and
+	      the value of the counter is always the lowest which was ever calculated 
+	      during the lifetime of the counter.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>AVGMAX</term>
+	  <listitem>
+	    <simpara>
+	      Similar to AVGMIN but returns the highest value calculated 
+	      during the lifetime of the counter.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>RATE</term>
+	  <listitem>
+	    <simpara>
+	      This calculates the value over the specified interval, can be used to
+	      calculate events per second (EPS) values.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>RATEMIN</term>
+	  <listitem>
+	    <simpara>
+	      Will return the lowest rate calculated during the lifetime of the counter.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>RATEMAX</term>
+	  <listitem>
+	    <simpara>
+	      Will return the highest rate calculated during the lifetime of the counter.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>GRAD</term>
+	  <listitem>
+	    <simpara>
+	      This calculates the change of the rate of the counter over the specified
+	      interval, which is the gradient.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>GRADMIN</term>
+	  <listitem>
+	    <simpara>
+	      Lowest gradient calculated during the lifetime of the counter.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>GRADMAX</term>
+	  <listitem>
+	    <simpara>
+	      Highest gradient calculated during the lifetime of the counter.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+      A statistical counter will only return a value if the time specified in the
+      interval argument has elapsed since it was created. Statistical counters can
+      be also created with a lifetime. When they expire, they will be destoryed 
+      similarly to module variables.
+    </para>
+
+    <para>
+      After a statistical counter is created, it can be updated with the 
+      <link linkend="core_proc_add_stat">add_stat()</link> procedure call.
+      The value of the counter can be read with the 
+      <link linkend="core_func_get_stat">get_stat()</link> function call.
+      The value of the statistical counter is recalculated during these calls, but it 
+      does never happen automatically in a timed fashion, so this can lead to
+      slight distortion of the calculated value if the add and read operations
+      are infrequent.
+    </para>
+
+    <para>
+      Another feature of statistical counters is that it is possible to specify a time value
+      both during <link linkend="core_proc_create_stat">creation</link>,
+      <link linkend="core_proc_add_stat">update</link> and 
+      <link linkend="core_func_get_stat">read</link> making offline log processing possible.
+      <example>
+	<title>Simple event correlation using statistical counters</title>
+	<simpara>
+	  If the number of login failures exceeds 3 within 45 seconds, then
+	  we generate an internal log message.
+	  This accomplishes the exact same task as our
+	  <link linkend="lang_variable_example_corr">previous algorithm</link> did
+	  with module variables, except that this is a lot simpler. 
+	  In addition, this method is more precise, because it uses the timestamp from the
+	  log message instead of relying on the current time, so it is possible to use this
+	  for offline log analysis as well.
+	</simpara>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-lang_stat.xml" />
+	<simpara>
+	  Note that this is still not perfect because the time window used in the rate
+	  calculation does not shift, so the problem 
+	  <link linkend="lang_variable_example_corr_note">described in our previous example</link>
+	  also affects this version and it is possible that this algorith does not work in
+	  some situations.
+	</simpara>
+      </example>
+    </para>
+  </section>
+
+  <section id="lang_exported_funcproc">
+    <title>List of available functions and procedures</title>
+    <para></para>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="apidoc-core.xml" />
+    <section id="lang_exported_module_funcproc">
+      <title>Functions and procedures exported by modules</title>
+      <para>
+	<variablelist>
+	  <varlistentry>
+	    <term>xm_syslog</term>
+	    <listitem>
+	      <simpara>
+		<link linkend="xm_syslog_functions">Functions</link> and
+		<link linkend="xm_syslog_procedures">procedures</link> exported by 
+		<link linkend="xm_syslog">xm_syslog</link>
+	      </simpara>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>om_file</term>
+	    <listitem>
+	      <simpara>
+		<link linkend="om_file_functions">Functions</link> and
+		<link linkend="om_file_procedures">procedures</link> exported by 
+		<link linkend="om_file">om_file</link>
+	      </simpara>
+	    </listitem>
+	  </varlistentry>
+
+	</variablelist>
+      </para>
+    </section>
+
+  </section>
+
+</chapter>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="im_tcp">
+  <title>TCP (im_tcp)</title>
+  <para>
+    This module accepts TCP connections on the address and port specified in the configuration.
+    It can handle multiple simultaneous connections.
+    The TCP transfer protocol provides more reliable log transmission than UDP.
+    If security is a concern, consider using the <link linkend="im_ssl">im_ssl</link>
+    module instead.
+  </para>
+  <note>
+    <para>
+      There is no access control built in the module.
+      If you need to deny some hosts connecting to the module's TCP port, you should use
+      appropriate firewall rules for this purpose.
+    </para>
+  </note>
+
+  <section id="im_tcp_config">
+    <title>Configuration</title>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the im_tcp module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="im_tcp_config_host"/>Host</term>
+	  <listitem>
+	    <para>
+	      This specifies the IP address or a dns hostname which the module should 
+	      listen on to accept connections.
+	    </para>
+	    <note>
+	      <para>
+		Because of security reasons the default listen address is 
+		<replaceable>localhost</replaceable> if this
+		directive is not specified (the <replaceable>localhost</replaceable>
+		loopback address is not accessible from the outside). You will most probably want to
+		send logs from remote hosts, so make sure that the address specified here is 
+		accessible. The any address <replaceable>0.0.0.0</replaceable> is commonly used here.
+	      </para>
+	    </note>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="im_tcp_config_port"/>Port</term>
+	  <listitem>
+	    <simpara>
+	      This specifies the port number which the module will listen on for
+	      incoming conenctions.
+	      The default port is 514 if this directive is not specified.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="im_tcp_config_inputtype"/>InputType</term>
+	  <listitem>
+	    <simpara>
+	      See the description about <link linkend="config_inputtype">InputType</link>
+	      in the global module config section.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../fields-im_tcp.xml" />
+
+  <section id="im_tcp_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Using the im_tcp module</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-im_tcp.xml" />
+      </example>
+    </para>
+  </section>
+
+</section>

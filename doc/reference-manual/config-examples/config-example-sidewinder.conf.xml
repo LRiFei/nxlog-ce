@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programlisting><![CDATA[
+<Extension kvp>
+    Module	xm_kvp
+    KVPDelimiter ,
+    KVDelimiter =
+    EscapeChar \\
+    ValueQouteChar "
+</Extension>
+
+<Extension json>
+    Module	xm_json
+</Extension>
+
+<Input in>
+    Module	im_file
+    File	"modules/extension/kvp/sidewinder.in"
+    SavePos	FALSE
+    ReadFromLast FALSE
+    Exec	kvp->parse_kvp(); delete($EventReceivedTime); to_json();
+</Input>
+
+<Output out>
+    Module	om_file
+    File	'tmp/output'
+</Output>
+
+<Route 1>
+    Path	in => out
+</Route>
+
+]]></programlisting>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="im_udp">
+  <title>UDP (im_udp)</title>
+  <para>
+    This module accepts UDP datagrams on the address and port specified in the configuration.
+    UDP is the transport protocol of the old BSD syslog standard as described in RFC 3164, 
+    so this module can be particularly useful to receive such messages from older devices
+    which do not support other transports.
+  </para>
+  <note>
+    <para>
+      There is no access control built in the module.
+      If you need to deny some hosts sending logs to the module's UDP port, you should use
+      appropriate firewall rules for this purpose.
+    </para>
+  </note>
+  <note>
+    <para>
+      UDP packets can be dropped by the operating system because the protocol does not
+      guarantee reliable message delivery.
+      It is recommended to use the <link linkend="im_tcp">tcp</link> or
+      <link linkend="im_ssl">ssl</link> transport modules instead if message loss is a concern.
+    </para>
+    <para>
+      Though nxlog <link linkend="features_no_message_dropping">was designed</link>
+      to minimize message loss even in the case of UDP, adjusting the kernel buffers could
+      also help in avoiding UDP message loss on a loaded system.
+      The <link linkend="config_route_priority">Priority</link> directive in the 
+      route block can also help in this situation.
+    </para>
+  </note>
+  <para>
+    For parsing syslog messages, take a look at
+    the <link linkend="pm_transformer">pm_transformer</link> module or the
+    <link linkend="xm_syslog_proc_to_syslog_bsd">parse_syslog_bsd()</link> procedure of
+    the <link linkend="xm_syslog">xm_syslog</link>.
+  </para>
+
+  <section id="im_udp_config">
+    <title>Configuration</title>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the im_udp module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="im_udp_config_host"/>Host</term>
+	  <listitem>
+	    <simpara>
+	      This specifies the IP address or a dns hostname which the module should 
+	      listen on to accept connections.
+	      The default address is "localhost" if this is not specified.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="im_udp_config_port"/>Port</term>
+	  <listitem>
+	    <simpara>
+	      This specifies the port number which the module will listen on for
+	      incoming conenctions.
+	      The default port is 514 if this directive is not specified.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="im_udp_config_sockbufsize"/>SockBufSize</term>
+	  <listitem>
+	    <simpara>
+	      This optional directive sets the socket buffer size (SO_RCVBUF) to the value
+	      specified. Otherwise the OS defaults are used.
+	      If you are experiencing UDP packet loss at the kernel level, setting this to a
+	      high value (e.g. 150000000) may help. On Microsoft Windows systems the default
+	      socket buffer size is extremely low, using this option is highly recommended.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="im_udp_config_inputtype"/>InputType</term>
+	  <listitem>
+	    <simpara>
+	      See the description about <link linkend="config_inputtype">InputType</link>
+	      in the global module config section.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+      </variablelist>
+    </para>
+  </section>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../fields-im_udp.xml" />
+
+  <section id="im_udp_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Using the im_udp module</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-im_udp.xml" />
+      </example>
+    </para>
+  </section>
+
+</section>

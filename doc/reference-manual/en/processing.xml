@@ -1,0 +1,638 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="processing">
+  <title>Processing logs</title>
+   <para>
+     This chapter deals with various tasks that might be required after a log message is 
+     received by nxlog.
+   </para>
+
+   <section id="processing_parsers">
+     <title>Parsing various formats</title>
+     <para>
+       There are a couple standard log file formats in use by various applications such as
+       web servers, firewalls, ftp servers etc. This section tries to give a hand by providing
+       config snippets to parse these formats.
+     </para>
+     <para>
+       Data is parsed and processed in multiple steps. For stream based data (e.g. files,
+       TCP, SSL) the input module must know the log message boundary in order to be able to read
+       each message frame. The framing depends on the format. The most common type is line-based, 
+       where each log message is separated by a linebreak. Log messages may be separated by the header
+       only such as multi-line messages (e.g. stack and exception traces in java).
+       So the first step during message reception is to read the frames, i.e. the log messages.
+       This task is done by the input reader functions which can be specified with the
+       <link linkend="config_inputtype">InputType</link> directive. There are a couple built-in
+       input reader functions, others may be registered by modules.
+     </para>
+     <para>
+       There may be additional parsing involved or required after a message is read. 
+       For example when a BSD syslog message is read, the message frame is read by the 
+       <link linkend="config_inputtype_linebased">LineBased</link> input reader. Then this message
+       may be further parsed (i.e. to extract the hostname, date, severity)  by modules
+       (such as <link linkend="xm_syslog">xm_syslog</link>)
+       or using nxlog language constructs in the <link linkend="config_module_exec">Exec</link>
+       directive. This will result in nxlog message <link linkend="lang_fields">fields</link>
+       filled with value.
+       There may be additional processing taken place to further tokenize or parse specific
+       field contents (e.g. $Message) using regular expressions or the
+       <link linkend="pm_pattern">pm_pattern</link> module.
+     </para>
+
+     <section id="processing_parsers_w3c">
+       <title>W3C Extended Log File Format</title>
+       <para>
+	 See the <ulink url="http://www.w3.org/TR/WD-logfile.html">specification draft</ulink>
+	 of the format, it's not all that long.
+	 The important header line is the one which starts with <replaceable>#Fields</replaceable>.
+	 Using this information you can set up a parser rule to tokenize the fields using either
+	 <link linkend="xm_csv">xm_csv</link> (as shown in the example below), 
+	 <link linkend="pm_transformer">pm_transformer</link> or 
+	 using regular expressions directly (similarly to how it's done in the
+	 <link linkend="processing_parsers_combined_log_format_example">Parsing apache logs in Combined Log Format</link>
+	 example).
+	 <example>
+	   <title>Parsing the W3C Extended Log File Format using xm_csv</title>
+	   <para>
+	     Here is a sample log in this format which we need to parse:
+	     <programlisting><![CDATA[#Version: 1.0
+#Date: 2011-07-01 00:00:00
+#Fields: date time cs-method cs-uri
+2011-07-01 00:34:23 GET /foo/bar1.html
+2011-07-01 12:21:16 GET /foo/bar2.html
+2011-07-01 12:45:52 GET /foo/bar3.html
+2011-07-01 12:57:34 GET /foo/bar4.html]]></programlisting>
+	     The following configuration reads this file, tokenizes it with the csv parser.
+	     Header lines starting with a leading sharp (<replaceable>#</replaceable>) are 
+	     ignored.
+	     The <replaceable>EventTime</replaceable> field is constructed from the
+	     <replaceable>date</replaceable> and <replaceable>time</replaceable> fields and is
+	     converted to a <link linkend="lang_type_datetime">datetime</link> type.
+	     Finally the fields are output as JSON into another file.
+	     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/config-example-w3c.xml" />
+	   </para>
+	 </example>
+       </para>
+     </section>
+
+     <section id="processing_parsers_common_log_format">
+       <title>NCSA Common Log File Format</title>
+       <para>
+	 FIXME
+       </para>
+     </section>
+
+     <section id="processing_parsers_combined_log_format">
+       <title>NCSA Combined Log Format</title>
+       <para>
+	 <example id="processing_parsers_combined_log_format_example">
+	   <title>Parsing apache logs in Combined Log Format</title>
+	   <para>
+	     The following configuration shows an example for filtering access logs and
+	     only storing those related to the user 'john':
+	     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/config-example-apache_parse.xml" />
+	   </para>
+	 </example>
+       </para>
+     </section>
+
+     <section id="processing_parsers_welf">
+       <title>WebTrends Enhanced Log Format (WELF)</title>
+       <para>
+	 FIXME
+       </para>
+     </section>
+
+     <section id="processing_parsers_csv">
+       <title>Field delimited formats (CSV)</title>
+       <para>
+	 Comma, space, semicolon separated field list is a frequently used format.
+	 See the <link linkend="xm_csv">xm_csv</link> and/or 
+	 <link linkend="pm_transformer">pm_transformer</link> modules.
+       </para>
+     </section>
+
+     <section id="processing_parsers_json">
+       <title>JSON</title>
+       <para>
+	 See the <link linkend="xm_json">xm_json</link> module about parsing structured data in JSON.
+       </para>
+     </section>
+
+     <section id="processing_parsers_xml">
+       <title>XML</title>
+       <para>
+	 See the <link linkend="xm_xml">xm_xml</link> module about parsing structured data in XML.
+       </para>
+     </section>
+   </section>
+
+   <section id="processing_datetime">
+     <title>Parsing date and time strings</title>
+     <para>
+       The <link linkend="core_func_parsedate">parsedate()</link> function can be used to efficiently
+       parse strings representing a date.
+       See the <link linkend="processing_parsers_combined_log_format_example">Parsing apache logs in Combined Log Format</link>
+       example for sample usage.
+     </para>
+     <para>
+       The following formats are supported by <function>parsedate</function>:
+	 <variablelist>
+	   <varlistentry>
+	     <term><anchor id="processing_datetime_rfc3164"/>RFC 3164 date</term>
+	     <listitem>
+	       <para>
+		 Legacy syslog messages contain the date in this format which lacks the year. Example:
+		 <programlisting><![CDATA[Sun 6 Nov 08:49:37]]></programlisting>
+		 Unfortunately there are some deviations in some implementations, so the following 
+		 are also recognized:
+		 <programlisting><![CDATA[Sun 06 Nov 08:49:37
+Sun  6 Nov 08:49:37
+]]></programlisting>
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	   <varlistentry>
+	     <term><anchor id="processing_datetime_rfc1123"/>RFC 1123</term>
+	     <listitem>
+	       <para>
+		 RFC 1123 compliant dates are also supported, including a couple others which are
+		 similar such as those defined in RFC 822, RFC 850 and RFC 1036.
+		 Here is the concrete list:
+		 <programlisting><![CDATA[Sun, 06 Nov 1994 08:49:37 GMT  ; RFC 822, updated by RFC 1123
+Sunday, 06-Nov-94 08:49:37 GMT ; RFC 850, obsoleted by RFC 1036
+Sun Nov  6 08:49:37 1994       ; ANSI C's asctime() format
+Sun, 6 Nov 1994 08:49:37 GMT   ; RFC 822, updated by RFC 1123
+Sun, 06 Nov 94 08:49:37 GMT    ; RFC 822
+Sun,  6 Nov 94 08:49:37 GMT    ; RFC 822
+Sun, 6 Nov 94 08:49:37 GMT     ; RFC 822
+Sun, 06 Nov 94 08:49 GMT       ; Unknown
+Sun, 6 Nov 94 08:49 GMT        ; Unknown
+Sun, 06 Nov 94 8:49:37 GMT     ; Unknown [Elm 70.85]
+Sun, 6 Nov 94 8:49:37 GMT      ; Unknown [Elm 70.85] 
+Mon,  7 Jan 2002 07:21:22 GMT  ; Unknown [Postfix]
+Sun, 06-Nov-1994 08:49:37 GMT  ; RFC 850 with four digit years]]></programlisting>
+		 The above formats are recognized even without the leading day of week and without a
+		 timezone.
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	   <varlistentry>
+	     <term><anchor id="processing_datetime_apache"/>Apache/NCSA date</term>
+	     <listitem>
+	       <para>
+		 This format can be found in Apache access logs 
+		 (<link linkend="processing_parsers_combined_log_format">NCSA Combined Log Format</link>)
+		 and possibly other sources. Example:
+		 <programlisting><![CDATA[24/Aug/2009:16:08:57 +0200]]></programlisting>
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	   <varlistentry>
+	     <term><anchor id="processing_datetime_iso"/>ISO and RFC 3339 date</term>
+	     <listitem>
+	       <para>
+		 nxlog can parse the ISO format with or without subsecond resolution, and
+		 with or without timezone information. It accepts either a comma (,) or a dot (.)
+		 in case there is sub-second resolution.
+		 Examples:
+		 <programlisting><![CDATA[1977-09-06 01:02:03
+1977-09-06 01:02:03.004
+1977-09-06T01:02:03.004Z
+1977-09-06T01:02:03.004+02:00
+2011-5-29 0:3:21
+2011-5-29 0:3:21+02:00
+2011-5-29 0:3:21.004
+2011-5-29 0:3:21.004+02:00]]></programlisting>
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	   <varlistentry>
+	     <term><anchor id="processing_datetime_cisco"/>CISCO syslog date</term>
+	     <listitem>
+	       <para>
+		 This is an RFC 3164 format with millisecond precision. Example:
+		 <programlisting><![CDATA[Nov 3 14:50:30.403
+Nov  3 14:50:30.403
+Nov 03 14:50:30.403
+]]></programlisting>
+		 The following format is also recognized (with or without millisecond precision):
+		 <programlisting><![CDATA[Nov 3 2005 14:50:30.403
+Nov  3 2005 14:50:30.403
+Nov 03 2005 14:50:30.403
+Nov 3 2005 14:50:30
+Nov  3 2005 14:50:30
+Nov 03 2005 14:50:30
+]]></programlisting>
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	   <varlistentry>
+	     <term><anchor id="processing_datetime_windows"/>Windows timestamp format</term>
+	     <listitem>
+	       <para>
+		 Example:
+		 <programlisting><![CDATA[20100426151354.537875-000
+20100426151354.537875000
+]]></programlisting>
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	 </variablelist>
+	 Dates without timezone information are treated as local time. The year will be set to 1970
+	 for dates missing the year such as in the 
+	 <link linkend="processing_datetime_rfc3164">RFC 3164 date format</link>.
+	 Use the <link linkend="core_func_fix_year">fix_year()</link> function to correct the year 
+	 in such cases.
+     </para>
+
+     <para>
+       The <link linkend="core_func_parsedate">parsedate()</link> function returns an undefined datetime type.
+       You should take care of checking the return value for errors as in the example below.
+	 <example>
+	   <title>Using the parsedate() function</title>
+	   <para>
+	     Since our regular expression is quite vague, it may match strings which are invalid. 
+	     In this case <link linkend="core_func_parsedate">parsedate()</link> will return an undefined datetime value.
+	     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-parsedate.xml" />
+	   </para>
+	 </example>
+     </para>
+
+     <para>
+       If the above doesn't cut it, there is also <link linkend="core_func_strptime">strptime()</link>
+       to parse more exotic formats.
+	 <example>
+	   <title>Parsing date and time from Exchange logs</title>
+	   <para>
+	     The following example is from an Exchange log. The date and time are delimited by a tab
+	     (i.e. they are two distinct fields). Also it uses a non standard single digit format instead
+	     of fixed width with double digits:
+	     <programlisting><![CDATA[2011-5-29	0:3:2 GMT	...]]></programlisting>
+	     To parse this, we can use a regexp and strptime():
+	     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-strptime.xml" />
+	   </para>
+	 </example>
+     </para>
+   </section>
+
+   <section id="processing_filtering">
+     <title>Filtering messages</title>
+     <para>
+       Message filtering is a process where only a subset of the messages is let through.
+       Filtering is possible using regular expressions or other operators using any of the fields.
+     </para>
+     <section id="processing_filtering_drop">
+       <title>Using drop()</title>
+       <para>
+	 Use the <link linkend="core_proc_drop">drop()</link> procedure to conditionally discard
+	 messages in an <link linkend="config_module_exec">Exec</link> directive.
+	 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/config-example-pm_filter_drop.xml" />
+       </para>
+     </section>
+
+     <section id="processing_filtering_pm_filter">
+       <title>Filtering through pm_filter</title>
+       <para>
+	 The other option is to use the <link linkend="pm_filter">pm_filter</link> module as
+	 in the following example:
+	 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/config-example-pm_filter.xml" />
+       </para>
+     </section>
+   </section>
+
+   <section id="processing_multiline">
+     <title>Dealing with multi-line messages</title>
+     <para>
+     </para>
+     <section id="processing_multiline_module_vars">
+       <title>Using module variables</title>
+       <para>
+	 This example uses regular expressions and module variables to concatenate
+	 lines belonging to a single event.
+       </para>
+       <example>
+	 <title>Parsing multiline messages using module variables</title>
+	 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/config-example-tomcat_multiline.xml" />
+	 <para>
+	   Unfortunately this solution has a minor flaw. The log message of an event is
+	   only forwarded if a new log is read, otherwise it is kept in the 'saved'
+	   variable indefinitely. 
+	 </para>
+       </example>
+     </section>
+
+     <section id="processing_multiline_xm_multiline">
+       <title>Using xm_multiline</title>
+       <para>
+	 There is a dedicated extension module <link linkend="xm_multiline">xm_multiline</link>
+	 which makes it easier to deal with multi-line messages without the need to use
+	 module variables and write complex rules.
+       </para>
+     </section>
+   </section>
+
+   <section id="processing_alerting_scripts">
+     <title>Alerting, calling external scripts and programs</title>
+     <para>
+       There are a couple ways to invoke external scripts and pass data to them.
+     </para>
+
+     <section id="processing_calling_scripts_om_exec">
+       <title>Sending all messages to an external program</title>
+       <para>
+	 Using the <link linkend="om_exec">om_exec</link> module, all messages can be piped
+	 to an external program or script which should be running until the module
+	 (or nxlog) is stopped.
+       </para>
+     </section>
+
+     <section id="processing_calling_scripts_xm_exec">
+       <title>Invoking a script or program for each message</title>
+       <para>
+	 The <link linkend="xm_exec">xm_exec</link> module provides two procedure calls,
+	 <link linkend="xm_exec_proc_exec">exec()</link> and
+	 <link linkend="xm_exec_proc_exec_async">exec_async()</link>,
+	 to spawn an external script or program. 
+	 See this <link linkend="om_file_config_example_rotate1">file rotation</link> example
+	 where bzip is executed to compress a logfile.
+       </para>
+     </section>
+
+     <section id="processing_calling_scripts_alerting">
+       <title>Alerting</title>
+       <para>
+	 Alerting is a process when a notification message is triggered if a certain
+	 condition is satisfied.
+	 Alerting can be implemented using one of the previous two modules.
+	 When using <link linkend="om_exec">om_exec</link>, the alerting script will receive
+	 all messages.
+	 The following example shows how to send an email using 
+	 <link linkend="xm_exec">xm_exec</link> when a regexp condition is met:
+	 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/config-example-xm_exec_alert.xml" />
+       </para>
+     </section>
+   </section>
+
+   <section id="processing_rewrite">
+     <title>Rewriting and modifying messages</title>
+     <para>
+       There are many ways to modify log messages. A simple method which does not always
+       work is to modify the $raw_event field (in case of syslog) without parsing the message.
+       This can be done with regular expressions using capturing, for example:
+       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-regexp_rewrite.xml" />
+       The more complex method is to parse the message into fields, modify some fields and 
+       finally reconstruct the message from the fields.
+       The <link linkend="xm_syslog_example1">conditional rewrite of the syslog facility</link>
+       example shows such a syslog message modification method.
+     </para>
+   </section>
+
+   <section id="processing_format_conversion">
+     <title>Message format conversion</title>
+     <para>
+       To convert between CSV formats, see <link linkend="xm_csv_example1">this example</link>.
+     </para>
+     <para>
+       The following example shows an nxlog configuration which receives IETF syslog over UDP and
+       forwards in the old BSD syslog format over TCP:
+       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/config-example-xm_syslog_ietf_to_bsd.xml" />
+     </para>
+     <para>
+       Take a look at the <link linkend="pm_transformer">pm_transformer</link> module which can
+       do format conversion.
+     </para>
+     <para>
+       The requirements and possibilities for format conversion are endless. It is possible
+       to do this using the nxlog language, dedicated modules, functions and procedures.
+       For special cases a processor or extension module can be crafted to achieve this.
+     </para>
+   </section>
+
+   <section id="processing_charset_conversion">
+     <title>Character set conversion</title>
+     <para>
+       It is recommended to normalize logs to UTF-8. Even if you don't, there may be cases where
+       you need to convert a string (a field) or the whole message to another character set.
+       See th <link linkend="xm_charconv">xm_charconv</link> module which adds support
+       for character set conversion.
+     </para>
+   </section>
+
+   <section id="processing_discarding">
+     <title>Discarding messages</title>
+     <para>
+       See the <link linkend="core_proc_drop">drop()</link> procedure which can be invoked
+       conditionally in the <link linkend="config_module_exec">Exec</link> directive.
+       The <link linkend="processing_filtering_drop">Filtering messages</link> section shows
+       an example for using drop().
+       There is also <link linkend="om_null">om_null</link> which could work in some
+       situations.
+     </para>
+   </section>
+
+   <section id="processing_rate_limiting">
+     <title>Rate limiting</title>
+     <para>
+       The poor man's tool for rate limiting is the <link linkend="core_proc_sleep">sleep()</link>
+       procedure.
+      <example>
+	<title>Using sleep for rate limiting</title>
+	<para>
+	  In the following example <function>sleep</function> is invoked with 500 microseconds. This means that
+	  the input module will be able to read at most 2000 messages per second.
+	  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/config-example-ratelimit_sleep.xml" />
+	</para>
+      </example>
+      While this is not very precise because the module can do additional processing which can
+      add some to the total execution time, it gets fairly close.
+      <note>
+	<para>
+	  Be careful if you are planning to add rate limiting to a route which reads logs over UDP.
+	</para>
+      </note>
+     </para>
+   </section>
+
+   <section id="processing_buffering">
+     <title>Buffering</title>
+     <para>
+       Each input module has its own read buffer which is used to fill with data during a read
+       on a socket or file. Each processor and output has a limited queue where the 
+       log messages are put by the preceeding module in the route. The default limit for these
+       internal queues is 100.
+       Nevertheless, for buffering bigger amount of data, the 
+       <link linkend="pm_buffer">pm_buffer</link> module can do disk and memory based buffering.
+     </para>
+   </section>
+
+   <section id="processing_pattern_matching">
+     <title>Pattern matching and message classification</title>
+     <para>
+       Pattern matching is commonly used for message classification. When certain strings are
+       detected in a log message, the message gets tagged with classifiers. Thus it is possible
+       to query or take action on these type of messages via the classifier only.
+     </para>
+     <section id="processing_pattern_matching_regexp">
+       <title>Regular expressions in the Exec directive</title>
+       <para>
+	 The first option is to use the <link linkend="lang_binop_regmatch">=~</link> operator in
+	 an <link linkend="config_module_exec">Exec</link> directive.
+	 The following code snippet shows an example for message classification.
+	 <example>
+	   <title>Regular expression based message classification</title>
+	   <para>
+	     When the contents of the Message field match against the regular expression,
+	     the <varname>AccountName</varname> and <varname>AccountID</varname> fields are filled
+	     with the appropriate values from the referenced captured substrings. Additionally
+	     the value <literal>LoginEvent</literal> is  stored in the <varname>Action</varname>
+	     field.
+	     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/stmnt-example-pattern_match_login.xml" />
+	   </para>
+	 </example>
+       </para>
+     </section>
+
+     <section id="processing_pattern_matching_pm_pattern">
+       <title>Using pm_pattern</title>
+       <para>
+	 When there are a lot of patterns, writing these in the configuration file will make
+	 it bloated, ugly and is not as efficient as using the 
+	 <link linkend="pm_pattern">pm_pattern</link> module.
+	 The above pattern matching rule can be defined in pm_pattern's XML format the following
+	 way which will accomplish the same.
+       <programlisting><![CDATA[
+<pattern>
+   <id>42</id>
+   <name>ssh_pam_session_opened</name>
+   <description>ssh pam session opened</description>
+   <matchfield>
+      <name>Message</name>
+      <type>REGEXP</type>
+      <value>^pam_unix\(sshd:session\): session opened for user (\S+) by \(uid=(\d+)\)</value>
+      <capturedfield>
+         <name>AccountName</name>
+         <type>STRING</type>
+      </capturedfield>
+      <capturedfield>
+         <name>AccountID</name>
+         <type>INTEGER</type>
+      </capturedfield>
+   </matchfield>
+   <set>
+      <field>
+          <name>Action</name>
+          <type>STRING</type>
+          <value>LoginEvent</value>
+      </field>
+   </set>
+</pattern>]]></programlisting>
+       </para>
+     </section>
+   </section>
+
+   <section id="processing_correlation">
+     <title>Event correlation</title>
+     <para>
+       It is possible to write correlation rules in the nxlog language using the builtin
+       features such as the <link linkend="lang_variables">variables</link> and 
+       <link linkend="lang_stat">statistical counters</link>. While these are quite powerful,
+       some cases cannot be detected with these, escpecially thoses conditions which require
+       a sliding window.
+     </para>
+     <para>
+       A dedicated nxlog module, <link linkend="pm_evcorr">pm_evcorr</link> is available for 
+       advanced correlation requirements. It has similar features as 
+       <ulink url="http://simple-evcorr.sourceforge.net/">SEC</ulink>
+       and greatly enhances the correlation capabilites of nxlog. 
+     </para>
+   </section>
+
+   <section id="processing_log_rotation">
+     <title>Log rotation and retention</title>
+     <para>
+       nxlog makes it possible to implement custom log rotation and retention policies for
+       files written by nxlog and files written by other sources.
+       The <link linkend="om_file">om_file</link> and <link linkend="xm_fileop">xm_fileop</link>
+       modules export various procedures which can be used for this purpose:
+       <simplelist>
+	 <member>
+	   <link linkend="om_file_proc_rotate_to">rotate_to</link>
+	 </member>
+	 <member>
+	   <link linkend="om_file_proc_reopen">reopen</link>
+	 </member>
+	 <member>
+	   <link linkend="xm_fileop_proc_file_cycle">file_cycle</link>
+	 </member>
+	 <member>
+	   <link linkend="xm_fileop_proc_file_rename">file_rename</link>
+	 </member>
+	 <member>
+	   <link linkend="xm_fileop_proc_file_remove">file_remove</link>
+	 </member>
+	 <member>
+	   <link linkend="xm_fileop_proc_file_copy">file_copy</link>
+	 </member>
+	 <member>
+	   <link linkend="xm_fileop_proc_file_truncate">file_truncate</link>
+	 </member>
+       </simplelist>
+       Should these native language construct be insufficient, it is always possible
+       to <link linkend="xm_exec">call an exeternal script or program</link>.
+       
+     </para>
+     
+     <example>
+       <title>Rotation of the internal LogFile</title>
+       <para>
+	 This example shows how to rotate the internal logfile based on time and size.
+       </para>
+       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/config-example-xm_fileop-logfile-rotate.xml" />
+     </example>
+
+      <example>
+	<title>File rotation based on size</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/config-example-om_file_rotate1.xml" />
+      </example>
+
+   </section>
+
+
+   <section id="processing_explicit_drop">
+     <title>Explicit drop</title>
+     <para>
+       nxlog does not drop messages voluntarily. The built-in flow control mechanism ensures
+       that the input modules will pause until the output modules can write. This can be problematic
+       in some situations when it is preferable to drop messages than to block.
+       The following example illustrates the use of the <link linkend="core_proc_drop">drop()</link>
+       procedure used in conjunction with <link linkend="pm_buffer">pm_buffer</link>.
+     </para>
+     
+     <example>
+       <title>Explicitly dropping messages when the network module is blocked</title>
+       <para>
+	 In the following configuration we use two routes which send the input read from the UDP
+	 socket to two outputs, a file and a TCP destination.
+	 Without this setup when the TCP connection can transmit slower than the rate of incoming 
+	 UDP packets or the TCP connetion is down, the whole chain (both routes) would
+	 be blocked which would result in dropped UDP packets.
+	 In this situation it is preferable to only drop log messages in the <replaceable>tcp</replaceable> 
+	 route.	In this route a <link linkend="pm_buffer">pm_buffer</link>
+	 module is used and the size of the buffer is checked. If the buffer size goes over a
+	 certain limit we assume that the TCP output is blocked (or sending too slow)
+	 and instruct to drop log messages using the
+	 <link linkend="core_proc_drop">drop()</link> procedure.
+	 This way the UDP input will not get paused and all messages will be written to the
+	 output file regardless of the state of the TCP connection.
+       </para>
+       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/config-example-pm_buffer_drop.xml" />
+     </example>
+
+   </section>
+</chapter>

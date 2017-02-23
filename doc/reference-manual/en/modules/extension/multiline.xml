@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="xm_multiline">
+  <title>Multi-line message parser (xm_multiline)</title>
+  <para>
+    Multi-line messages such as exception logs and stack traces are quite common in logs.
+    Unfortunately when the log messages are stored in files or forwarded over the network
+    without any encapsulation, the newline character present in messages spanning multiple lines
+    confuse simple linebased parsers which treat every line as a separate event.
+  </para>
+  <para>
+    Multi-line events have one or more of the following properties:
+    <itemizedlist>
+      <listitem>
+	<para>
+	  The first line has a header (e.g. timestamp + severity).
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The first line has a header and there is closing character sequence marking the end.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The line count in the message can be variable (one or more) or the message can
+	  have a fixed line count.
+	</para>
+      </listitem>
+    </itemizedlist>
+    
+    This information allows the message to be reconstructed, i.e. lines to be concatenated which
+    belong to a single event. This is how the xm_multiline module can join together multiple
+    lines into a single message.
+  </para>
+
+  <para>
+    The name of the xm_multiline module instance can be used by input modules as the input
+    reader specified with the <link linkend="config_inputtype">InputType</link> directive.
+    For each input source a separate context is maintained by the module so that multi-line 
+    messages coming from several simultaneous sources can be still correctly processed.
+    An input source is a file for <link linkend="im_file">im_file</link> (with wildcards it is
+    one source for each file), a connection for <link linkend="im_ssl">im_ssl</link> and
+    <link linkend="im_tcp">im_tcp</link>.
+    Unfortunately <link linkend="im_udp">im_udp</link> uses a single socket and is treated
+    as a single source even if multiple UDP (e.g. syslog) senders are forwarding logs to it.
+  </para>
+
+  <note>
+    <para>
+      By using <link linkend="processing_multiline_module_vars">module variables</link> it is possible
+      to accomplish the same what this module does. 
+      The advantages of using this module over module variables are the following:
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    Processes messages more efficiently.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    It yields a more readable configuration.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Module event counters are correctly updated (i.e. one increment for one multi-line
+	    message and not per line).
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    It works on message source level (each file for a wildcarded im_file module instance
+	    and each tcp connection for an im_tcp/im_ssl instance) and not on module instance level.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </para>
+  </note>
+
+  <para>
+  </para>
+
+  <section id="xm_multiline_config">
+    <title>Configuration</title>
+    <para>
+      The following directives can be used to configure the xm_multiline module instance:
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="xm_multiline_config_headerline"/>HeaderLine</term>
+	  <listitem>
+	    <para>
+	      This directive takes a <link linkend="lang_literal_string">string</link>
+	      or a <link linkend="lang_literal_regexp">regular expression</link> literal.
+	      This will be matched against each line. When the match is successful, the
+	      successive lines are appended until the next header line is read.
+	      This directive is mandatory unless
+	      <link linkend="xm_multiline_config_fixedlinecount">FixedLineCount</link> is used.
+	    </para>
+	    <note>
+	      <para>
+		Until there is a new header read, the previous message is stored in the buffers
+		because the module does not know where the message ends. The 
+		<link linkend="im_file">im_file</link> module will forcibly flush this buffer 
+		after the configured <link linkend="im_file_config_pollinterval">PollInterval</link> 
+		timeout.
+		If this behaviour is unacceptable, consider using some kind of an encapsulation
+		method (JSON, XML, RFC5425, etc) or use and end marker with 
+		<link linkend="xm_multiline_config_headerline">EndLine</link> if possible.
+	      </para>
+	    </note>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><anchor id="xm_multiline_config_endline"/>EndLine</term>
+	  <listitem>
+	    <para>
+	      This is similar to the <link linkend="xm_multiline_config_headerline">HeaderLine</link>
+	      directive.  This optional directive also takes a 
+	      <link linkend="lang_literal_string">string</link>
+	      or a <link linkend="lang_literal_regexp">regular expression</link> literal to be
+	      matched against each line. When the match is successful the message
+	      is considered complete and is emitted.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><anchor id="xm_multiline_config_fixedlinecount"/>FixedLineCount</term>
+	  <listitem>
+	    <para>
+	      This directive takes a positive integer number defining the number of lines to
+	      concatenate.
+	      This is mostly useful with log messages spanning a fixed number of lines. When
+	      this number is defined, the module knows where the event message ends, thus it
+	      does not suffer from the problem described above.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><anchor id="xm_multiline_config_exec"/>Exec</term>
+	  <listitem>
+	    <para>
+	      This directive is almost identical to the behavior of the 
+	      <link linkend="config_module_exec">Exec</link> directive used by the other
+	      modules with the following differences:
+	      <itemizedlist>
+		<listitem>
+		  <para>
+		    Each line is passed in $raw_event as it is read. The line includes
+		    the line terminator.
+		  </para>
+		</listitem>
+		<listitem>
+		  <para>
+		    Other fields cannot be used. If you want to store captured strings from
+		    regular expression based matching in fields, you cannot do it here.
+		  </para>
+		</listitem>
+	      </itemizedlist>
+	      This is mostly useful for filtering out some lines with the
+	      <link linkend="core_proc_drop">drop()</link> procedure or rewriting them.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
+
+  <section id="xm_multiline_config_examples">
+    <title>Configuration examples</title>
+
+      <example id="xm_multiline_example_5">
+	<title>Parsing multi-line XML logs and converting to JSON</title>
+        <para>
+	  XML is commonly formatted as indented multi-line to make it more readable. 
+	  In the following configuration file we use the 
+	  <link linkend="xm_multiline_config_headerline">HeaderLine</link> together with the 
+	  <link linkend="xm_multiline_config_headerline">HeaderLine</link> directive to parse the events which are
+	  converted to JSON after some slight normalization.
+          <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_multiline5.conf.xml" />
+	  An input sample:
+          <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_multiline5.in.xml" />
+	  The following output is produced:
+          <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_multiline5.out.xml" />
+        </para>
+      </example>
+
+      <example id="xm_multiline_example_4">
+	<title>Parsing DICOM logs</title>
+        <para>
+	  Each log message has a header (TIMESTAMP INTEGER SEVERITY) which
+	  is used as the message boundary. A regular expression is defined for this using the
+	  <link linkend="xm_multiline_config_headerline">HeaderLine</link> directive.
+	  Each log message is prepended with an additional line containing dashes and is
+	  output into a file.
+          <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_multiline4.conf.xml" />
+	  An input sample:
+          <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_multiline4.in.xml" />
+	  The following output is produced:
+          <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_multiline4.out.xml" />
+        </para>
+      </example>
+
+      <example id="xm_multiline_example_1">
+	<title>Multi-line messages with a fixed string header</title>
+        <para>
+	  The following configuration will process messages having a fixed string header containing
+	  dashes. Each event is then prepended with a sharp (<replaceable>#</replaceable>) and 
+	  is output to a file.
+          <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_multiline1.conf.xml" />
+	  An input sample:
+          <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_multiline1.in.xml" />
+	  The following output is produced:
+          <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_multiline1.out.xml" />
+        </para>
+      </example>
+
+      <example id="xm_multiline_example_2">
+	<title>Multi-line messages with fixed line count</title>
+        <para>
+	  The following configuration will process messages having a fixed line count of 4.
+	  Lines containing only whitespace are ignored and removed.
+	  Each event is then prepended with a sharp (<replaceable>#</replaceable>) and is output
+	  to a file.
+          <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_multiline2.conf.xml" />
+	  An input sample:
+          <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_multiline2.in.xml" />
+	  The following output is produced:
+          <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_multiline2.out.xml" />
+        </para>
+      </example>
+
+      <example id="xm_multiline_example_3">
+	<title>Multi-line messages with a syslog header</title>
+        <para>
+	  Multi-line messages are frequently logged over syslog and they end up in log files.
+	  Unfortunately from the result it looks that each line is one event with its own
+	  syslog header. It can be a common requirement to merge these back into a single event
+	  message.
+	  The following configuration does just that. It strips the syslog header from the
+	  netstat output stored as a traditional syslog formatted file and each message is then
+	  printed again with a line of dashes used as a separator.
+          <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_multiline3.conf.xml" />
+	  An input sample:
+          <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_multiline3.in.xml" />
+	  The following output is produced:
+          <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_multiline3.out.xml" />
+        </para>
+      </example>
+
+  </section>
+</section>

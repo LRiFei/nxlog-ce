@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programlisting><![CDATA[
+<Extension syslog>
+    Module	xm_syslog
+</Extension>
+
+<Extension netstat>
+    Module	xm_multiline
+    FixedLineCount 4
+    Exec	parse_syslog_bsd(); $raw_event = $Message + "\n";
+</Extension>
+
+<Input in>
+    Module	im_file
+    File	"modules/extension/multiline/xm_multiline3.in"
+    SavePos	FALSE
+    ReadFromLast FALSE
+    InputType	netstat
+</Input>
+
+<Output out>
+    Module	om_file
+    File	'tmp/output'
+    Exec	$raw_event = "------------------------------------------------------------------------------------\n" + $raw_event;
+</Output>
+
+<Route 1>
+    Path	in => out
+</Route>
+
+]]></programlisting>

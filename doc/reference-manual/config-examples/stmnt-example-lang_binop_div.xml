@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programlisting><![CDATA[
+if 9 / 4 == 2 log_info("9 divided by 4 is 2");
+]]></programlisting>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programlisting><![CDATA[
+<Input in>
+    Module	im_uds
+    uds		/dev/log
+</Input>
+
+<Output out>
+    Module	om_exec
+    Command	/usr/bin/someprog
+    Arg		-
+</Output>
+
+<Route 1>
+    Path	in => out
+</Route>
+]]></programlisting>

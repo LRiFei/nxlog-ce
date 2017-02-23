@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="xm_syslog_funcproc"><title>Functions and procedures exported by xm_syslog</title>
+
+<section id="xm_syslog_functions"><title>Functions exported by xm_syslog</title>
+  <variablelist>
+   <varlistentry>
+     <term>
+       <anchor id="xm_syslog_func_syslog_facility_value"/>
+       <function>integer syslog_facility_value(string arg);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Convert a syslog facility string to an integer</simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>arg</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_integer">integer</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_syslog_func_syslog_facility_string"/>
+       <function>string syslog_facility_string(integer arg);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Convert a syslog facility value to a string</simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>arg</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_integer">integer</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_string">string</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_syslog_func_syslog_severity_value"/>
+       <function>integer syslog_severity_value(string arg);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Convert a syslog severity string to an integer</simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>arg</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_integer">integer</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_syslog_func_syslog_severity_string"/>
+       <function>string syslog_severity_string(integer arg);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Convert a syslog severity value to a string</simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>arg</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_integer">integer</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_string">string</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+  </variablelist>
+</section>
+
+<section id="xm_syslog_procedures"><title>Procedures exported by xm_syslog</title>
+  <variablelist>
+   <varlistentry>
+     <term>
+       <anchor id="xm_syslog_proc_parse_syslog"/>
+       <function>parse_syslog();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Parse the raw_event field as either BSD Syslog (RFC3164) or IETF Syslog (RFC5424) format</simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <function>parse_syslog(string source);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Parse the given string as either BSD Syslog (RFC3164) or IETF Syslog (RFC5424) format</simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>source</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_syslog_proc_parse_syslog_bsd"/>
+       <function>parse_syslog_bsd();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Parse the raw_event field as BSD Syslog (RFC3164) format</simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <function>parse_syslog_bsd(string source);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Parse the given string as BSD Syslog (RFC3164) format</simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>source</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_syslog_proc_parse_syslog_ietf"/>
+       <function>parse_syslog_ietf();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Parse the raw_event field as IETF Syslog (RFC5424) format</simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <function>parse_syslog_ietf(string source);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Parse the given string as IETF Syslog (RFC5424) format</simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>source</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_syslog_proc_to_syslog_bsd"/>
+       <function>to_syslog_bsd();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Create a BSD Syslog formatted log message in $raw_event from the fields of the event. The fields that are used to construct the $raw_event field are $EventTime, $Hostname, $SourceName, $ProcessID, $Message or $raw_event, $SyslogSeverity or $SyslogSeverityValue or $Severity or $SeverityValue, $SyslogFacility or $SyslogFacilityValue. If the fields are not present, a sensible default is used.</simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_syslog_proc_to_syslog_ietf"/>
+       <function>to_syslog_ietf();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Create an IETF Syslog (RFC5424) formatted log message in $raw_event from the fields of the event. The fields that are used to construct the $raw_event field are $EventTime, $Hostname, $SourceName, $ProcessID, $Message or $raw_event, $SyslogSeverity or $SyslogSeverityValue or $Severity or $SeverityValue, $SyslogFacility or $SyslogFacilityValue. If the fields are not present, a sensible default is used.</simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_syslog_proc_to_syslog_snare"/>
+       <function>to_syslog_snare();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Create a SNARE Syslog formatted log message in $raw_event. Uses the following fields to construct $raw_event: $EventTime, $Hostname, $SeverityValue, $FileName, $EventID, $SourceName, $AccountName, $AccountType, $EventType, $Category, $Message.</simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+  </variablelist>
+</section>
+</section>

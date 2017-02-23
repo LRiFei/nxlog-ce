@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="om_file">
+  <title>File (om_file)</title>
+  <para>
+    This module can be used to write log messages to a file. 
+  </para>
+  <section id="om_file_config">
+    <title>Configuration</title>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the om_file module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="om_file_config_file"/>File</term>
+	  <listitem>
+	    <para>
+	      This mandatory directive specifies the name of the output file to open.
+	      It must be a <link linkend="lang_type_string">string</link> type
+	      <link linkend="lang_expressions">expression</link>. 
+	      If the expression in the File directive is not a constant string (i.e. it contains
+	      functions, field names or operators), it will be evaluated before each event is
+	      written to the file (and after the <link linkend="config_module_exec">Exec</link>
+	      is evaluated).
+	      Note that the filename must be quoted to be a valid string literal unlike in
+	      other directives which take a filename argument.
+	      For relative filenames you should be aware that nxlog changes its working
+	      directory to '/' unless the global
+	      <link linkend="config_global_spooldir">SpoolDir</link> is set to something else.
+	    </para>
+	    <para>
+	      Below are 3 different variations for specifying the same output file on a Windows system:
+	    <programlisting><![CDATA[
+File 'C:\logs\logmsg.txt'
+File "C:\\logs\\logmsg.txt"
+File 'C:/logs/logmsg.txt'
+]]></programlisting>
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><anchor id="om_file_config_createdir"/>CreateDir</term>
+	  <listitem>
+	    <simpara>
+	      This optional directive takes a boolean value of TRUE or FALSE.
+	      If not specified, the default value is FALSE.
+	      If it is set to TRUE, the directory will be created if it doesn't exist before opening
+	      the file for writing.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><anchor id="om_file_config_truncate"/>Truncate</term>
+	  <listitem>
+	    <simpara>
+	      This optional directive takes a boolean value of TRUE or FALSE.
+	      If set to TRUE, the file will be truncated before each write, meaning that only
+	      the most recent log message is saved.
+	      By default this is FALSE.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><anchor id="om_file_config_sync"/>Sync</term>
+	  <listitem>
+	    <simpara>
+	      This optional directive takes a boolean value of TRUE or FALSE.
+	      If set to TRUE, the file is synced after each log message, ensuring that it
+	      is really written to disk from the buffers.
+	      This can hurt performance, thus by default it is turned off.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="om_file_config_outputtype"/>OutputType</term>
+	  <listitem>
+	    <simpara>
+	      See the description about <link linkend="config_outputtype">OutputType</link>
+	      in the global module config section.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../apidoc-om_file.xml" />
+
+  <section id="om_file_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Storing raw syslog messages into a file</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-om_file.xml" />
+      </example>
+      <example id="om_file_config_example_rotate1">
+	<title>File rotation based on size</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-om_file_rotate1.xml" />
+      </example>
+    </para>
+  </section>
+
+</section>

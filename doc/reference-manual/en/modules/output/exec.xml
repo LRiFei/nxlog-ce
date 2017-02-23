@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="om_exec">
+  <title>Program (om_exec)</title>
+  <para>
+    This module will execute a program or script on startup and will write (pipe) the log
+    data to the program's standard input.
+    Unless <link linkend="om_exec_config_outputtype">OutputType</link> is set to something
+    else, only the contents of the $raw_event field are sent over the pipe.
+    The execution of the program or script will terminate when the module is stopped,
+    which usually happens when nxlogs exits and the pipe is closed.
+  </para>
+  <note>
+    <para>
+      The program or script is started when nxlog start and must not exit until the module is
+      stopped.
+      To invoke a script for each log message, use <link linkend="xm_exec">xm_exec</link>
+      instead.
+    </para>
+  </note>
+
+
+  <section id="om_exec_config">
+    <title>Configuration</title>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the om_exec module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="om_exec_config_command"/>Command</term>
+	  <listitem>
+	    <simpara>
+	      This directive is mandatory. It specifies the name of the script/program
+	      to be executed.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><anchor id="om_exec_config_arg"/>Arg</term>
+	  <listitem>
+	    <simpara>
+	      This is an optional parameter, multiple can be specified for each
+	      argument needed to pass to the 
+	      <link linkend="om_exec_config_command">Command</link>.
+	      Note that specifying multiple arguments with one Arg directive separated with
+	      spaces will not work because the Command will receive it as one argument,
+	      so you will need to split them up.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><anchor id="om_exec_config_outputtype"/>OutputType</term>
+	  <listitem>
+	    <simpara>
+	      See the description about <link linkend="config_outputtype">OutputType</link>
+	      in the global module config section.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
+
+  <section id="om_exec_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Piping logs to an external program</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-om_exec.xml" />
+      </example>
+      This exact same configuration is not recommended for real use because
+      <link linkend="im_file">im_file</link> was designed to read log messages from files.
+      This example only demonstrates the use of the om_exec module.
+    </para>
+  </section>
+
+</section>

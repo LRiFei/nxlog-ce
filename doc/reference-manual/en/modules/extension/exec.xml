@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="xm_exec">
+  <title>External program execution (xm_exec)</title>
+  <para>
+    This module provides two procedures which make it possible to execute external scripts
+    or programs.
+    The reason for providing these two procedures through this additional extension module is to
+    keep the nxlog core small. A security advantage is that an administrator won't be able
+    to execute arbitrarly scripts if this module is not loaded.
+  </para>
+  <note>
+    <para>
+      The  <link linkend="om_exec">om_exec</link> and <link linkend="im_exec">im_exec</link>
+      modules also provide support for running external programs, though the purpose of these
+      is to pipe data to and read data from programs.
+      The procedures provided by the xm_exec module do not pipe log message data, these
+      are intended for multiple invocations. Though data can be still passed to the executed
+      script/program as command line arguments.
+    </para>
+  </note>
+  
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../apidoc-xm_exec.xml" />
+
+  <section id="xm_exec_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>nxlog acting as a cron daemon</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_exec.xml" />
+      </example>
+      <example>
+	<title>Sending email alerts</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_exec_alert.xml" />
+      </example>
+      For another example see this configuration for <link linkend="om_file_config_example_rotate1">file rotation</link>.
+    </para>
+  </section>
+
+</section>

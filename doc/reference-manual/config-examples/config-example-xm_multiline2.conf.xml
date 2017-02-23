@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programlisting><![CDATA[
+<Extension multiline>
+    Module	xm_multiline
+    FixedLineCount 4
+    Exec	if $raw_event =~ /^\s*$/ drop();
+</Extension>
+
+<Input in>
+    Module	im_file
+    File	"modules/extension/multiline/xm_multiline2.in"
+    SavePos	FALSE
+    ReadFromLast FALSE
+    InputType	multiline
+</Input>
+
+<Output out>
+    Module	om_file
+    File	'tmp/output'
+    Exec	$raw_event = "#" + $raw_event;
+</Output>
+
+<Route 1>
+    Path	in => out
+</Route>
+
+]]></programlisting>

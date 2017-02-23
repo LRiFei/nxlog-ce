@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="xm_wtmp">
+  <title>WTMP (xm_wtmp)</title>
+  <para>
+    This module provides a parser function to process binary wtmp files. The module registers an parser function
+    using the name of the extension module instance which can be used as the parameter of the 
+    <link linkend="config_inputtype">InputType</link> directive in input modules such as <link linkend="im_file">im_file</link>.
+  </para>
+
+  <section id="xm_wtmp_config">
+    <title>Configuration</title>
+    <para>
+      The module does not have any module specific configuration directives.
+    </para>
+  </section>
+
+  <section id="xm_wtmp_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example id="xm_wtmp_example1">
+	<title>WTMP to JSON format conversion</title>
+	<para>
+	  The following configuration accepts WTMP and converts it to JSON.
+	</para>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-wtmp2json.xml" />
+	<para>
+	  The following is a sample output produced by the configuration above.
+	  <programlisting><![CDATA[{"EventTime":"2013-10-01 09:39:59","AccountName":"root","Device":"pts/1",
+ "LoginType":"login","EventReceivedTime":"2013-10-10 15:40:20",
+ "SourceModuleName":"input","SourceModuleType":"im_file"}
+{"EventTime":"2013-10-01 23:23:38","AccountName":"shutdown","Device":"no device",
+ "LoginType":"shutdown","EventReceivedTime":"2013-10-11 10:58:00",
+ "SourceModuleName":"input","SourceModuleType":"im_file"}]]>
+	  </programlisting>
+	</para>
+      </example>
+    </para>
+  </section>
+
+</section>

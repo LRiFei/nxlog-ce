@@ -1,0 +1,73 @@
+<declarations>
+ <module>om_file</module>
+ <include>../../../common/expr.h</include>
+ <include>../../../common/module.h</include>
+
+ <procedure>
+   <name>rotate_to</name>
+   <type>private</type>
+   <cb>nx_expr_proc__om_file_rotate_to</cb>
+   <arg>
+    <name>filename</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <description>
+     <en>
+       Rotate the current file to the filename specified. The module will then open
+       the original file specified with the 'File' directive. 
+       Note that the rename(2) system call is used internally which does not support 
+       moving files across different devices on some platforms. If this is a problem,
+       first rotate the file on the same device and then using the exec_async() procedure
+       of the xm_exec module you can copy it to another device or file system or 
+       use the file_copy() procedure call provided by the xm_fileop module.
+     </en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>reopen</name>
+   <type>private</type>
+   <cb>nx_expr_proc__om_file_reopen</cb>
+   <description>
+     <en>
+       Reopen the File. This function should be called if the file has been
+       removed or renamed e.g. with the file_cycle(), file_remove(), file_rename() functions
+       of the xm_file module.
+       This does not need to be called after rotate_to() because that reopens
+       the file automatically.
+     </en>
+   </description>
+ </procedure>
+
+ <function>
+   <name>file_name</name>
+   <type>private</type>
+   <cb>nx_expr_func__om_file_file_name</cb>
+   <rettype>string</rettype>
+   <description>
+     <en>
+       Return the name of the file currently open which was specified using the
+       File directive.
+       Note that this will be the old name if the file name changes dynamically.
+       If you want the new name, use the expression you specified for the File
+       directive instead of usng this function.
+     </en>
+   </description>
+ </function>
+
+ <function>
+   <name>file_size</name>
+   <type>private</type>
+   <cb>nx_expr_func__om_file_file_size</cb>
+   <rettype>integer</rettype>
+   <description>
+     <en>
+       Return the size of the currently open output file in bytes.
+       It will return undef if the file is not open. This can happend if
+       'File' is not a string literal expression and there was no log message.
+     </en>
+   </description>
+ </function>
+
+</declarations>

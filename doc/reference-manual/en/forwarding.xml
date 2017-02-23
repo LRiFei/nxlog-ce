@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="forwarding">
+  <title>Forwarding and storing logs</title>
+   <para>
+     This chapter deals with the output side, i.e. how to forward, send and store messages
+     to various destinations.
+   </para>
+
+   <section id="forwarding_format">
+     <title>Data format of the output</title>
+     <para>
+       In addition to the transport protocol, the data format is an important factor.
+       If the remote receiver cannot parse the message, it will likely discard
+       or it may be just improperly processed.
+     </para>
+
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="forwarding_format_syslog"/>Syslog</term>
+	  <listitem>
+	    <para>
+	      There are two formats, the older BSD Syslog and the newer IETF syslog format
+	      as defined by RFC 3164 and RFC 5424.
+	      The transport protocol in syslog can be UDP, TCP or SSL. See the
+	      <link linkend="xm_syslog">xm_syslog</link> module about formatting and sending
+	      syslog messages to remote hosts over the network.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="forwarding_format_syslog_snare"/>Syslog SNARE</term>
+	  <listitem>
+	    <para>
+	      The SNARE agent format is a special format on top of BSD Syslog which is used
+	      and understood by several tools and log analyzer frontends.
+	      This format is most useful when forwaring Windows EventLog data,
+	      i.e. in conjunction with <link linkend="im_mseventlog">im_mseventlog</link> and/or
+	      <link linkend="im_msvistalog">im_msvistalog</link>.
+	      The <link linkend="xm_syslog_proc_to_syslog_snare">to_syslog_snare</link>
+	      procedure call can construct SNARE syslog formatted messages.
+	      The following example shows a configuration for reading the windows eventlog and
+	      forwarding it over UDP in the SNARE Agent format.
+	      <example>
+		<title>Forwarding EventLogs from a windows machine to a remote host in the SNARE Agent format</title>
+		<programlisting><![CDATA[
+<Extension syslog>
+    Module      xm_syslog
+</Extension>
+
+<Input in>
+    Module      im_msvistalog
+</Input>
+
+<Output out>
+    Module      om_udp
+    Host        192.168.1.1
+    Port        514
+    Exec        to_syslog_snare();
+</Output>
+
+<Route 1>
+    Path        in => out
+</Route>]]></programlisting>
+	      </example>
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="forwarding_format_binary"/>NXLOG Binary format</term>
+	  <listitem>
+	    <para>
+	      The <link linkend="config_outputtype_binary">binary</link> format is only understood
+	      by nxlog.
+	      All the fields are preserved when the data is sent in this format so there is no
+	      need to parse it again.
+	      You need to add this to the output module:
+	      <programlisting><![CDATA[OutputType    Binary]]></programlisting>
+	      And the receiver nxlog module should contain this:
+	      <programlisting><![CDATA[InputType    Binary]]></programlisting>
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="forwarding_format_csv"/>CSV</term>
+	  <listitem>
+	    <para>
+	      To send logs in CSV, use the <link linkend="xm_csv">xm_csv</link> or the
+	      <link linkend="pm_transformer">pm_transformer</link> module.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="forwarding_format_gelf"/>Graylog Extended Log Format (GELF)</term>
+	  <listitem>
+	    <para>
+	      The <link linkend="xm_gelf">xm_gelf</link> module can be used to generate GELF
+	      output.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="forwarding_format_json"/>JSON</term>
+	  <listitem>
+	    <para>
+	      See the <link linkend="xm_json">xm_json</link> module docs about generating JSON
+	      output.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="forwarding_format_xml"/>XML</term>
+	  <listitem>
+	    <para>
+	      See the <link linkend="xm_xml">xm_xml</link> module docs about generating XML
+	      output.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+   </section>
+
+
+   <section id="forwarding_network">
+     <title>Forwarding over the network</title>
+     <para>
+       The following network protocols can be used. There is a trade-off between 
+       speed, reliablilty, compatibility and security.
+     </para>
+
+     <variablelist>
+       <varlistentry>
+	 <term><anchor id="forwarding_network_udp"/>UDP</term>
+	 <listitem>
+	   <para>
+	     To send logs in UDP packets, use the <link linkend="om_udp">om_udp</link> module.
+	   </para>
+	 </listitem>
+       </varlistentry>
+       
+       <varlistentry>
+	 <term><anchor id="forwarding_network_tcp"/>TCP</term>
+	 <listitem>
+	   <para>
+	     To send logs over TCP, use the <link linkend="om_tcp">om_tcp</link> module.
+	   </para>
+	 </listitem>
+       </varlistentry>
+       
+       <varlistentry>
+	 <term><anchor id="forwarding_network_ssl"/>SSL/TLS</term>
+	 <listitem>
+	   <para>
+	     To send logs over a trusted secure SSL connection, use the 
+	     <link linkend="om_ssl">om_ssl</link> module.
+	   </para>
+	 </listitem>
+       </varlistentry>
+     </variablelist>
+   </section>
+
+   <section id="forwarding_files_sockets">
+     <title>Sending to sockets and files</title>
+     <para>
+     </para>
+
+     <variablelist>
+       <varlistentry>
+	 <term><anchor id="forwarding_files"/>Files</term>
+	 <listitem>
+	   <para>
+	     To store logs in local files, use the <link linkend="om_file">om_file</link> module.
+	   </para>
+	 </listitem>
+       </varlistentry>
+       
+       <varlistentry>
+	 <term><anchor id="forwarding_pipe"/>Piping to an external script or program</term>
+	 <listitem>
+	   <para>
+	     To send logs to an external program or script, use the 
+	     <link linkend="om_exec">om_exec</link> module.
+	   </para>
+	 </listitem>
+       </varlistentry>
+       
+       <varlistentry>
+	 <term><anchor id="forwarding_uds"/>Unix Domain Socket</term>
+	 <listitem>
+	   <para>
+	     To send logs to a unix domain socket, use the 
+	     <link linkend="om_uds">om_uds</link> module.
+	   </para>
+	 </listitem>
+       </varlistentry>
+     </variablelist>
+
+   </section>
+
+   <section id="forwarding_database">
+     <title>Storing logs in a database</title>
+     <para>
+       The <link linkend="om_dbi">om_dbi</link> and om_odbc modules can be used to store logs in databases.
+     </para>
+   </section>
+
+</chapter>

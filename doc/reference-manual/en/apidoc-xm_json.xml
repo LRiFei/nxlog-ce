@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="xm_json_funcproc"><title>Functions and procedures exported by xm_json</title>
+
+<section id="xm_json_functions"><title>Functions exported by xm_json</title>
+  <variablelist>
+   <varlistentry>
+     <term>
+       <anchor id="xm_json_func_to_json"/>
+       <function>string to_json();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Converts the fields to JSON and returns it as a string value.
+       Fields having a leading dot (.) or underscore (_) and the 'raw_event' will be automatically
+       excluded.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_string">string</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+  </variablelist>
+</section>
+
+<section id="xm_json_procedures"><title>Procedures exported by xm_json</title>
+  <variablelist>
+   <varlistentry>
+     <term>
+       <anchor id="xm_json_proc_parse_json"/>
+       <function>parse_json();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Parse the raw_event field as json input</simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <function>parse_json(string source);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Parse the given string as JSON format</simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>source</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_json_proc_to_json"/>
+       <function>to_json();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Convert the fields to JSON and put this into the 'raw_event' field.
+       Fields having a leading dot (.) or underscore (_) and the 'raw_event' will be automatically
+       excluded.
+     </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+  </variablelist>
+</section>
+</section>

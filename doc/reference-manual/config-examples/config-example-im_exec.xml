@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programlisting><![CDATA[
+<Input input>
+    Module	im_exec
+    Command	/usr/bin/tail
+    Arg		-f
+    Arg		/var/log/messages
+</Input>
+
+<Output fileout>
+    Module	om_file
+    File	"tmp/output"
+</Output>
+
+<Route 1>
+    Path	input => fileout
+</Route>
+]]></programlisting>

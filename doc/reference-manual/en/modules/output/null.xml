@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="om_null">
+  <title>Null (om_null)</title>
+  <para>
+    Log messages sent to the om_null module instance are discarded, this module does not
+    write its output anywhere.
+    It can be useful for creating a dummy route, testing purposes. It can have 
+    <link linkend="config_module_schedule">Scheduled</link> nxlog code execution as well
+    like any other module,  so it is not completely useless.
+    This module does not have any module specific configuration directives.
+    See <link linkend="config_example_routes">this example</link> for usage.
+  </para>
+</section>

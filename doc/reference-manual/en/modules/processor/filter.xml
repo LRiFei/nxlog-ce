@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="pm_filter">
+  <title>Filter (pm_filter)</title>
+  <para>
+    This is a simple module which forwards log messages if the specified condition is TRUE.
+  </para>
+  <note>
+    <para>
+      This module has been obsoleted by the nxlog language because filtering is now possible
+      in any module using the <link linkend="core_proc_drop">drop()</link> procedure
+      conditionally in the <link linkend="config_module_exec">Exec</link> directive.
+      <example>
+	<title>Dropping messages conditionally</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/stmnt-example-drop.xml" />
+      </example>
+    </para>
+  </note>
+
+  <section id="pm_filter_config">
+    <title>Configuration</title>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the pm_filter module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="pm_filter_config_condition"/>Condition</term>
+	  <listitem>
+	    <simpara>
+	      This mandatory directive takes an expression as argument which must
+	      evaluate to a <link linkend="lang_type_boolean">boolean</link> value.
+	      If the expression does not evaluate to TRUE, the log message is discarded.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
+
+  <section id="pm_filter_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Filtering messages</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-pm_filter.xml" />
+      </example>
+    </para>
+  </section>
+
+</section>

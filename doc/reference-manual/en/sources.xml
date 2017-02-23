@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="sources">
+  <title>Reading and receiving logs</title>
+   <para>
+     This chapter deals with log sources such as 
+     <link linkend="sources_os">operating systems</link>,
+     <link linkend="sources_network">network</link>,
+     <link linkend="sources_database">database</link>,
+     <link linkend="sources_file">files</link>,
+     <link linkend="sources_app">applications</link> and 
+     <link linkend="sources_device">special devices</link>.
+     Some of these log sources need a dedicated input module or a special parser to
+     be able to read and interpret the log messages.
+     A parser can be a dedicated module implementing the parser routines and exporting
+     these to the nxlog core as procedures and functions such as the 
+     <link linkend="xm_syslog">xm_syslog</link> module.
+     Alternatively parsers can be directly implemented in the nxlog language by
+     constructs such as <link linkend="lang_type_regexp">regular expressions</link>
+     using capturing or the other built-in functions and procedures available for string
+     manipulation. Writing parsers in the nxlog language is especially useful if there
+     is no dedicated parser module for the specific log source. 
+   </para>
+   <section id="sources_os">
+     <title>Operating Systems</title>
+     <para>
+       This section provides information and examples about collecting system messages
+       of various operating systems. OS specific applications are also discussed here.
+       The following sources are not operating system specific but work on most supported
+       platforms:
+       <simplelist>
+	 <member><link linkend="sources_network">Network</link></member>
+	 <member><link linkend="sources_database">Database</link></member>
+	 <member><link linkend="sources_file">Files</link></member>
+	 <member><link linkend="sources_program">External programs and scripts</link></member>
+	 <member><link linkend="sources_app">Multi-platform applications</link></member>
+       </simplelist>
+
+     </para>
+
+     <section id="sources_os_windows">
+       <title>Microsoft Windows</title>
+       <para>
+       </para>
+       <section id="sources_os_windows_eventlog">
+	 <title>Windows EventLog</title>
+	 <para>
+	   To collect log messages from the EventLog subsystem on Windows 2000 and 2003, use the
+	   <link linkend="im_mseventlog">im_mseventlog</link> module. This will also work
+	   on later versions, but the <link linkend="im_msvistalog">im_msvistalog</link> module
+	   is recommended for use on Windows 2008, Vista and later.
+	   See the <link linkend="im_mseventlog_config_examples">im_mseventlog</link> and
+	   <link linkend="im_msvistalog_config_examples">im_msvistalog</link>
+	   configuration examples.
+	 </para>
+       </section>
+
+       <section id="sources_os_windows_mssql">
+	 <title>Microsoft SQL Server</title>
+	 <para>
+	   Microsoft SQL Server stores its logs in UTF-16 encoding using a line-based format.
+	   It is recommended to normalize the encoding to UTF-8. The following config snipped
+	   will do that.
+
+	   <programlisting><![CDATA[
+<Extension _charconv>
+    Module      xm_charconv
+</Extension>
+
+<Input in>
+    Module	im_file
+    File	"C:\\MSSQL\\ERRORLOG"
+    Exec	convert_fields('UCS-2LE','UTF-8'); if $raw_event == '' drop();
+</Input>]]></programlisting>
+	   As of this writing, the <link linkend="config_inputtype_linebased">LineBased</link>
+	   parser, the default <link linkend="config_inputtype">InputType</link> for 
+	   <link linkend="im_file">im_file</link>
+           is not able to properly read the double-byte UTF-16 encoded files and will read 
+           an additional empty line (because of the double-byte CRLF). The above drop() call
+           is intended to fix this.
+           <command>convert_fields('UTF-16','UTF-8');</command> might also work instead of UCS-2LE.
+	 </para>
+       </section>
+
+<!--
+       <section id="sources_os_windows_exchange">
+	 <title>Microsoft Exchange</title>
+	 <para>
+	 </para>
+       </section>
+-->
+
+       <section id="sources_os_windows_iis">
+	 <title>Microsoft IIS</title>
+	 <para>
+	   Microsoft Internet Information Server supports
+	   <ulink url="http://www.microsoft.com/technet/prodtechnol/WindowsServer2003/Library/IIS/bea506fd-38bc-4850-a4fb-e3a0379d321f.mspx">different log file formats</ulink>.
+	   Log files created by IIS are line-based and can be read with <link linkend="im_file">im_file</link>.
+<programlisting><![CDATA[
+<Input IIS>
+	Module	im_file
+	File	'C:\inetpub\logs\LogFiles\u_ex*'
+</Input>]]></programlisting>
+          The above needs to be extended with appropriate parser rules if you want to parse the
+individual fields. See the following options depending on the format which is configured for your
+instance.
+	 </para>
+	 <section id="sources_os_windows_iis_format_w3c">
+	   <title>W3C Extended Log File Format</title>
+	   <para>
+	     See the <link linkend="processing_parsers_w3c">W3C Extended Log File Format</link>
+	     section in the <link linkend="processing">Processing messages</link> chapter,
+	     the <ulink url="http://www.microsoft.com/technet/prodtechnol/WindowsServer2003/Library/IIS/676400bc-8969-4aa7-851a-9319490a9bbb.mspx?mfr=true">W3C Extended Log File Format (IIS 6.0)</ulink> docs
+	     and the
+	     <ulink url="http://www.microsoft.com/technet/prodtechnol/WindowsServer2003/Library/IIS/ffdd7079-47be-4277-921f-7a3a6e610dcb.mspx?mfr=true">W3C Extended Log File Examples (IIS 6.0)</ulink>.
+	   </para>
+	 </section>
+	 <section id="sources_os_windows_iis_format_iis">
+	   <title>Microsoft IIS Format</title>
+	   <para>
+	     The IIS format is line-based, fields are comma separated. It can be parsed with
+	     the help of the <link linkend="xm_csv">xm_csv</link> module or with regular expressions.
+	   </para>
+	 </section>
+	 <section id="sources_os_windows_iis_format_common_log">
+	   <title>NCSA Common Log File Format</title>
+	   <para>
+	     See the <link linkend="processing_parsers_common_log_format">NCSA Common Log Format</link>
+	     section in the <link linkend="processing">Processing messages</link> chapter.
+	   </para>
+	 </section>
+	 <section id="sources_os_windows_iis_format_odbc">
+	   <title>ODBC Logging</title>
+	   <para>
+	     To read IIS logs from the ODBC datastore, use the im_odbc module.
+	   </para>
+	 </section>
+       </section>
+     </section>
+
+     <section id="sources_os_linux">
+       <title>GNU/Linux</title>
+       <para>
+
+	 <variablelist>
+	   <varlistentry>
+	     <term>Kernel logs</term>
+	     <listitem>
+	       <para>
+		 The <link linkend="im_kernel">im_kernel</link> module is dedicated to
+		 read the kernel log buffer.
+	       </para>
+	     </listitem>
+	   </varlistentry>
+	   <varlistentry>
+	     <term>Local syslog</term>
+	     <listitem>
+	       <para>
+		 Local syslog is sent to the unix domain socket at /dev/log.
+		 The <link linkend="im_uds">im_uds</link> module should be used together with
+		 <link linkend="xm_syslog">xm_syslog</link> or
+		 <link linkend="pm_transformer">pm_transformer</link>.
+	       </para>
+	     </listitem>
+	   </varlistentry>
+	 </variablelist>
+       </para>
+     </section>
+
+     <section id="sources_os_android">
+       <title>Android</title>
+       <para>
+	 <variablelist>
+	   <varlistentry>
+	     <term>Kernel logs</term>
+	     <listitem>
+	       <para>
+		 The Linux kernel log can be read with the
+		 <link linkend="im_kernel">im_kernel</link> module.
+	       </para>
+	     </listitem>
+	   </varlistentry>
+	   <varlistentry>
+	     <term>Android device logs</term>
+	     <listitem>
+	       <para>
+		 Android has a special in-kernel logging system. The 
+		 im_android module can read this.
+	       </para>
+	     </listitem>
+	   </varlistentry>
+
+	 </variablelist>
+       </para>
+     </section>
+
+<!--
+     <section id="sources_os_solaris">
+       <title>Solaris</title>
+       <para>
+	 FIXME
+       </para>
+     </section>
+
+     <section id="sources_os_hpux">
+       <title>HP-UX</title>
+       <para>
+	 FIXME
+       </para>
+     </section>
+
+     <section id="sources_os_bsd">
+       <title>*BSD</title>
+       <para>
+	 FIXME
+       </para>
+     </section>
+-->
+
+   </section>
+
+   <section id="sources_network">
+     <title>Network</title>
+     <para>
+       This section provides information and examples about receiving log messages from
+       the network over various protocols.
+     </para>
+
+     <section id="sources_network_udp">
+       <title>UDP</title>
+       <para>
+	 See <link linkend="im_udp">im_udp</link>.
+       </para>
+     </section>
+
+     <section id="sources_network_tcp">
+       <title>TCP</title>
+       <para>
+	 See <link linkend="im_tcp">im_tcp</link>.
+       </para>
+     </section>
+
+     <section id="sources_network_ssl">
+       <title>TLS/SSL over TCP</title>
+       <para>
+	 See <link linkend="im_ssl">im_ssl</link>.
+       </para>
+     </section>
+
+     <section id="sources_network_syslog">
+       <title>Syslog</title>
+       <para>
+	 If you need to receive syslog over the network, the
+	 <link linkend="xm_syslog">xm_syslog</link> or
+	 <link linkend="pm_transformer">pm_transformer</link> module should be coupled
+	 with one of the network modules above. Syslog parsing is not even required if you
+	 only want to forward or store syslog as is.
+       </para>
+     </section>
+
+   </section>
+
+   <section id="sources_database">
+     <title>Database</title>
+     <para>
+       With special modules it is possible to read logs directly from database servers.
+     </para>
+     <section id="sources_database_dbi">
+       <title>Using im_dbi</title>
+       <para>
+	 The im_dbi module can be used on POSIX systems where libdbi is available.
+	 See the <link linkend="im_dbi">im_dbi</link> module documentation.
+       </para>
+     </section>
+     <section id="sources_database_odbc">
+       <title>Using im_odbc</title>
+       <para>
+	 The im_odbc module can be used with ODBC compatible databases on Windows, Linux and Unix.
+       </para>
+     </section>
+   </section>
+
+   <section id="sources_file">
+     <title>Files</title>
+     <para>
+       The <link linkend="im_file">im_file</link> module can be used to read logs from files.
+       See <link linkend="processing">Processing messages</link> chapter about parsing various
+       formats.
+     </para>
+   </section>
+
+   <section id="sources_program">
+     <title>External programs and scripts</title>
+     <para>
+       The <link linkend="im_exec">im_exec</link> module can be used to read logs from
+       external programs and scripts over a pipe.
+       See <link linkend="processing">Processing messages</link> chapter about parsing various
+       formats.
+     </para>
+   </section>
+
+   <section id="sources_app">
+     <title>Applications</title>
+     <para>
+       This section provides information and examples about collecting log messages from
+       various operating system independent (i.e. multi-platform) applications.
+       Operating system applications are discussed in the 
+       <link linkend="sources_os">previous</link> section.
+     </para>
+
+     <section id="sources_app_apache">
+       <title>Apache HTTP Server</title>
+       <para>
+	 The Apache HTTP Server provides very comprehensive and flexible 
+	 <ulink url="http://httpd.apache.org/docs/2.0/logs.html">logging capabilities</ulink>
+       </para>
+       <section id="sources_app_apache_error_log">
+	 <title>Error log</title>
+	 <para>
+	   FIXME
+	 </para>
+       </section>
+       <section id="sources_app_apache_access_log_common">
+	 <title>Access log - Common Log Format</title>
+	 <para>
+	   See the <link linkend="processing_parsers_common_log_format">NCSA Common Log Format</link>
+	   section in the <link linkend="processing">Processing messages</link> chapter.
+	 </para>
+       </section>
+       <section id="sources_app_apache_access_log_combined">
+	 <title>Access log - Combined Log Format</title>
+	 <para>
+	   See the <link linkend="processing_parsers_combined_log_format">NCSA Combined Log Format</link>
+	   section in the <link linkend="processing">Processing messages</link> chapter.
+	 </para>
+       </section>
+
+     </section>
+
+     <section id="sources_app_tomcat">
+       <title>Apache Tomcat and java application logs</title>
+       <para>
+	 Apache tomcat and java applications are
+	 <ulink url="http://tomcat.apache.org/tomcat-6.0-doc/logging.html">very flexible</ulink>
+	 and can be configured for different transports and formats.
+       </para>
+       <para>
+	 Here is a log sample consisting of 3 events. The log message of the second event 
+	 spans multiple lines.
+	 <programlisting>
+2001-01-25 17:31:42,136 INFO [com.nxsec.somepackage.Class] - single line
+2001-01-25 17:41:16,268 ERROR [com.nxsec.somepackage.Class] - Error retrieving names: ; nested exception is:
+        java.net.ConnectException: Connection refused
+AxisFault
+ faultCode: {http://schemas.xmlsoap.org/soap/envelope/}Server.userException
+ faultSubcode:
+ faultString: java.net.ConnectException: Connection refused
+ faultActor:
+ faultNode:
+ faultDetail:
+        {http://xml.apache.org/axis/}stackTrace:java.net.ConnectException: Connection refused
+2001-01-25 17:57:38,469 INFO [com.nxsec.somepackage.Class] - third log message
+</programlisting>
+	 
+	 <example>
+	   <title>Parsing tomcat logs into fields</title>
+	   <para>
+	     This can be very useful to filter messages by the emitting java class for example.
+	   </para>
+	   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/config-example-tomcat_parse.xml" />
+	 </example>
+	 To parse and process multi-line messages such as the above, see the 
+	 <link linkend="processing_multiline">Dealing with multi-line messages</link> section.
+       </para>
+     </section>
+
+   </section>
+
+   <section id="sources_device">
+     <title>Devices</title>
+     <para>
+       This section deals with special devices such as routers, firewalls, switches and other
+       appliances.
+     </para>
+
+     <section id="sources_device_cisco">
+       <title>Cisco</title>
+       <para>
+	 Cisco devices can be instructed to log over syslog. Unfortunately the lousy syslog RFC
+	 standards compliance and the different formats of cisco devices make it hard to have a
+	 universal cisco syslog parser. Some examples follow.
+       </para>
+
+       <example>
+	 <title>Cisco Secure Access Control Server</title>
+	 <para>
+	   Refer to the <ulink url="http://www.cisco.com/en/US/docs/net_mgmt/cisco_secure_access_control_server_for_windows/4.1/configuration/guide/syslog.html#wp999729">Configuring Syslog Logging</ulink> 
+	   section in the Cisco Configuration Guide.
+	   An example syslog record from a Cisco ACS device looks like the following:
+	   <programlisting><![CDATA[<38>Oct 16 21:01:29 10.0.1.1 CisACS_02_FailedAuth 1k1fg93nk 1 0 Message-Type=Authen failed,User-Name=John,NAS-IP-Address=10.0.1.2,AAA Server=acs01]]></programlisting>
+	   The following configuration file instructs nxlog to accept syslog messages on UDP port 
+	   1514. The payload is parsed as syslog and then the ACS specific fields are
+	   extracted. The output is written to a file in JSON format.
+	   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/config-example-cisco_acs.xml" />
+	 </para>
+       </example>
+
+       <example>
+	 <title>Cisco PIX and Cisco ASA</title>
+	 <para>
+	   The PIX  <ulink url="http://www.cisco.com/en/US/docs/security/pix/pix63/system/message/pixemint.html#wp1020170">Log Message Format</ulink> 
+	   is described in the <replaceable>Cisco PIX Firewall System Log Messages</replaceable> 
+	   document.
+	   An example syslog record from a Cisco ASA device looks like the following:
+	   <programlisting><![CDATA[<38>Oct 12 2004 22:45:15 : %ASA-2-106006: Deny inbound UDP from 10.0.1.2/137 to 10.0.1.1/137 on interface inside]]></programlisting>
+	   The following configuration file instructs nxlog to accept syslog messages on UDP port 
+	   1514. The payload is parsed as syslog and then the ASA/PIX specific fields are
+	   extracted. The output is written to a file in JSON format.
+	   <note>
+	     <para>
+	       The <ulink url="http://www.cisco.com/en/US/docs/security/pix/pix63/system/message/pixemint.html#wp1040486">variables</ulink>
+	       can be extracted into fields with further parsing rules based on <replaceable>CiscoMessageNumber</replaceable>.
+	       See the <ulink url="http://www.cisco.com/en/US/docs/security/asa/asa72/system/message/logmsgs.html">System Log Messages</ulink>
+	       for a complete list.
+	       If you intend to create parsing rules for a lot of message types, consider using
+	       the <link linkend="pm_pattern">pm_pattern</link> module.
+	     </para>
+	   </note>
+	   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/config-example-cisco_pix_asa.xml" />
+	   
+	 </para>
+       </example>
+
+     </section>
+
+     <section id="sources_device_checkpoint">
+       <title>Checkpoint</title>
+       <para>
+	 The im_checkpoint module can collect logs from Checkpoint devices over the OPSEC LEA protocol.
+	 (Note: available in the Enterprise Edition only).
+       </para>
+     </section>
+
+   </section>
+
+</chapter>

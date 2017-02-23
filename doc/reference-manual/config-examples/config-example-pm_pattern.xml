@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programlisting><![CDATA[
+<Extension syslog>
+    Module      xm_syslog
+</Extension>
+
+<Input in>
+    Module	im_uds
+    UDS		/dev/log
+    Exec	parse_syslog_bsd();
+</Input>
+
+<Processor pattern>
+    Module	pm_pattern
+    PatternFile /var/lib/nxlog/patterndb.xml
+</Processor>
+
+<Output out>
+    Module	om_file
+    File	"/var/log/messages"
+</Output>
+
+<Route 1>
+    Path	in => pattern => out
+</Route>
+]]></programlisting>

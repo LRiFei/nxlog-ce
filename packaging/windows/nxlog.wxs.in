@@ -1,0 +1,263 @@
+<?xml version='1.0' encoding='windows-1252'?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+
+
+  <Product Name='NXLOG-CE' Id='*' UpgradeCode='9E888A9C-5962-11E0-B4E3-20CF305ACE5E'
+    Language='1033' Codepage='1252' Version='@VERSION@' Manufacturer='nxsec.com'>
+
+    <Package Id='*' Keywords='Installer' Description="NXLOG Installer" Manufacturer='nxsec.com'
+	     InstallerVersion='100' Languages='1033' Compressed='yes' SummaryCodepage='1252' />
+
+    <Media Id='1' Cabinet='Sample.cab' EmbedCab='yes' DiskPrompt="CD-ROM #1" />
+    <Property Id='DiskPrompt' Value="NXLOG Installation [1]" />
+
+    <Upgrade Id="9E888A9C-5962-11E0-B4E3-20CF305ACE5E">
+      <UpgradeVersion OnlyDetect="yes" Minimum="@VERSION@" Property="NEWERVERSIONDETECTED" IncludeMinimum="no" />
+      <UpgradeVersion OnlyDetect="no" Maximum="@VERSION@" Property="OLDERVERSIONBEINGUPGRADED" IncludeMaximum="no" />
+    </Upgrade>
+
+    <InstallExecuteSequence>
+      <RemoveExistingProducts After="InstallFinalize"/>
+    </InstallExecuteSequence>
+
+
+    <Directory Id='TARGETDIR' Name='SourceDir'>
+      <Directory Id='ProgramFilesFolder' Name='PFiles'>
+          <Directory Id='INSTALLDIR' Name='nxlog'>
+
+	   <Component Id='RegistryEntries' Guid='544FF211-5962-11E0-B4E3-20CF305ACE5E' Win64='no' Location='either'>
+	     <RegistryKey Root='HKLM' Key='SOFTWARE\nxlog' Action='createAndRemoveOnUninstall'>
+	       <RegistryValue Name='installdir' Value='[INSTALLDIR]' Type='string' />
+	     </RegistryKey>
+	   </Component>
+
+	   <Component Id='Service' Guid='79D51AEA-5984-11E0-B4E3-20CF305ACE5E'
+		      SharedDllRefCount='no' NeverOverwrite='no' Permanent='no' Transitive='no'
+		      Win64='no' Location='either'>
+             <File Id='nxlogExe' Name='nxlog.exe' DiskId='1' Source='nxlog.exe' KeyPath='yes'/>
+
+	     <ServiceInstall Id='nxlogServiceInstall' DisplayName='nxlog' Name='nxlog'
+			     Arguments='-c "[INSTALLDIR]conf\nxlog.conf"'
+			     Description="This service is responsible for running the nxlog agent. See www.nxsec.com"
+			     ErrorControl='normal' Start='auto' Type='ownProcess' Vital='yes'>
+	       <ServiceDependency Id="eventlog" />
+	     </ServiceInstall>
+
+	     <ServiceControl Id='nxlogServiceControl' Name='nxlog' Stop='both' Remove='uninstall' Wait='yes'/>
+	   </Component>
+
+           <Component Id='README' Guid='B19BCB1C-596F-11E0-B4E3-20CF305ACE5E'>
+              <File Id='README.txt' Name='README.txt' DiskId='1' Source='README.txt'/>
+           </Component>
+
+           <Component Id='Binaries' Guid='EC5B36CC-596F-11E0-B4E3-20CF305ACE5E'>
+              <File Id='nxlogProcessorExe' Name='nxlog-processor.exe' DiskId='1' Source='nxlog-processor.exe'/>
+              <File Id='nxlogStmntVerfifierExe' Name='nxlog-stmnt-verifier.exe' DiskId='1' Source='nxlog-stmnt-verifier.exe'/>
+
+              <File Id='libnxDLL' Name='libnx-0.dll' DiskId='1' Source='libnx-0.dll'/>
+
+              <File Id='ssleay32DLL' Name='ssleay32-0.9.8.dll' DiskId='1' Source='ssleay32-0.9.8.dll'/>
+              <File Id='cryptoeay32DLL' Name='cryptoeay32-0.9.8.dll' DiskId='1' Source='cryptoeay32-0.9.8.dll'/>
+              <File Id='libaprDLL' Name='libapr-1-0.dll' DiskId='1' Source='libapr-1-0.dll'/>
+              <File Id='libexpatDLL' Name='libexpat-1.dll' DiskId='1' Source='libexpat-1.dll'/>
+              <File Id='libiconvDLL' Name='libiconv-2.dll' DiskId='1' Source='libiconv-2.dll'/>
+              <File Id='libpcreDLL' Name='libpcre-0.dll' DiskId='1' Source='libpcre-0.dll'/>
+              <File Id='libzDLL' Name='zlib1.dll' DiskId='1' Source='zlib1.dll'/>
+           </Component>
+
+           <Directory Id='ModuleDir' Name='modules'>
+             <Directory Id='ExtensionModuleDir' Name='extension'>
+               <Component Id='ExtensionModules' Guid='620F97A6-59DD-11E0-B4E3-20CF305ACE5E'>
+		 <File Id='xmCharconv' Name='xm_charconv.dll' DiskId='1' Source='modules\extension\xm_charconv.dll'/>
+		 <File Id='xmCsv' Name='xm_csv.dll' DiskId='1' Source='modules\extension\xm_csv.dll'/>
+		 <File Id='xmExec' Name='xm_exec.dll' DiskId='1' Source='modules\extension\xm_exec.dll'/>
+		 <File Id='xmSyslog' Name='xm_syslog.dll' DiskId='1' Source='modules\extension\xm_syslog.dll'/>
+		 <File Id='xmJson' Name='xm_json.dll' DiskId='1' Source='modules\extension\xm_json.dll'/>
+		 <File Id='xmXml' Name='xm_xml.dll' DiskId='1' Source='modules\extension\xm_xml.dll'/>
+		 <File Id='xmGelf' Name='xm_gelf.dll' DiskId='1' Source='modules\extension\xm_gelf.dll'/>
+		 <File Id='xmFileop' Name='xm_fileop.dll' DiskId='1' Source='modules\extension\xm_fileop.dll'/>
+		 <File Id='xmMultiline' Name='xm_multiline.dll' DiskId='1' Source='modules\extension\xm_multiline.dll'/>
+		 <File Id='xmKvp' Name='xm_kvp.dll' DiskId='1' Source='modules\extension\xm_kvp.dll'/>
+	       </Component>
+	     </Directory>
+
+             <Directory Id='InputModuleDir' Name='input'>
+               <Component Id='InputModules' Guid='8DC1698C-59FC-11E0-B4E3-20CF305ACE5E'>
+		 <File Id='imExec' Name='im_exec.dll' DiskId='1' Source='modules\input\im_exec.dll'/>
+		 <File Id='imFile' Name='im_file.dll' DiskId='1' Source='modules\input\im_file.dll'/>
+		 <File Id='imInternal' Name='im_internal.dll' DiskId='1' Source='modules\input\im_internal.dll'/>
+		 <File Id='imKernel' Name='im_kernel.dll' DiskId='1' Source='modules\input\im_kernel.dll'/>
+		 <File Id='imMark' Name='im_mark.dll' DiskId='1' Source='modules\input\im_mark.dll'/>
+		 <File Id='imMseventlog' Name='im_mseventlog.dll' DiskId='1' Source='modules\input\im_mseventlog.dll'/>
+		 <File Id='imMsvistalog' Name='im_msvistalog.dll' DiskId='1' Source='modules\input\im_msvistalog.dll'/>
+		 <File Id='imNull' Name='im_null.dll' DiskId='1' Source='modules\input\im_null.dll'/>
+		 <File Id='imSsl' Name='im_ssl.dll' DiskId='1' Source='modules\input\im_ssl.dll'/>
+		 <File Id='imTcp' Name='im_tcp.dll' DiskId='1' Source='modules\input\im_tcp.dll'/>
+		 <File Id='imTestgen' Name='im_testgen.dll' DiskId='1' Source='modules\input\im_testgen.dll'/>
+		 <File Id='imUdp' Name='im_udp.dll' DiskId='1' Source='modules\input\im_udp.dll'/>
+	       </Component>
+	     </Directory>
+
+            <Directory Id='ProcessorModuleDir' Name='processor'>
+               <Component Id='ProcessorModules' Guid='88D16508-59FC-11E0-B4E3-20CF305ACE5E'>
+		 <File Id='pmBlocker' Name='pm_blocker.dll' DiskId='1' Source='modules\processor\pm_blocker.dll'/>
+		 <File Id='pmBuffer' Name='pm_buffer.dll' DiskId='1' Source='modules\processor\pm_buffer.dll'/>
+		 <File Id='pmEvcorr' Name='pm_evcorr.dll' DiskId='1' Source='modules\processor\pm_evcorr.dll'/>
+		 <File Id='pmFilter' Name='pm_filter.dll' DiskId='1' Source='modules\processor\pm_filter.dll'/>
+		 <File Id='pmNorepeat' Name='pm_norepeat.dll' DiskId='1' Source='modules\processor\pm_norepeat.dll'/>
+		 <File Id='pmNull' Name='pm_null.dll' DiskId='1' Source='modules\processor\pm_null.dll'/>
+		 <File Id='pmPattern' Name='pm_pattern.dll' DiskId='1' Source='modules\processor\pm_pattern.dll'/>
+		 <File Id='pmTransformer' Name='pm_transformer.dll' DiskId='1' Source='modules\processor\pm_transformer.dll'/>
+	       </Component>
+	     </Directory>
+
+            <Directory Id='OutputModuleDir' Name='output'>
+               <Component Id='OutputModules' Guid='800B268E-59FC-11E0-B4E3-20CF305ACE5E'>
+		 <File Id='omBlocker' Name='om_blocker.dll' DiskId='1' Source='modules\output\om_blocker.dll'/>
+		 <File Id='omExec' Name='om_exec.dll' DiskId='1' Source='modules\output\om_exec.dll'/>
+		 <File Id='omFile' Name='om_file.dll' DiskId='1' Source='modules\output\om_file.dll'/>
+		 <File Id='omNull' Name='om_null.dll' DiskId='1' Source='modules\output\om_null.dll'/>
+		 <File Id='omSsl' Name='om_ssl.dll' DiskId='1' Source='modules\output\om_ssl.dll'/>
+		 <File Id='omTcp' Name='om_tcp.dll' DiskId='1' Source='modules\output\om_tcp.dll'/>
+		 <File Id='omUdp' Name='om_udp.dll' DiskId='1' Source='modules\output\om_udp.dll'/>
+		 <File Id='omHttp' Name='om_http.dll' DiskId='1' Source='modules\output\om_http.dll'/>
+	       </Component>
+	     </Directory>
+
+	   </Directory>
+
+           <Directory Id='ManualDir' Name='doc'>
+            <Component Id='Manual' Guid='22DB60C8-597F-11E0-B4E3-20CF305ACE5E'>
+              <File Id='ReferenceManualPDF' Name='nxlog-reference-manual.pdf' DiskId='1' Source='doc\nxlog-reference-manual.pdf' KeyPath='yes' />
+              <File Id='ReferenceManualHTML' Name='nxlog-reference-manual.html' DiskId='1' Source='doc\nxlog-reference-manual.html' />
+              <File Id='ChangeLog' Name='ChangeLog.txt' DiskId='1' Source='doc\ChangeLog.txt' />
+            </Component>
+           </Directory>
+
+	   <Directory Id='cert' Name='cert'>
+	     <Component Id='CertDir' Guid='D1F84038-5986-11E0-B4E3-20CF305ACE5E'
+			SharedDllRefCount='no' KeyPath='no' NeverOverwrite='no' Permanent='no' Transitive='no'
+			Win64='no' Location='either'>
+               <CreateFolder/>
+	     </Component>
+	   </Directory>
+
+	   <Directory Id='data' Name='data'>
+	     <Component Id='DataDir' Guid='F98C4F24-59FC-11E0-B4E3-20CF305ACE5E'
+			SharedDllRefCount='no' KeyPath='no' NeverOverwrite='no' Permanent='no' Transitive='no'
+			Win64='no' Location='either'>
+               <CreateFolder/>
+	     </Component>
+	   </Directory>
+
+	   <Directory Id='conf' Name='conf'>
+	     <Component Id='ConfDir' Guid='1E8ED628-5987-11E0-B4E3-20CF305ACE5E'>
+	       <File Id='nxlogConf' Name='nxlog.conf' DiskId='1' Source='nxlog.conf'/>
+	     </Component>
+	   </Directory>
+
+          </Directory>
+      </Directory>
+
+      <Directory Id='ProgramMenuFolder' Name='Programs'>
+        <Directory Id='ProgramMenuDir' Name='nxlog'>
+          <Component Id='ProgramMenuDir' Guid='6001B724-5973-11E0-B4E3-20CF305ACE5E'>
+            <RemoveFolder Id='ProgramMenuDir' On='uninstall' />
+            <RegistryValue Root='HKCU' Key='Software\nxlog' Type='string' Value='' KeyPath='yes' />
+          </Component>
+        </Directory>
+      </Directory>
+
+      <Directory Id='DesktopFolder' Name='Desktop' />
+    </Directory>
+
+    <Feature Id='Complete' Title='nxlog' Description='nxlog community edition' Display='expand' Level='1'>
+	<ComponentRef Id='README' />
+	<ComponentRef Id='Binaries' />
+	<ComponentRef Id='ExtensionModules' />
+	<ComponentRef Id='InputModules' />
+	<ComponentRef Id='ProcessorModules' />
+	<ComponentRef Id='OutputModules' />
+        <ComponentRef Id='Manual' />
+	<ComponentRef Id='ProgramMenuDir' />
+	<ComponentRef Id='Service' />
+	<ComponentRef Id='CertDir' />
+	<ComponentRef Id='ConfDir' />
+	<ComponentRef Id='DataDir' />
+	<ComponentRef Id='RegistryEntries' />
+    </Feature>
+
+    <!-- CA to launch the help file -->
+    <CustomAction Id         ="LaunchReadme"
+		  Directory  ="INSTALLDIR"
+		  ExeCommand ='[SystemFolder]notepad.exe README.txt'
+		  Execute    ="immediate"
+		  Return     ="asyncNoWait" />
+
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT"
+              Value="Open README.txt to read important installation notes" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1"/>
+
+<!--
+    <Property Id="WixShellExecTarget" Value="[#README.txt]" />
+    <CustomAction Id="LaunchReadme" BinaryKey="WixCA" DllEntry="WixShellExec" 
+		  Impersonate="yes" />
+-->
+
+    <WixVariable Id='WixUILicenseRtf' Value='License.rtf' />
+    <WixVariable Id='WixUIDialogBmp' Value='dlgbmp.bmp' />
+    <WixVariable Id='WixUIBannerBmp' Value='bannrbmp.bmp' />
+
+    <UI>
+      <UIRef Id='WixUI_Minimal' />
+
+      <Publish Dialog="ExitDialog"
+	       Control="Finish"
+	       Event="DoAction"
+	       Value="LaunchReadme">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed
+      </Publish>
+    </UI>
+
+    <!-- No License
+    <UI Id='WixUI_Minimal' >
+      <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
+      <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="12" />
+      <TextStyle Id="WixUI_Font_Title" FaceName="Tahoma" Size="9" Bold="yes" />
+
+      <Property Id="DefaultUIFont" Value="WixUI_Font_Normal" />
+      <Property Id="WixUI_Mode" Value="Minimal" />
+
+      <DialogRef Id="ErrorDlg" />
+      <DialogRef Id="FatalError" />
+      <DialogRef Id="FilesInUse" />
+      <DialogRef Id="MsiRMFilesInUse" />
+      <DialogRef Id="PrepareDlg" />
+      <DialogRef Id="ProgressDlg" />
+      <DialogRef Id="ResumeDlg" />
+      <DialogRef Id="UserExit" />
+
+      <DialogRef Id="WelcomeDlg" /> 
+
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="PrepareDlg">1</Publish> 
+      
+      <Publish Dialog="ExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999">1</Publish>
+      
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="MaintenanceTypeDlg">1</Publish>
+      
+      <Publish Dialog="MaintenanceWelcomeDlg" Control="Next" Event="NewDialog" Value="MaintenanceTypeDlg">1</Publish>
+
+      <Publish Dialog="MaintenanceTypeDlg" Control="RepairButton" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
+      <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
+      <Publish Dialog="MaintenanceTypeDlg" Control="Back" Event="NewDialog" Value="MaintenanceWelcomeDlg">1</Publish>
+
+      <Property Id="ARPNOMODIFY" Value="1" />
+    </UI>
+    <UIRef Id="WixUI_Common" />
+-->
+
+<!--
+    <Icon Id="nxLogoIcon" SourceFile="nx_logo.ico" />
+-->
+
+  </Product>
+</Wix>

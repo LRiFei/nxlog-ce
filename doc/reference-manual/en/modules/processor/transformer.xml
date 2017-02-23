@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="pm_transformer">
+  <title>Message format converter (pm_transformer)</title>
+  <para>
+    The pm_transformer module provides parsers for syslog (both legacy and the newer IETF
+    standard), CSV, JSON and XML formatted data and can also convert between.
+    This module is now obsoleted by the functions and procedures provided by the following
+    modules:
+    <simplelist>
+      <member>
+	<link linkend="xm_syslog">xm_syslog</link>
+      </member>
+      <member>
+	<link linkend="xm_csv">xm_csv</link>
+      </member>
+      <member>
+	<link linkend="xm_json">xm_json</link>
+      </member>
+      <member>
+	<link linkend="xm_xml">xm_xml</link>
+      </member>
+    </simplelist>
+    Though using this pm_transformer module can be slightly faster than calling these procedures
+    from an <link linkend="config_module_exec">Exec</link> directive.
+  </para>
+
+  <section id="pm_transformer_config">
+    <title>Configuration</title>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the pm_transformer module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="pm_transformer_config_inputformat"/>InputFormat</term>
+	  <listitem>
+	    <para>
+	      This directive specifies the input format of the $raw_event field so that it is 
+	      further parsed into fields. If this directive is not
+	      specified, no parsing will be done.
+	      <variablelist>
+		<varlistentry>
+		  <term><anchor id="pm_transformer_config_inputformat_syslog_rfc3164"/>syslog_rfc3164</term>
+		  <listitem>
+		    <simpara>
+		      Input is parsed in bsd syslog format as defined by RFC 3164. This does the
+		      same as the 
+		      <link linkend="xm_syslog_proc_parse_syslog_bsd">parse_syslog_bsd()</link>
+		      procedure.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+		<varlistentry>
+		  <term><anchor id="pm_transformer_config_inputformat_syslog_bsd"/>syslog_bsd</term>
+		  <listitem>
+		    <simpara>
+		      Same as <link linkend="pm_transformer_config_inputformat_syslog_rfc3164">syslog_rfc3164</link>.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+
+		<varlistentry>
+		  <term><anchor id="pm_transformer_config_inputformat_syslog_rfc5424"/>syslog_rfc5424</term>
+		  <listitem>
+		    <simpara>
+		      Input is parsed in IETF syslog format as defined by RFC 5424. This does the
+		      same as the 
+		      <link linkend="xm_syslog_proc_parse_syslog_ietf">parse_syslog_ietf()</link>
+		      procedure.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+		<varlistentry>
+		  <term><anchor id="pm_transformer_config_inputformat_syslog_ietf"/>syslog_ietf</term>
+		  <listitem>
+		    <simpara>
+		      Same as <link linkend="pm_transformer_config_inputformat_syslog_rfc5424">syslog_rfc5424</link>.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+
+		<varlistentry>
+		  <term><anchor id="pm_transformer_config_inputformat_csv"/>CSV</term>
+		  <listitem>
+		    <simpara>
+		      Input is parsed as a comma separated list of values.
+		      See <link linkend="xm_csv">xm_csv</link> for similar functionality.
+		      The input fields must be defined defined by
+		      <link linkend="pm_transformer_config_csvinputfields">CSVInputFields</link>
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+
+		<varlistentry>
+		  <term><anchor id="pm_transformer_config_inputformat_xml"/>XML</term>
+		  <listitem>
+		    <simpara>
+		      Input is parsed as XML. This does the same as the 
+		      <link linkend="xm_xml_proc_parse_xml">parse_xml()</link>
+		      procedure.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+
+		<varlistentry>
+		  <term><anchor id="pm_transformer_config_inputformat_json"/>JSON</term>
+		  <listitem>
+		    <simpara>
+		      Input is parsed as JSON. This does the same as the 
+		      <link linkend="xm_json_proc_parse_json">parse_json()</link>
+		      procedure.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+	      </variablelist>
+  	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="pm_transformer_config_csvinputfields"/>CSVInputFields</term>
+	  <listitem>
+	    <para>
+	      This is a comma separated list of fields which will be filled from the input
+	      parsed. The field names must have the dollar sign "$" prepended.
+  	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="pm_transformer_config_csvinputfieldtypes"/>CSVInputFieldTypes</term>
+	  <listitem>
+	    <para>
+	      This optional directive specifies the list of types corresponding to the
+	      field names defined in <link linkend="pm_transformer_config_csvinputfields">CSVInputFields</link>.
+	      If specified, the number of types must match the number of field names specified
+	      with <link linkend="pm_transformer_config_csvinputfields">CSVInputFields</link>.
+	      If this directive is omitted, all fields will be stored as 
+	      <link linkend="lang_type_string">strings</link>.
+	      This directive has no effect on the fields-to-csv conversion.
+  	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="pm_transformer_config_outputformat"/>OutputFormat</term>
+	  <listitem>
+	    <para>
+	      This directive specifies the output transformation. If this directive is not
+	      specified, fields are not converted and $raw_event is left unmodified.
+	      <variablelist>
+		<varlistentry>
+		  <term><anchor id="pm_transformer_config_outputformat_syslog_rfc3164"/>syslog_rfc3164</term>
+		  <listitem>
+		    <simpara>
+		      Output in $raw_event is formatted in bsd syslog format as defined by
+		      RFC 3164. This does the same as the 
+		      <link linkend="xm_syslog_proc_to_syslog_bsd">to_syslog_bsd()</link>
+		      procedure.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+		<varlistentry>
+		  <term><anchor id="pm_transformer_config_outputformat_syslog_bsd"/>syslog_bsd</term>
+		  <listitem>
+		    <simpara>
+		      Same as <link linkend="pm_transformer_config_outputformat_syslog_rfc3164">syslog_rfc3164</link>.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+
+		<varlistentry>
+		  <term><anchor id="pm_transformer_config_outputformat_syslog_rfc5424"/>syslog_rfc5424</term>
+		  <listitem>
+		    <simpara>
+		      Output in $raw_event is formatted in IETF syslog format as defined by
+		      RFC 5424. This does the same as the 
+		      <link linkend="xm_syslog_proc_to_syslog_ietf">to_syslog_ietf()</link>
+		      procedure.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+
+		<varlistentry>
+		  <term><anchor id="pm_transformer_config_outputformat_syslog_ietf"/>syslog_ietf</term>
+		  <listitem>
+		    <simpara>
+		      Same as <link linkend="pm_transformer_config_outputformat_syslog_rfc5424">syslog_rfc5424</link>.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+
+		<varlistentry>
+		  <term><anchor id="pm_transformer_config_outputformat_syslog_snare"/>syslog_snare</term>
+		  <listitem>
+		    <simpara>
+		      Output in $raw_event is formatted in SNARE syslog format.
+		      This does the same as the 
+		      <link linkend="xm_syslog_proc_to_syslog_snare">to_syslog_snare()</link>
+		      procedure. This is to be used in conjunction with the
+		      <link linkend="im_mseventlog">im_mseventlog</link> or 
+		      <link linkend="im_msvistalog">im_msvistalog</link> module to produce an output
+		      compatible with <ulink url="http://www.intersectalliance.com/projects/BackLogNT/">Snare Agent for Windows</ulink>.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+
+		<varlistentry>
+		  <term><anchor id="pm_transformer_config_outputformat_csv"/>CSV</term>
+		  <listitem>
+		    <simpara>
+		      Output in $raw_event is formatted as a comma separated list of values.
+		      See <link linkend="xm_csv">xm_csv</link> for similar functionality.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+
+		<varlistentry>
+		  <term><anchor id="pm_transformer_config_outputformat_xml"/>XML</term>
+		  <listitem>
+		    <simpara>
+		      Output in $raw_event is formatted in XML. This does the same as the
+		      <link linkend="xm_xml_proc_to_xml">to_xml()</link>
+		      procedure.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+
+		<varlistentry>
+		  <term><anchor id="pm_transformer_config_outputformat_json"/>JSON</term>
+		  <listitem>
+		    <simpara>
+		      Output in $raw_event is formatted as JSON. This does the same as the
+		      <link linkend="xm_json_proc_to_json">to_json()</link>
+		      procedure.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+
+	      </variablelist>
+  	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="pm_transformer_config_csvoutputfields"/>CSVOutputFields</term>
+	  <listitem>
+	    <para>
+	      This is a comma separated list of message fields which are placed in the CSV 
+	      lines. The field names must have the dollar sign "$" prepended.
+  	    </para>
+	  </listitem>
+	</varlistentry>
+
+      </variablelist>
+    </para>
+  </section>
+
+  <section id="pm_transformer_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Using the pm_transformer module</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-pm_transformer.xml" />
+      </example>
+    </para>
+  </section>
+
+</section>

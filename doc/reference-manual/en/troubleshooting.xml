@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="troubleshooting">
+  <title>Troubleshooting</title>
+   <para>
+     According to Murphy, anything that can go wrong will go wrong. This chapter is to help
+     diagnosing problems, be that configuration errors or possible bugs.
+   </para>
+   <section id="troubleshooting_logging">
+     <title>nxlog's internal logs</title>
+     <para>
+       While nxlog is a tool to handle logs from external sources, it can and will emit logs
+       about its own operations. These are essential to troubleshoot problems.
+     </para>
+
+     <section id="troubleshooting_logfile">
+       <title>Check the contents of the LogFile</title>
+       <para>
+	 nxlog will log important events including errors and warnings into its logfile. So the first
+	 place to look for errors is the <link linkend="config_global_logfile">LogFile</link>.
+	 If this directive is not specified in the configuration, you should add it.
+	 <note>
+	   <para>
+	     Some windows applications (e.g. wordpad) cannot open the logfile while nxlog is
+	     running because of exclusive file locking. 
+	     Use a text file viewer which does not lock the file (e.g. notepad).
+	   </para>
+	 </note>
+       </para>
+     </section>
+     
+     <section id="troubleshooting_im_internal">
+       <title>Injecting own logs into a route</title>
+       <para>
+	 Internal logs can be read as a log source with the 
+	 <link linkend="im_internal">im_internal</link> module. This makes it possible to
+	 forward the internal logs over the network for example.
+	 <note>
+	   <para>
+	     This method will not work if the route which <link linkend="im_internal">im_internal</link>
+	     is part of is not functional.  Logging with <link linkend="config_global_logfile">LogFile</link>
+	     is more fault-tolerant and this is the recommended way for troubleshooting.
+	   </para>
+	 </note>
+       </para>
+     </section>
+
+     <section id="troubleshooting_loglevel">
+       <title>LogLevel</title>
+       <para>
+	 Internal logs are emitted only on LogLevel of INFO and above.
+	 It is possible to get detailed information about what nxlog is doing by setting
+	 <link linkend="config_global_loglevel">LogLevel</link> to DEBUG.
+	 This can produce an extreme amount of logs, it is recommended to enable this only
+	 for troubleshooting.
+       </para>
+     </section>
+
+     <section id="troubleshooting_foreground">
+       <title>Running in foreground</title>
+       <para>
+	 When nxlog is running in foreground, it will emit logs to STDOUT and STDERR so the logs
+	 will be visible in the running terminal.
+	 This is the same log which is written to the <link linkend="config_global_logfile">LogFile</link>.
+	 It can be started to run in foreground with <command>nxlog -f</command>.
+       </para>
+     </section>
+
+     <section id="troubleshooting_exec_log_info">
+       <title>Using log_info() in the Exec directive</title>
+       <para>
+	 Internal logs can be emitted from the configuration via the
+	 <link linkend="core_proc_log_info">log_info()</link> procedure call in the
+	 <link linkend="config_module_exec">Exec</link> directive. This can be extremely useful
+	 to print and debug message contents. Consider the following example:
+<programlisting><![CDATA[
+<Input in>
+    Module	im_udp
+    Port 	514
+    Exec        if $raw_event =~ /keyword/ log_info("FOUND KEYWORD IN MSG: [" + $raw_event + "]");
+</Input>
+]]></programlisting>
+        Anything which is printed with the <link linkend="core_proc_log_info">log_info()</link>
+        and family of procedure calls will appear in <link linkend="config_global_logfile">LogFile</link>,
+        on the STDOUT/STDERR of nxlog in foreground mode and wil be emitted by
+        <link linkend="im_internal">im_internal</link>.
+       </para>
+     </section>
+   </section>
+
+   <section id="troubleshooting_common_problems">
+     <title>Common problems</title>
+     <para>
+       This section will list a couple problems which you are likely to run into.
+     </para>
+     <section id="troubleshooting_common_problems_missing_logdata">
+       <title>Missing logdata</title>
+       <para>
+	 As discussed in the <link linkend="architecture">architecture</link> chapter, logs
+	 are received by input modules, forwarded to the processor modules and finally handled by
+	 the output modules. When these modules handle a log message, the
+	 <link linkend="config_module_exec">Exec</link> directive is evaluated. There are a few
+	 situations when such statements can be evaluated but the required log is not
+	 available in the current context. When the so called logdata is not available in the
+	 current context, any dependent operation will fail and the evaluation of the Exec code
+	 will terminate. Most notably these operations are
+	 <link linkend="lang_statement_assignment">field assignments</link> and function or
+	 procedure calls which access fields such as 
+	 <link linkend="xm_charconv_proc_convert_fields">convert_fields()</link>.
+	 Consider the following example.
+	 <example>
+	   <title>Assignment after drop()</title>
+	   <para>
+	     In this example the message is conditionally dropped. When the $raw_event field
+	     matches the keyword, the <link linkend="core_proc_drop">drop()</link> operation is
+	     invoked which discards the log completely. If a subsequent statement follows
+	     which accesses the log, it will fail.
+	     <programlisting><![CDATA[
+<Input in>
+    Module	im_udp
+    Port 	514
+    Exec        if $raw_event =~ /keyword/ drop(); $EventTime = now();
+</Input>
+]]></programlisting>
+	     In this case the following internal error log will be emitted:
+	 <programlisting><![CDATA[missing logdata, assignment possibly after drop()]]></programlisting>
+	 The following config snippet fixes the above error by correctly using conditional
+	 statements.
+	 <programlisting><![CDATA[
+<Input in>
+    Module	im_udp
+    Port 	514
+    Exec        if $raw_event =~ /keyword/  \
+                   drop();                  \
+                else                        \
+                   $EventTime = now();
+</Input>
+]]></programlisting>
+	   </para>
+	 </example>
+	 The "logdata will be missing" in the following cases:
+	 <simplelist>
+	   <member>
+	     Accessing a field or calling a procedure/function which needs the logdata
+	     after the <link linkend="core_proc_drop">drop()</link> procedure.
+	   </member>
+	   <member>
+	     Accessing a field or calling a procedure/function which needs the logdata
+	     from the <link linkend="config_module_schedule_exec">Exec directive of a Schedule block</link>.
+	     Since this scheduled Exec is not triggered by the log message, such operation
+	     will result in an error.
+	   </member>
+
+	 </simplelist>
+
+       </para>
+     </section>
+
+     <section id="troubleshooting_common_problems_invalid_conf">
+       <title>nxlog failed to start, cannot read configuration file</title>
+       <para>
+	 You may receive this error message in nxlog.log when nxlog fails to start:
+<programlisting><![CDATA[
+nxlog failed to start: Invalid keyword: ÿþ# at C:\Program Files (x86)\nxlog\conf\nxlog.conf:1
+]]></programlisting>
+Some text editors may save the configuration file in UTF-16 or in UTF-8 with a
+BOM header. The configuration file must be encoded in ASCII or plain UTF-8,
+otherwise you will get this error. On windows using notepad.exe should work properly.
+       </para>
+     </section>
+
+     <section id="troubleshooting_common_problems_nxlog_log_in_use">
+       <title>nxlog.log is in use by another application and cannot be accessed</title>
+       <para>
+	 You may receive this error message on Windows when trying to open the logfile (usually
+	 <filename>nxlog.log</filename>) with a text editor which uses exclusive locking.
+	 You can only open the log after nxlog is stopped. By using a text viewer or
+	 text editor which does not use exclusive locking (such as notepad.exe), you can
+	 open the logfile without the need to stop nxlog.
+       </para>
+     </section>
+
+     <section id="troubleshooting_common_problems_connection_refused">
+       <title>Connection refused when trying to connect to im_tcp or im_ssl</title>
+       <para>
+	 Make sure that you have no firewall blocking the connection. The interface address 
+	 or the hostname which resolves to the interface address must be accessible from the
+	 outside. See the <link linkend="im_tcp_config_host">Host</link> directive of im_tcp.
+       </para>
+     </section>
+
+   </section>
+
+   <section id="troubleshooting_log_message_content">
+     <title>Debugging and dumping messages</title>
+     <para>
+       When creating complex processing rules and configurations, you will most likely run
+       into a problem and need to debug the stream of event log messages to see
+       <itemizedlist>
+	 <listitem>
+	   <para>
+	     what has been received/read by the input(s),
+	   </para>
+	 </listitem>
+	 <listitem>
+	   <para>
+	     whether some required field exists and what its value is,
+	   </para>
+	 </listitem>
+	 <listitem>
+	   <para>
+	     if the parser is working correctly and populating the fields as it should,
+	   </para>
+	 </listitem>
+	 <listitem>
+	   <para>
+	     all the fields and their values contained in the event log after parsing.
+	   </para>
+	 </listitem>
+        </itemizedlist>
+       The following configuration snippets show some examples how this can be done.
+
+      <example id="troubleshooting_example_file_write">
+	<title>Writing the values of fields to an external file</title>
+	<para>
+	  The <link linkend="xm_fileop_proc_file_write">file_write()</link> procedure provided by
+	  the <link linkend="xm_fileop">xm_fileop</link> module can be used to dump information
+	  into an external file.
+	</para>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/config-example-troubleshooting_file_write.xml" />
+      </example>
+
+      <example id="troubleshooting_example_log_info">
+	<title>Writing the values of fields to the internal log</title>
+	<para>
+	  Using the <link linkend="core_proc_log_info">log_info</link> procedure the values
+	  can be sent to the internal log. This will be visible in the file defined with the
+	  <link linkend="config_global_logfile">LogFile</link> global directive, 
+	  in the input from the <link linkend="im_internal">im_internal</link> module and
+	  on standard output when running <command>nxlog</command> in foreground with the
+	  <option>-f</option> command line switch.
+	</para>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/config-example-troubleshooting_log_info.xml" />
+      </example>
+
+      <example id="troubleshooting_example_to_json">
+	<title>Dumping all the fields</title>
+	<para>
+	  Using the <link linkend="xm_json_proc_to_json">to_json</link> procedure 
+	  provided by the <link linkend="xm_json">xm_json</link> module, all the fields
+	  can be dumped.
+	  If you prefer, you can use the <link linkend="xm_xml_proc_to_xml">to_xml</link>
+	  procedure provided by the <link linkend="xm_xml">xm_xml</link> module.
+	</para>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../config-examples/config-example-troubleshooting_json.xml" />
+	<para>
+	  This will produce the following output in the logs:
+<programlisting><![CDATA[2012-05-18 13:11:35 INFO raw event is: <27>2010-10-12 12:49:06 host app[12345]: test message
+2012-05-18 13:11:35 INFO Other fields are: {"MessageSourceAddress":"127.0.0.1","EventReceivedTime":"2012-05-18 13:11:35",
+            "SourceModuleName":"in","SourceModuleType":"im_tcp","SyslogFacilityValue":3,"SyslogFacility":"DAEMON",
+            "SyslogSeverityValue":3,"SyslogSeverity":"ERR","SeverityValue":4,"Severity":"ERROR","Hostname":"host",
+            "EventTime":"2010-10-12 12:49:06","SourceName":"app","ProcessID":"12345","Message":"test message"}
+]]></programlisting>
+	</para>
+      </example>
+     </para>
+     <para>
+       In some cases nxlog is already receiving some invalid data it cannot grok. To
+       verify that indeed this is the case, use a network traffic analyzer such as
+       wireshark or tcpdump.
+     </para>
+   </section>
+
+</chapter>

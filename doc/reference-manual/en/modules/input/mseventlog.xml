@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="im_mseventlog">
+  <title>MS EventLog for Windows XP/2000/2003 (im_mseventlog)</title>
+  <para>
+    This module can be used to collect EventLog messages on Microsoft Windows platforms.
+    The module looks up the available EventLog sources stored under the registry key
+    "SYSTEM\\CurrentControlSet\\Services\\Eventlog" and will poll logs from each of these or
+    only the sources defined with the <link linkend="im_mseventlog_config_sources">Sources</link>
+    directive.
+  </para>
+  <note>
+    <para>
+      Windows Vista, Windows 2008 and later use a new EventLog API which is not backward
+      compatible. Messages in some events produced by sources in this new format cannot be 
+      resolved with the old API which is used by this module.
+      If such an event is encountered, a Message similar to the following will be set:
+      <programlisting><![CDATA[The description for EventID XXXX from source SOURCE cannot be read by im_mseventlog because this does not support the newer WIN2008/Vista EventLog API.
+]]></programlisting>
+      Though the majority of event messages can be read with this module even on Windows 2008/Vista and
+      later, it is recommended to use the <link linkend="im_msvistalog">im_msvistalog</link> module
+      instead.
+    </para>
+  </note>
+
+  <note>
+    <para>
+      Strings are stored in dll and executable files and these need to be looked up by the
+      module when reading eventlog messages. If a program (dll/exe) is already uninstalled
+      and cannot be opened to look up the strings in the message, the following message
+      will appear instead:
+	<programlisting><![CDATA[The description for EventID XXXX from source SOURCE cannot be found.
+]]></programlisting>
+    </para>
+  </note>
+
+  <section id="im_mseventlog_config">
+    <title>Configuration</title>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the im_mseventlog module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="im_mseventlog_config_savepos"/>SavePos</term>
+	  <listitem>
+	    <simpara>
+	      This directive takes a boolean value of TRUE or FALSE and specifies whether
+	      the file position should be saved when nxlog exits.
+	      The file position will be read from the cache file upon startup.
+	      The file position is saved by default if this directive is not specified
+	      in the configuration.
+	      Even if SavePos is enabled, it can be explicitly turned off with the
+	      <link linkend="config_global_nocache">NoCache</link> directive.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><anchor id="im_mseventlog_config_readfromlast"/>ReadFromLast</term>
+	  <listitem>
+	    <simpara>
+	      This optional directive takes a boolean value. If it is set to TRUE, it instructs
+	      the module to only read logs which arrived after nxlog was started in case the
+	      saved position could not be read (for example on first start).
+	      When SavePos is TRUE and a previously saved position value could be read,
+	      the module will resume reading from this saved position.
+	      If this is FALSE, the module will read all logs from the EventLog. This can result
+	      in quite a lot of messages which is usually not the expected behaviour.
+	      If this directive is not specified, it defaults to TRUE.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><anchor id="im_mseventlog_config_sources"/>Sources</term>
+	  <listitem>
+	    <simpara>
+	      This optional directive takes a comma separated list of eventlog file names,
+	      such as 'Security, Application', to read only specific eventlog sources.
+	      If this directive is not specified, then all available eventlog sources 
+	      are read (as listed in the registry).
+	      This directive should not be confused with the 
+	      <link linkend="im_mseventlog_field_SourceName">SourceName</link> containted
+	      within the eventlog and it is not a list of such names. The value of this
+	      is stored in the <link linkend="im_mseventlog_field_FileName">FileName</link>
+	      field.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><anchor id="im_mseventlog_config_utf8"/>UTF8</term>
+	  <listitem>
+	    <simpara>
+	      This optional directive takes a boolean value. If it is set to TRUE, all strings
+	      will be converted to UTF-8 encoding. Internally this calls the 
+	      <link linkend="xm_charconv_proc_convert_fields">convert_fields</link> procedure.
+	      The <link linkend="xm_charconv">xm_charconv</link> module must be loaded for
+	      the character set conversoion to work.
+	      If this UTF8 directive is not defined, it defaults to TRUE, but conversion will
+	      only occur if the <link linkend="xm_charconv">xm_charconv</link> module is loaded,
+	      otherwise strings will be in the local codepage.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+      </variablelist>
+    </para>
+  </section>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../fields-im_mseventlog.xml" />
+
+  <section id="im_mseventlog_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Forwarding EventLogs from a windows machine to a remote host</title>
+	<programlisting><![CDATA[
+<Input in>
+    Module      im_mseventlog
+</Input>
+
+<Output out>
+    Module      om_tcp
+    Host        192.168.1.1
+    Port        514
+</Output>
+
+<Route 1>
+    Path        in => out
+</Route>]]></programlisting>
+      </example>
+    </para>
+  </section>
+
+</section>

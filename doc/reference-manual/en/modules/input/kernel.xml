@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="im_kernel">
+  <title>Kernel (im_kernel)</title>
+  <para>
+    This module can collect kernel log messages from the kernel log buffer.
+    Currently this module works on linux only.
+    On Linux the klogctl() system call is used for this purpose.
+    In order to be able to read kernel logs, special privileges are required.
+    For this reason nxlog needs to be started as root. Using the
+    <link linkend="config_global_user">User</link> and
+    <link linkend="config_global_group">Group</link> global directives nxlog can then
+    drop its root privileges but it will keep the CAP_SYS_ADMIN capability to be able
+    to read the kernel log buffer.
+  </para>
+  <note>
+    <para>
+      Unfortunately it is not possible to read from the /proc/kmsg pseudo file for an
+      unprivileged process even if the CAP_SYS_ADMIN capability is kept. 
+      For this reason the /proc/kmsg interface is not supported by the im_kernel module.
+      The <link linkend="im_file">im_file</link> module should work fine with the
+      /proc/kmsg pseudo file if one wishes to collect kernel logs this way, though this
+      will require nxlog to be running as root.
+    </para>
+  </note>
+  <para>
+    The kernel messages are emitted in the following form.
+    <programlisting><![CDATA[
+<[0-7]>Some message from the kernel.
+]]></programlisting>
+  </para>
+  <note>
+    <para>
+      Kernel messages are valid BSD syslog messages but do not contain timestamp and
+      hostname fields.
+      These can be parsed with
+      <link linkend="pm_transformer">pm_transformer</link> or using the
+      <link linkend="xm_syslog_proc_parse_syslog_bsd">parse_syslog_bsd()</link> procedure of
+      the <link linkend="xm_syslog">xm_syslog</link> module, this will set the timestamp and
+      hostname fields.
+    </para>
+  </note>
+
+  <section id="im_kernel_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Storing raw kernel logs into a file</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-im_kernel.xml" />
+      </example>
+    </para>
+  </section>
+
+</section>

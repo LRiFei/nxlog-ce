@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="pm_buffer">
+  <title>Buffer (pm_buffer)</title>
+  <para>
+    Messages received over UDP may be dropped by the operating system unless packets are
+    read from the message buffer fast enough. Some logging subsystems using a small circular
+    buffer can also overwrite logs old logs in the buffer if it is not read, thus there is a
+    chance of missing important log data.  Such situations can lead to
+    <link linkend="features_no_message_dropping">dropped or lost messages</link>
+    and other problems where buffering can help.
+  </para>
+  <para>
+    The pm_buffer module supports disk and memory based log message buffering.
+    If both are required, multiple pm_buffer instances can be used with different settings.
+    Because a memory buffer can be faster, though its size is limited, combining memory and
+    disk based buffering can be a good idea in case buffering is frequently used.
+  </para>
+  <para>
+    The disk based buffering mode stores the log message data in chunks. When all the data is
+    successfully forwarded from a chunk, it is then deleted in order to save disk space.
+  </para>
+  <note>
+    <para>
+      Using pm_buffer is only recommended when there is a chance of message loss.
+      The built-in flow-control in nxlog ensures that messages will not be read by the input
+      module until the output side can send/store/forward.
+      When reading from files (with <link linkend="im_file">im_file</link>)
+      or the Windows Eventlog (with <link linkend="im_mseventlog">im_mseventlog</link> or
+      <link linkend="im_msvistalog">im_msvistalog</link>) it is rarely necessary to use
+      the pm_buffer module unless there is a chance of log rotation (and thus a possibility
+      of missing some data) while the output module (e.g. TCP or SSL) is being blocked.
+    </para>
+  </note>
+  
+  <section id="pm_buffer_config">
+    <title>Configuration</title>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the pm_buffer module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="pm_buffer_config_maxsize"/>MaxSize</term>
+	  <listitem>
+	    <simpara>
+	      Specifies the size of the buffer in kilobytes. This paramater is mandatory.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="pm_buffer_config_warnlimit"/>WarnLimit</term>
+	  <listitem>
+	    <simpara>
+	      Specifies an optional limit smaller than 
+	      <link linkend="pm_buffer_config_maxsize">MaxSize</link> which will trigger a warning
+	      message when reached.
+	      The log message will not be emitted again until the buffer size drops to half
+	      of WarnLimit and reaches it again in order to protect against a warning message flood.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="pm_buffer_config_type"/>Type</term>
+	  <listitem>
+	    <simpara>
+	      Type can be either 'Mem' or 'Disk' to select memory or disk based buffering
+	      respectively.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="pm_buffer_config_directory"/>Directory</term>
+	  <listitem>
+	    <simpara>
+	      Name of the directory used to store the disk buffer file chunks.
+	      This is only valid with
+	      <link linkend="pm_buffer_config_type">Type</link> set to 'Disk' mode.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+      </variablelist>
+    </para>
+  </section>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../apidoc-pm_buffer.xml" />
+
+  <section id="pm_buffer_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Using a memory buffer to protect against udp message loss</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-pm_buffer.xml" />
+      </example>
+    </para>
+  </section>
+</section>

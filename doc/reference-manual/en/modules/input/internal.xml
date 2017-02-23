@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="im_internal">
+  <title>Internal (im_internal)</title>
+  <para>
+    This module makes it possible to insert internal log messages of nxlog into a route.
+    nxlog generates messages about error conditions, debugging messages, etc. In addition
+    internal messages can be also generated from the nxlog language using the
+    <link linkend="core_proc_log_info">log_info()</link>,
+    <link linkend="core_proc_log_warning">log_warning()</link> and
+    <link linkend="core_proc_log_error">log_error()</link> procedure calls.
+  </para>
+  <note>
+    <para>
+      Only messages with loglevel INFO and above are supported. Debug messages are ignored
+      due to technical reasons. 
+      For debugging purposes the direct logging facility should be used, see the global
+      <link linkend="config_global_logfile">LogFile</link> and 
+      <link linkend="config_global_loglevel">LogLevel</link> directives.
+    </para>
+    <para>
+      One must be careful about the use of the im_internal module because it is easy to
+      cause a message loop.
+      For example consider the situation when the internal messages are sent to a database.
+      If the database is experiencing errors which result in internal error messages then
+      these are again routed to the database and this will trigger further error messages and
+      is easy to see that this will result in a loop.
+      In order to avoid a resource exhaustion, the im_internal module will drop its
+      messages when the queue of next module in the route is full.
+      It is recommended to always put the im_internal module instance in a separate route.
+    </para>
+  </note>
+  <para>
+    The im_internal does not have any module specific configuration directives in addition
+    to the <link linkend="config_module_common">common module directives</link>.
+  </para>
+  <note>
+    <para>
+      If you require internal messages in syslog format, you need to explicitely convert them
+      with <link linkend="pm_transformer">pm_transformer</link> or using the
+      <link linkend="xm_syslog_proc_to_syslog_bsd">to_syslog_bsd()</link> procedure of
+      the <link linkend="xm_syslog">xm_syslog</link> module, because the 
+      <link linkend="im_mark_field_raw_event">$raw_event</link> field is not generated in
+      syslog format.
+    </para>
+  </note>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../fields-im_internal.xml" />
+
+  <section id="im_internal_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Forwaring internal messages over syslog udp</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-im_internal.xml" />
+      </example>
+    </para>
+  </section>
+
+</section>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programlisting><![CDATA[
+<Extension charconv>
+    Module      xm_charconv
+    AutodetectCharsets utf-8, euc-jp, utf-16, utf-32, iso8859-2
+</Extension>
+
+<Input filein>
+    Module	im_file
+    File	"tmp/input"
+    Exec	convert_fields("AUTO", "utf-8");
+</Input>
+
+<Output fileout>
+    Module	om_file
+    File	"tmp/output"
+</Output>
+
+<Route 1>
+    Path	filein => fileout
+</Route>
+]]></programlisting>

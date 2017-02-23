@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="modules">
+  <title>Modules</title>
+  <para>
+    nxlog uses loadable modules similarly to the Apache HTTP server, these are also called
+    as plugins in another terminology.
+    There are four types of modules: 
+    <link linkend="modules_extension">extension</link>,
+    <link linkend="modules_input">input</link>,
+    <link linkend="modules_processor">processor</link> and
+    <link linkend="modules_output">output</link> modules.
+    This chapter deals with the features and configuration of each specific module.
+    General concepts about <link linkend="config_modules">configuring modules</link>
+    were discussed in the <link linkend="config">Configuration</link> chapter earlier.
+  </para>
+  <section id="modules_extension">
+   <title>Extension modules</title>
+   <para>
+     Extension modules do not process log messages directly, and for this reason their
+     instances cannot be part of a <link linkend="config_routes">route</link>.
+     These modules can enhance the features of nxlog in different ways such as exporting new
+     <link linkend="lang_exported_module_funcproc">functions and procedures</link>,
+     registering additional I/O reader and writer functions to be used with modules
+     supporting the <link linkend="config_outputtype">OutputType</link> and
+     <link linkend="config_inputtype">InputType</link> directives.
+     Also there are many possibilities to hook an extension module into the nxlog engine,
+     the following modules will illustrate this.
+   </para>
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/extension/csv.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/extension/json.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/extension/xml.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/extension/kvp.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/extension/gelf.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/extension/charconv.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/extension/fileop.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/extension/multiline.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/extension/syslog.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/extension/exec.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/extension/perl.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/extension/wtmp.xml" /> 
+  </section>
+
+  <section id="modules_input">
+   <title>Input modules</title>
+   <para>
+     Input modules are responsible for collecting event log data from various sources.
+     The nxlog core will add a few fields in each input module, see the following section for the
+     list of these.
+   </para>
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="fields-core.xml" />
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/input/dbi.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/input/exec.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/input/file.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/input/internal.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/input/kernel.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/input/mark.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/input/mseventlog.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/input/msvistalog.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/input/null.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/input/ssl.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/input/tcp.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/input/udp.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/input/uds.xml" /> 
+  </section>
+
+  <section id="modules_processor">
+   <title>Processor modules</title>
+   <para>
+   </para>
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/processor/blocker.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/processor/buffer.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/processor/evcorr.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/processor/filter.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/processor/norepeat.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/processor/null.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/processor/pattern.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/processor/transformer.xml" /> 
+  </section>
+
+  <section id="modules_output">
+   <title>Output modules</title>
+   <para>
+   </para>
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/output/blocker.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/output/dbi.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/output/exec.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/output/file.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/output/http.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/output/null.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/output/ssl.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/output/tcp.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/output/udp.xml" /> 
+   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules/output/uds.xml" /> 
+  </section>
+
+</chapter>

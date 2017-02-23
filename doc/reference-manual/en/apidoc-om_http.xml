@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="om_http_funcproc"><title>Functions and procedures exported by om_http</title>
+
+<section id="om_http_procedures"><title>Procedures exported by om_http</title>
+  <variablelist>
+   <varlistentry>
+     <term>
+       <anchor id="om_http_proc_set_http_request_path"/>
+       <function>set_http_request_path(string path);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Sets the path in the HTTP request to the string specified.
+       This is useful if the URL is dynamic and parameters such as event id need to be included in the URL.
+       Note that the string must be url encoded if it contains reserved characters.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>path</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+  </variablelist>
+</section>
+</section>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="pm_norepeat">
+  <title>Message deduplicator (pm_norepeat)</title>
+  <para>
+    This module can be used to filter out repeating messages. Similarly to syslog daemons,
+    this module checks the previous message against the current. If they match, the current
+    message is dropped. The module waits one second for duplicated messages to arrive. 
+    If duplicates are detected, the first message is forwarded, the rest is dropped and
+    a message containing "last message repeated X times" is sent instead.
+  </para>
+
+  <section id="pm_norepeat_config">
+    <title>Configuration</title>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the pm_norepeat module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="pm_norepeat_config_checkfields"/>CheckFields</term>
+	  <listitem>
+	    <simpara>
+	      This optional directive takes a comma separated list of field names
+	      which are used to compare log messages. Only the fields listed here
+	      are compared, the others are ignored. For example the 'EventTime'
+	      field will be different in repeating messages, so this field should not be used 
+	      in the comparison.
+	      If this directive is not specified, the default field to be checked is
+	      'Message'.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../fields-pm_norepeat.xml" />
+
+  <section id="pm_norepeat_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Filtering out duplicated messages</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-pm_norepeat.xml" />
+      </example>
+    </para>
+  </section>
+
+</section>

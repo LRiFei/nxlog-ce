@@ -1,0 +1,158 @@
+<declarations>
+ <module>xm_syslog</module>
+ <include>../../../common/expr.h</include>
+ <include>../../../common/module.h</include>
+
+ <procedure>
+   <name>parse_syslog</name>
+   <type>global</type>
+   <cb>nx_expr_proc__parse_syslog</cb>
+   <description>
+     <en>Parse the raw_event field as either BSD Syslog (RFC3164) or IETF Syslog (RFC5424) format</en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>parse_syslog</name>
+   <type>global</type>
+   <cb>nx_expr_proc__parse_syslog</cb>
+   <arg>
+    <name>source</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <description>
+     <en>Parse the given string as either BSD Syslog (RFC3164) or IETF Syslog (RFC5424) format</en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>parse_syslog_bsd</name>
+   <type>global</type>
+   <cb>nx_expr_proc__parse_syslog_bsd</cb>
+   <description>
+     <en>Parse the raw_event field as BSD Syslog (RFC3164) format</en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>parse_syslog_bsd</name>
+   <type>global</type>
+   <cb>nx_expr_proc__parse_syslog_bsd</cb>
+   <arg>
+    <name>source</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <description>
+     <en>Parse the given string as BSD Syslog (RFC3164) format</en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>parse_syslog_ietf</name>
+   <type>global</type>
+   <cb>nx_expr_proc__parse_syslog_ietf</cb>
+   <description>
+     <en>Parse the raw_event field as IETF Syslog (RFC5424) format</en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>parse_syslog_ietf</name>
+   <type>global</type>
+   <cb>nx_expr_proc__parse_syslog_ietf</cb>
+   <arg>
+    <name>source</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <description>
+     <en>Parse the given string as IETF Syslog (RFC5424) format</en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>to_syslog_bsd</name>
+   <type>global</type>
+   <cb>nx_expr_proc__to_syslog_bsd</cb>
+   <description>
+     <en>Create a BSD Syslog formatted log message in $raw_event from the fields of the event. The fields that are used to construct the $raw_event field are $EventTime, $Hostname, $SourceName, $ProcessID, $Message or $raw_event, $SyslogSeverity or $SyslogSeverityValue or $Severity or $SeverityValue, $SyslogFacility or $SyslogFacilityValue. If the fields are not present, a sensible default is used.</en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>to_syslog_ietf</name>
+   <type>global</type>
+   <cb>nx_expr_proc__to_syslog_ietf</cb>
+   <description>
+     <en>Create an IETF Syslog (RFC5424) formatted log message in $raw_event from the fields of the event. The fields that are used to construct the $raw_event field are $EventTime, $Hostname, $SourceName, $ProcessID, $Message or $raw_event, $SyslogSeverity or $SyslogSeverityValue or $Severity or $SeverityValue, $SyslogFacility or $SyslogFacilityValue. If the fields are not present, a sensible default is used.</en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>to_syslog_snare</name>
+   <type>global</type>
+   <cb>nx_expr_proc__to_syslog_snare</cb>
+   <description>
+     <en>Create a SNARE Syslog formatted log message in $raw_event. Uses the following fields to construct $raw_event: $EventTime, $Hostname, $SeverityValue, $FileName, $EventID, $SourceName, $AccountName, $AccountType, $EventType, $Category, $Message.</en>
+   </description>
+ </procedure>
+
+ <function>
+   <name>syslog_facility_value</name>
+   <type>global</type>
+   <cb>nx_expr_func__syslog_facility_value</cb>
+   <rettype>integer</rettype>
+   <arg>
+    <name>arg</name>
+    <type>string</type>
+   </arg>
+   <description>
+     <en>Convert a syslog facility string to an integer</en>
+   </description>
+ </function>
+
+ <function>
+   <name>syslog_facility_string</name>
+   <type>global</type>
+   <cb>nx_expr_func__syslog_facility_string</cb>
+   <rettype>string</rettype>
+   <arg>
+    <name>arg</name>
+    <type>integer</type>
+   </arg>
+   <description>
+     <en>Convert a syslog facility value to a string</en>
+   </description>
+ </function>
+
+ <function>
+   <name>syslog_severity_value</name>
+   <type>global</type>
+   <cb>nx_expr_func__syslog_severity_value</cb>
+   <rettype>integer</rettype>
+   <arg>
+    <name>arg</name>
+    <type>string</type>
+   </arg>
+   <description>
+     <en>Convert a syslog severity string to an integer</en>
+   </description>
+ </function>
+
+ <function>
+   <name>syslog_severity_string</name>
+   <type>global</type>
+   <cb>nx_expr_func__syslog_severity_string</cb>
+   <rettype>string</rettype>
+   <arg>
+    <name>arg</name>
+    <type>integer</type>
+   </arg>
+   <description>
+     <en>Convert a syslog severity value to a string</en>
+   </description>
+ </function>
+
+</declarations>

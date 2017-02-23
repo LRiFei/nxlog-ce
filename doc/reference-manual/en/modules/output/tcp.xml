@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="om_tcp">
+  <title>TCP (om_tcp)</title>
+  <para>
+    This module initiates a TCP connection to a remote host and transfers log messages.
+    The TCP transfer protocol provides more reliable log transmission than UDP.
+    If security is a concern, consider using the <link linkend="om_ssl">om_ssl</link>
+    module instead.
+  </para>
+
+  <section id="om_tcp_config">
+    <title>Configuration</title>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the om_tcp module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="om_tcp_config_host"/>Host</term>
+	  <listitem>
+	    <simpara>
+	      This mandatory directive specifies the IP address or a dns hostname 
+	      where the module should connect to.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="om_tcp_config_port"/>Port</term>
+	  <listitem>
+	    <simpara>
+	      This specifies the port number where the module should connect to.
+	      The default port is 514 if this directive is not specified.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="om_tcp_config_reconnect"/>Reconnect</term>
+	  <listitem>
+	    <simpara>
+	      This directive has been deprecated as of version 2.4.
+	      The module will try to reconnect automatically at increasing intervals on all errors.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="om_tcp_config_outputtype"/>OutputType</term>
+	  <listitem>
+	    <simpara>
+	      See the description about <link linkend="config_outputtype">OutputType</link>
+	      in the global module config section.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
+
+  <section id="om_tcp_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Transferring raw logs over TCP</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-om_tcp.xml" />
+      </example>
+    </para>
+  </section>
+
+</section>

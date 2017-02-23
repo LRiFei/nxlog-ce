@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="xm_kvp">
+  <title>Key-value pairs (xm_kvp)</title>
+  <para>
+    This module provides functions and procedures to process data formatted as
+    key-value pairs (KVPs), also commonly called as name-value pairs.
+    The module can both parse and generate data formatted as key-value pairs.
+  </para>
+  <para>
+    It is quite common to have a different set of keys in each log line in the form of
+    key-value formatted messages. Extracting values from such logs using regular expressions
+    can be quite cumbersome. The xm_kvp extension module solves this problem by
+    automating this process.
+  </para>
+  <para>
+    Log messages containing key-value pairs typically look like the following:
+    <programlisting><![CDATA[key1: value1, key2: value2, key42: value42
+key1="value 1"; key2="value 2"
+Application=smtp, Event='Protocol Conversation', status='Client Request', ClientRequest='HELO 1.2.3.4'
+]]></programlisting>
+    I.e. keys are usually separated from the value using an equal sign (=) or the colon (:) and
+    the key-value pairs are delimited with a comma (,), semicolon (;) or space.
+    In addition, values and keys may be quoted and can contain escaping. 
+    The module will try to guess the format or this can be explicitly specified using
+    the configuration directives listed below.
+  </para>
+  <note>
+    <para>
+      It is possible to use more than one xm_kvp module instance with different options in order
+      to support different KVP formats at the same time.
+      For this reason, functions and procedures exported by the module are public and 
+      must be referenced by the module instance name.
+    </para>
+  </note>
+
+  <section id="xm_kvp_config">
+    <title>Configuration</title>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the xm_kvp module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="xm_kvp_config_keyquotechar"/>KeyQuoteChar</term>
+	  <listitem>
+	    <para>
+	      This optional directive takes a single character 
+	      (see <link linkend="xm_kvp_config_char">below</link>)
+	      as argument to specify the quote character used to enclose key names.
+	      If this directive is not specified, the module will accept keys quoted in
+	      single and double quotes in addition to unquoted keys.
+  	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="xm_kvp_config_valuequotechar"/>ValueQuoteChar</term>
+	  <listitem>
+	    <para>
+	      This optional directive takes a single character 
+	      (see <link linkend="xm_kvp_config_char">below</link>)
+	      as argument to specify the quote character used to enclose values.
+	      If this directive is not specified, the module will accept keys quoted in
+	      single and double quotes in addition to unquoted values.
+	      Normally, but not neccessarily, quotation is used when the value contains
+	      space and or the KVDelimiter character.
+  	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="xm_kvp_config_escapechar"/>EscapeChar</term>
+	  <listitem>
+	    <para>
+	      This optional directive takes a single character 
+	      (see <link linkend="xm_kvp_config_char">below</link>)
+	      as argument to specify the escape 
+	      character used to escape special characters.
+	      The escape character is used to prefix the following characters:
+	      the <link linkend="xm_kvp_config_keyquotechar">EscapeChar</link> itself and
+	      the <link linkend="xm_kvp_config_keyquotechar">KeyQuoteChar</link> or
+	      the <link linkend="xm_kvp_config_valuequotechar">ValueQuoteChar</link>.
+	      
+	      If <link linkend="xm_kvp_config_escapecontrol">EscapeControl</link> is TRUE,
+	      the \n, \r, \t, \b (newline, carriage-return, tab, backspace) control characters
+	      are also escaped.
+	      If this directive is not specified, the default escape character is the backslash
+	      character (\).
+  	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="xm_kvp_config_kvdelimiter"/>KVDelimiter</term>
+	  <listitem>
+	    <para>
+	      This optional directive takes a single character 
+	      (see <link linkend="xm_kvp_config_char">below</link>)
+	      as argument to specify the
+	      delimiter character used to separate the key from the value.
+	      If this directive is not specified, the module will try to guess the 
+	      delimiter used which can be either a colon (:) or the equal-sign (=).
+  	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="xm_kvp_config_kvpdelimiter"/>KVPDelimiter</term>
+	  <listitem>
+	    <para>
+	      This optional directive takes a single character 
+	      (see <link linkend="xm_kvp_config_char">below</link>)
+	      as argument to specify the
+	      delimiter character used to separate the key-value pairs.
+	      If this directive is not specified, the module will try to guess the 
+	      delimiter used which can be either a comma (,) semicolon (;) or the space.
+  	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="xm_kvp_config_escapecontrol"/>EscapeControl</term>
+	  <listitem>
+	    <para>
+	      If this optional boolean directive is set to TRUE, control characters
+	      are also escaped. 
+	      See the <link linkend="xm_kvp_config_escapechar">EscapeChar</link>
+	      directive for details.
+	      If this directive is not specified, control characters are escaped by default.
+	      Note that this is necessary in order to allow single line KVP field lists
+	      which contain line-breaks.
+  	    </para>
+	  </listitem>
+	</varlistentry>
+
+      </variablelist>
+    </para>
+    
+    <section id="xm_kvp_config_char">
+      <title>Specifying characters for quote, escape and delimiter</title>
+      <para>
+	The <link linkend="xm_kvp_config_valuequotechar">ValueQuoteChar</link>, 
+	<link linkend="xm_kvp_config_valuequotechar">KeyQuoteChar</link>, 
+	<link linkend="xm_kvp_config_escapechar">EscapeChar</link>,
+	<link linkend="xm_kvp_config_kvdelimiter">KVDelimiter</link> and
+	<link linkend="xm_kvp_config_kvpdelimiter">KVPDelimiter</link> can be specified in different ways, 
+	mainly due to the nature of the config file format.
+	As of this writing, the module does not support multi character strings for these parameters.
+	<variablelist>
+	  <varlistentry>
+	    <term><anchor id="xm_kvp_config_char_single"/>Unquoted single character</term>
+	    <listitem>
+	      <para>
+		Printable characters can be specified as an unquoted character,
+		except for the backslash '\'. Example:
+		<programlisting><![CDATA[Delimiter ;]]></programlisting>
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><anchor id="xm_kvp_config_char_control"/>Control characters</term>
+	    <listitem>
+	      <para>
+		The following non-printable characters can be specified with escape sequences:
+		<variablelist>
+		  <varlistentry>
+		    <term>\a</term>
+		    <listitem>
+		      <simpara>
+			audible alert (bell)
+  		      </simpara>
+		    </listitem>
+		  </varlistentry>
+		  <varlistentry>
+		    <term>\b</term>
+		    <listitem>
+		      <simpara>
+			backspace
+  		      </simpara>
+		    </listitem>
+		  </varlistentry>
+		  <varlistentry>
+		    <term>\t</term>
+		    <listitem>
+		      <simpara>
+			horizontal tab
+  		      </simpara>
+		    </listitem>
+		  </varlistentry>
+		  <varlistentry>
+		    <term>\n</term>
+		    <listitem>
+		      <simpara>
+			newline
+  		      </simpara>
+		    </listitem>
+		  </varlistentry>
+		  <varlistentry>
+		    <term>\v</term>
+		    <listitem>
+		      <simpara>
+			vertical tab
+  		      </simpara>
+		    </listitem>
+		  </varlistentry>
+		  <varlistentry>
+		    <term>\f</term>
+		    <listitem>
+		      <simpara>
+			formfeed
+  		      </simpara>
+		    </listitem>
+		  </varlistentry>
+		  <varlistentry>
+		    <term>\r</term>
+		    <listitem>
+		      <simpara>
+			carriage return
+  		      </simpara>
+		    </listitem>
+		  </varlistentry>
+		</variablelist>
+		To use TAB delimiting:
+		<programlisting><![CDATA[KVPDelimiter \t]]></programlisting>
+  	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><anchor id="xm_kvp_config_char_single_quote"/>A character in single quotes</term>
+	    <listitem>
+	      <para>
+		The config parser strips whitespace, so it is not possible to define space as
+		the delimiter unless it is enclosed within quotes:
+		<programlisting><![CDATA[KVPDelimiter ' ']]></programlisting>
+		Printable characters can also be enclosed:
+		<programlisting><![CDATA[KVPDelimiter ';']]></programlisting>
+		The backslash can be specified when enclosed within quotes:
+		<programlisting><![CDATA[EscapeChar '\']]></programlisting>
+  	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><anchor id="xm_kvp_config_char_double_quote"/>A character in double quotes</term>
+	    <listitem>
+	      <para>
+		Double quotes can be used similarly to single quotes:
+		<programlisting><![CDATA[KVPDelimiter " "]]></programlisting>
+		The backslash can be specified when enclosed within double quotes:
+		<programlisting><![CDATA[EscapeChar "\"]]></programlisting>
+  	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+	
+      </para>
+    </section>
+
+  </section>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../apidoc-xm_kvp.xml" />
+
+  <section id="xm_kvp_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      The following examples show various use-cases for parsing KVPs either embedded in another
+      encapsulating format (e.g. syslog) or simply on their own. 
+      To do something with the logs we convert these to JSON , though obviously there are dozens
+      of other options. These examples use files for input and output, this can be also changed
+      to use UDP syslog or some other protocol.
+      <example id="xm_kvp_example_simple">
+	<title>Simple KVP parsing</title>
+	<para>
+	  The following two lines of input illustrate a simple KVP format where
+	  each line consists of various keys and values assigned to them.
+	  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_kvp5.in.xml" />
+	  To process this input we use the following configuration that will ignore lines starting with 
+	  a hash (#) and parses others as key value pairs.
+	  The parsed fields can be used in nxlog expressions. In this example we insert a new field
+	  named $Overweight and set its value to TRUE if the conditions are met.
+	  Finally a few automatically added fields are removed and the log is then converted
+	  to JSON.
+	</para>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_kvp5.conf.xml" />
+	<para>
+	  The output produced by the above configuration is as follows:
+	  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_kvp5.out.xml" />
+	</para>
+      </example>
+
+      <example id="xm_kvp_example_cisco_acs">
+	<title>Parsing KVPs in Cisco ACS syslog</title>
+	<para>
+	  The following line is from a Cisco ACS source:
+	  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-cisco_acs.in.xml" />
+	  The format is syslog which contains a set of values present in each record such
+	  as the category name and an additional set of KVPs.
+	  The following configuration can be used to process this and convert it to JSON:
+	</para>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-cisco_acs.conf.xml" />
+	<para>
+	  The converted JSON result is shown below:
+	  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-cisco_acs.out.xml" />
+	</para>
+      </example>
+
+      <example id="xm_kvp_example_sidewinder">
+	<title>Parsing KVPs in Sidewinder logs</title>
+	<para>
+	  The following line is from a Sidewinder log source:
+	  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-sidewinder.in.xml" />
+	  This can be parsed and converted to JSON with the following configuration:
+	</para>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-sidewinder.conf.xml" />
+	<para>
+	  The converted JSON result is shown below:
+	  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-sidewinder.out.xml" />
+	</para>
+      </example>
+
+      <example id="xm_kvp_example_apache_url">
+	<title>Parsing URL request parameters in Apache access logs</title>
+	<para>
+	  URLs in HTTP requests frequently contain URL parameters which are a special kind of key-value
+	  pairs delimited by the ampersand (&amp;).
+	  Here is an example of two HTTP requests logged by the Apache web server in the
+	  Combined Log Format:
+	  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-apache_url.in.xml" />
+	  The following configuration file parses the access log and extracts all the fields.
+	  In this case the request parameters are extracted into the 
+	  <replaceable>HTTPParams</replaceable> field using a regular expression. This field is then
+	  further parsed using the KVP parser.
+	  At the end of the processing all fields are converted to the KVP format using the 
+	  <link linkend="xm_kvp_proc_to_kvp">to_kvp()</link> procedure of the 
+	  <replaceable>kvp2</replaceable> instance.
+	</para>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-apache_url.conf.xml" />
+	<para>
+	  The two request parameters <replaceable>action</replaceable> and <replaceable>obj_id</replaceable>
+	  then appear at the end of the KVP formated lines.
+	  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-apache_url.out.xml" />
+	  Note that url escaping is not handled.
+	</para>
+      </example>
+
+
+    </para>
+  </section>
+
+</section>

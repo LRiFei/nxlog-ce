@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="im_dbi">
+  <title>DBI (im_dbi)</title>
+  <para>
+    FIXME
+  </para>
+
+  <section id="im_dbi_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Reading from a MySQL database</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-im_dbi_mysql.xml" />
+      </example>
+    </para>
+  </section>
+
+</section>

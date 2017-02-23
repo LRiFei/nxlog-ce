@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="pm_blocker_funcproc"><title>Functions and procedures exported by pm_blocker</title>
+
+<section id="pm_blocker_functions"><title>Functions exported by pm_blocker</title>
+  <variablelist>
+   <varlistentry>
+     <term>
+       <anchor id="pm_blocker_func_is_blocking"/>
+       <function>boolean is_blocking();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Return TRUE if the module is currently blocking the data flow, FALSE otherwise.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_boolean">boolean</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+  </variablelist>
+</section>
+
+<section id="pm_blocker_procedures"><title>Procedures exported by pm_blocker</title>
+  <variablelist>
+   <varlistentry>
+     <term>
+       <anchor id="pm_blocker_proc_block"/>
+       <function>block(boolean mode);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       When mode is TRUE, the module will block. You should call block(FALSE)
+       from a schedule block or another module, otherwise it might not get invoked
+       if the queue is already full.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>mode</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_boolean">boolean</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+  </variablelist>
+</section>
+</section>

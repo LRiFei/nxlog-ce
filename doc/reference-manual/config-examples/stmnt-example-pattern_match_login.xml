@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programlisting><![CDATA[
+if $Message =~ /^pam_unix\(sshd:session\): session opened for user (\S+) by \(uid=(\d+)\)/ {
+    $AccountName = $1;
+    $AccountID = integer($2);
+    $Action = 'LoginEvent';
+}
+]]></programlisting>

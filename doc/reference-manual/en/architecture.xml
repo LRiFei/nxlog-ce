@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="architecture">
+  <title>Architecture and concepts</title>
+
+  <section id="arch_history">
+   <title>History</title>
+   <para>
+     For a few years we have been using a modified version of msyslog. It is also capable
+     of using plugins for different inputs and outputs. Unfortunately, like many other
+     syslog implementations, it was based on the BSD syslog with a single threaded 
+     architecture. Since it was a syslog daemon, everything had to be converted to syslog.
+     We soon realized that something better is needed with the
+     <link linkend="intro_features">features</link> required by a modern logging solution.
+   </para>
+   <para>
+     We started looking for other solutions. There were a few possible alternatives
+     to msyslog with some nice features (e.g. rsyslog, syslog-ng, etc), but none of them
+     qualified. Most of them were still single threaded, syslog oriented without native support
+     for MS Windows, in addition to awkward configuration syntax, ugly source-code and so on.
+     So I decided that it would be easier for us on the long term to design and write nxlog
+     from scratch instead of hacking something else. 
+     Thus nxlog was born in 2009 and has been a closed source product heavily used in several
+     production deployments since.
+     The source code of NXLOG Community Edition was released in November 2011.
+   </para>
+  </section>
+
+  <section id="arch_concepts">
+   <title>Concepts</title>
+   <para>
+     Most log processing solutions are built around the same concept. The input is read
+     from a source, then the log messages are processed. Finally output is written or sent to
+     a sink in other terminology.
+   </para>
+   <para>
+     When an event occurs in an application or a device, depending on its configuration
+     a log message is emitted. This is usually referred to as an "event log"
+     or "log message".
+     These log messages can have different formats and can be transmitted over different
+     protocols depending on the actual implementation.
+   </para>
+   <para id="arch_concept_field">
+     There is one thing common in all event log messages. All contain important data such
+     as user names, IP addresses, application names, etc. This way an event can be represented
+     as a list of key-value pairs which we call a "field".
+     The name of the field is the key and the field data is the value.
+     In another terminology this meta-data is sometimes referred to as event property or
+     message tag.
+     The following example illustrates a syslog message:
+     <programlisting><![CDATA[<30>Nov 21 11:40:27 log4ensics sshd[26459]: Accepted publickey for log4ensics from 192.168.1.1 port 41193 ssh2]]></programlisting>
+     The fields extracted from this message are as follows:
+     <programlisting><![CDATA[
+AuthMethod             publickey
+SourceIPAddress        192.168.1.1
+AccountName            log4ensics
+SyslogFacility         DAEMON
+SyslogSeverity         INFO
+Severity               INFO
+EventTime              2009-11-21 11:40:27.0
+Hostname               log4ensics
+ProcessID              26459
+SourceName             sshd
+Message                Accepted publickey for log4ensics from 192.168.1.1 port 41193 ssh2
+]]></programlisting>
+     
+     nxlog will try to use the <ulink url="http://cee.mitre.org">Common Event Expression standard</ulink>
+     for the field names once the standard is stable.
+   </para>
+
+   <para id="arch_concept_raw_event">
+     nxlog has a special field, $raw_event. This field is handled by the transport
+     (UDP, TCP, File, etc) modules to read input into and write output from it.
+     This field is also used later to parse the log message into further fields by various
+     functions, procedures and modules.
+   </para>
+  </section>
+
+  <section id="arch_arch">
+   <title>Architecture</title>
+   <para>
+     By utilizing <link linkend="modules">loadable modules</link>, the plugin architecture
+     of nxlog allows it to read data from any kind of input, parse and convert the format
+     of the messages and then send it to any kind of output.
+     Different input, processor and output modules can be used at the same time to cover
+     all the requirements of the logging environment.
+     The following figure illustrates the flow of log messages using this architecture.
+     <mediaobject>
+       <imageobject><imagedata fileref="../figures/architecture.png"/></imageobject>
+       <textobject>
+	 <phrase>Architecture</phrase>
+       </textobject>
+       <caption><para>Architecture</para></caption>
+     </mediaobject>
+   </para>
+
+   <para>
+     The core of nxlog is responsible for parsing the configuration file, montitoring files
+     and sockets, and managing internal events. It has an event based architecture,
+     all modules can dispatch events to the core. The nxlog core will take care of the
+     event and will optionally pass it to a module for processing.
+     nxlog is a multi-threaded application, the main thread is responsible for monitoring files
+     and sockets. These are added to the core by the different 
+     <link linkend="modules_input">input</link> and
+     <link linkend="modules_output">output</link> modules. There is a dedicated thread
+     handling internal events. It sleeps until the next event is to be processed then wakes
+     up and dispatches the event to a worker thread.
+     nxlog implements a worker thread-pool model. Worker threads receive an event which
+     must be processed immediately. This way the nxlog core can centrally control all events
+     and the order of their execution making
+     <link linkend="features_prioritized_processing">prioritized processing</link> possible.
+     Modules which handle sockets or files are written to use non-blocking I/O in order to
+     ensure that the worker threads never block. The files and sockets monitored by the main
+     thread also dispatch events which are then delegated to the workers.
+     Each event belonging to the same module is executed in sequential order, not concurrently.
+     This ensures that message order is kept and gives a great benefit of not having to
+     deal with concurrency issues in modules. Yet the modules (worker threads) run concurrently,
+     thus the global log processing flow is greatly parallelized.
+   </para>
+
+   <para>
+     When an input module receives data, it creates an internal representation of the log
+     message which is basically a structure containing the raw event data and any optional
+     fields.
+     This log message is then pushed to the queue of the next module in the route and
+     an internal event is generated to signal the availability of the data.
+     The next module after the input module in a route can be either a processor module
+     or an output module.
+     Actually an input or output module can also process data through built in code or 
+     using the <link linkend="config_module_exec">nxlog language execution</link>
+     framework. The only difference is that processor modules are run in another worker thread,
+     thus parallelizng log processing even more. Considering that processor modules can also
+     be chained, this can efficiently distribute work among multiple CPUs or CPU cores in the
+     system.
+   </para>
+
+  </section>
+
+</chapter>

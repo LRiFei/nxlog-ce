@@ -1,0 +1,567 @@
+<declarations>
+ <module>xm_fileop</module>
+ <include>../../../common/expr.h</include>
+ <include>../../../common/module.h</include>
+
+<!--
+TODO: 
+  file_zip()
+  file_unzip()
+-->
+ <procedure>
+   <name>file_cycle</name>
+   <type>global</type>
+   <cb>nx_expr_proc__xm_fileop_file_cycle</cb>
+   <arg>
+    <name>file</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <description>
+     <en>
+       Do a cyclic rotation on 'file'. 'file' will be moved to "'file'.1". If 
+       "'file'.1" already exists it will be moved to "'file'.2" and so on.
+       This procedure will reopen the LogFile if this is cycled.
+       An error is logged if the operation fails.
+     </en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>file_cycle</name>
+   <type>global</type>
+   <cb>nx_expr_proc__xm_fileop_file_cycle</cb>
+   <arg>
+    <name>file</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <arg>
+    <name>max</name>
+    <type>integer</type>
+    <access>r</access>
+   </arg>
+   <description>
+     <en>
+       Do a cyclic rotation on 'file'. 'file' will be moved to "'file'.1". If 
+       "'file'.1" already exists it will be moved to "'file'.2" and so on.
+       'max' specifies the maximum number of files to keep. E.g. if 'max' is 5, "'file'.6" 
+       will be deleted.
+       This procedure will reopen the LogFile if this is cycled.
+       An error is logged if the operation fails.
+     </en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>file_rename</name>
+   <type>global</type>
+   <cb>nx_expr_proc__xm_fileop_file_rename</cb>
+   <arg>
+    <name>old</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <arg>
+    <name>new</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <description>
+     <en>
+       Rename the file 'old' to 'new'. If the file 'new' exists, it will be overwritten.
+       Moving files or directories across devices may not be possible.
+       This procedure will reopen the LogFile if this is renamed.
+       An error is logged if the operation fails.
+     </en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>file_copy</name>
+   <type>global</type>
+   <cb>nx_expr_proc__xm_fileop_file_copy</cb>
+   <arg>
+    <name>src</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <arg>
+    <name>dst</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <description>
+     <en>
+       Copy the file 'src' to 'dst'. 
+       If file 'dst' already exists, its contents will be overwritten. 
+       An error is logged if the operation fails.
+     </en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>file_remove</name>
+   <type>global</type>
+   <cb>nx_expr_proc__xm_fileop_file_remove</cb>
+   <arg>
+    <name>file</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <description>
+     <en>
+       Remove the file 'file'. It is possible to specify a wildcard in filenames 
+       (but not in the path). If you use backslash as the directory separator with wildcards,
+       make sure to escape this (e.g. 'C:\\test\\*.log').
+       This procedure will reopen the LogFile if this is removed.
+       An error is logged if the operation fails.
+     </en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>file_remove</name>
+   <type>global</type>
+   <cb>nx_expr_proc__xm_fileop_file_remove</cb>
+   <arg>
+    <name>file</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <arg>
+    <name>older</name>
+    <type>datetime</type>
+    <access>r</access>
+   </arg>
+   <description>
+     <en>
+       Remove the file 'file' if its creation time is older than the value specified in 'older'.
+       It is possible to specify a wildcard in filenames (but not in the path).
+       If you use backslash as the directory separator with wildcards,
+       make sure to escape this (e.g. 'C:\\test\\*.log').
+       This procedure will reopen the LogFile if this is removed.
+       An error is logged if the operation fails.
+     </en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>file_link</name>
+   <type>global</type>
+   <cb>nx_expr_proc__xm_fileop_file_link</cb>
+   <arg>
+    <name>src</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <arg>
+    <name>dst</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <description>
+     <en>
+       Create a hardlink from 'src' to 'dst'.
+       An error is logged if the operation fails.
+     </en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>file_append</name>
+   <type>global</type>
+   <cb>nx_expr_proc__xm_fileop_file_append</cb>
+   <arg>
+    <name>src</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <arg>
+    <name>dst</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <description>
+     <en>
+       Append the contents of the file 'src' to 'dst'. 'dst' will be created if it does
+       not exist.
+       An error is logged if the operation fails.
+     </en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>file_write</name>
+   <type>global</type>
+   <cb>nx_expr_proc__xm_fileop_file_write</cb>
+   <arg>
+    <name>file</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <arg>
+    <name>value</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <description>
+     <en>
+       Write value into 'file'. 'file' will be created if it does not exist.
+       An error is logged if the operation fails.
+     </en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>file_truncate</name>
+   <type>global</type>
+   <cb>nx_expr_proc__xm_fileop_file_truncate</cb>
+   <arg>
+    <name>file</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <description>
+     <en>
+       Truncate the file to zero length. If 'file' does not exist, it will be created.
+       An error is logged if the operation fails.
+     </en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>file_truncate</name>
+   <type>global</type>
+   <cb>nx_expr_proc__xm_fileop_file_truncate</cb>
+   <arg>
+    <name>file</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <arg>
+    <name>offset</name>
+    <type>integer</type>
+    <access>r</access>
+   </arg>
+   <description>
+     <en>
+       Truncate the file to the size specified in 'offset'. If 'file' does not exist, it will be created.
+       An error is logged if the operation fails.
+     </en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>file_chown</name>
+   <type>global</type>
+   <cb>nx_expr_proc__xm_fileop_file_chown</cb>
+   <arg>
+    <name>file</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <arg>
+    <name>uid</name>
+    <type>integer</type>
+    <access>r</access>
+   </arg>
+   <arg>
+    <name>gid</name>
+    <type>integer</type>
+    <access>r</access>
+   </arg>
+   <description>
+     <en>
+       Change file ownership. This function is only implemented on POSIX systems where chown() is 
+       available in the underlying OS.
+       An error is logged if the operation fails.
+     </en>
+   </description>
+ </procedure>
+ 
+ <procedure>
+   <name>file_chown</name>
+   <type>global</type>
+   <cb>nx_expr_proc__xm_fileop_file_chown_usr_grp</cb>
+   <arg>
+    <name>file</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <arg>
+    <name>user</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <arg>
+    <name>group</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <description>
+     <en>
+       Change file ownership. This function is only implemented on POSIX systems where chown() is 
+       available in the underlying OS.
+       An error is logged if the operation fails.
+     </en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>file_chmod</name>
+   <type>global</type>
+   <cb>nx_expr_proc__xm_fileop_file_chmod</cb>
+   <arg>
+    <name>file</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <arg>
+    <name>mode</name>
+    <type>integer</type>
+    <access>r</access>
+   </arg>
+   <description>
+     <en>
+       Change file permission. This function is only implemented on POSIX systems where chmod() is 
+       available in the underlying OS.
+       An error is logged if the operation fails.
+     </en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>file_touch</name>
+   <type>global</type>
+   <cb>nx_expr_proc__xm_fileop_file_touch</cb>
+   <arg>
+    <name>file</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <description>
+     <en>
+       Update the last modification time of 'file' or create it if 'file' does not exist.
+       An error is logged if the operation fails.
+     </en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>dir_make</name>
+   <type>global</type>
+   <cb>nx_expr_proc__xm_fileop_dir_make</cb>
+   <arg>
+    <name>path</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <description>
+     <en>
+       Create a directory recursively (i.e. as 'mkdir -p').
+       It succeeds if the directory already exists.
+       An error is logged if the operation fails.
+     </en>
+   </description>
+ </procedure>
+
+ <procedure>
+   <name>dir_remove</name>
+   <type>global</type>
+   <cb>nx_expr_proc__xm_fileop_dir_remove</cb>
+   <arg>
+    <name>file</name>
+    <type>string</type>
+    <access>r</access>
+   </arg>
+   <description>
+     <en>
+       Remove the directory from the filesystem.
+     </en>
+   </description>
+ </procedure>
+
+ <function>
+   <name>file_read</name>
+   <type>global</type>
+   <cb>nx_expr_func__xm_fileop_file_read</cb>
+   <rettype>string</rettype>
+   <arg>
+    <name>file</name>
+    <type>string</type>
+   </arg>
+   <description>
+     <en>
+       Return the contents of the file as a string value.
+       On error undef is returned and an error is logged.
+     </en>
+   </description>
+ </function>
+
+ <function>
+   <name>file_exists</name>
+   <type>global</type>
+   <cb>nx_expr_func__xm_fileop_file_exists</cb>
+   <rettype>boolean</rettype>
+   <arg>
+    <name>file</name>
+    <type>string</type>
+   </arg>
+   <description>
+     <en>Return TRUE if the file exists and is a regular file.</en>
+   </description>
+ </function>
+
+ <function>
+   <name>file_basename</name>
+   <type>global</type>
+   <cb>nx_expr_func__xm_fileop_file_basename</cb>
+   <rettype>string</rettype>
+   <arg>
+    <name>file</name>
+    <type>string</type>
+   </arg>
+   <description>
+     <en>
+       Strip the directory name from the full file path. 
+       basename('/var/log/app.log') will return 'app.log'.
+     </en>
+   </description>
+ </function>
+
+ <function>
+   <name>file_dirname</name>
+   <type>global</type>
+   <cb>nx_expr_func__xm_fileop_file_dirname</cb>
+   <rettype>string</rettype>
+   <arg>
+    <name>file</name>
+    <type>string</type>
+   </arg>
+   <description>
+     <en>
+       Return the directory name of the full file file path. 
+       basename('/var/log/app.log') will return '/var/log'.
+       Returns an empty string if 'file' does not contain any directory separators.
+     </en>
+   </description>
+ </function>
+
+ <function>
+   <name>file_mtime</name>
+   <type>global</type>
+   <cb>nx_expr_func__xm_fileop_file_mtime</cb>
+   <rettype>datetime</rettype>
+   <arg>
+    <name>file</name>
+    <type>string</type>
+   </arg>
+   <description>
+     <en>
+       Return the last modification time of the file.
+       On error undef is returned and an error is logged.
+     </en>
+   </description>
+ </function>
+
+ <function>
+   <name>file_ctime</name>
+   <type>global</type>
+   <cb>nx_expr_func__xm_fileop_file_ctime</cb>
+   <rettype>datetime</rettype>
+   <arg>
+    <name>file</name>
+    <type>string</type>
+   </arg>
+   <description>
+     <en>
+       Return the creation or inode-changed time of the file.
+       On error undef is returned and an error is logged.
+     </en>
+   </description>
+ </function>
+
+ <function>
+   <name>file_type</name>
+   <type>global</type>
+   <cb>nx_expr_func__xm_fileop_file_type</cb>
+   <rettype>string</rettype>
+   <arg>
+    <name>file</name>
+    <type>string</type>
+   </arg>
+   <description>
+     <en>
+       Return the type of the file. The following string values can be returned:
+       FILE, DIR, CHAR, BLOCK, PIPE, LINK, SOCKET, UNKNOWN.
+       On error undef is returned and an error is logged.
+     </en>
+   </description>
+ </function>
+
+ <function>
+   <name>file_size</name>
+   <type>global</type>
+   <cb>nx_expr_func__xm_fileop_file_size</cb>
+   <rettype>integer</rettype>
+   <arg>
+    <name>file</name>
+    <type>string</type>
+   </arg>
+   <description>
+     <en>
+       Return the size of the file.
+       On error undef is returned and an error is logged.
+     </en>
+   </description>
+ </function>
+
+ <function>
+   <name>file_inode</name>
+   <type>global</type>
+   <cb>nx_expr_func__xm_fileop_file_inode</cb>
+   <rettype>integer</rettype>
+   <arg>
+    <name>file</name>
+    <type>string</type>
+   </arg>
+   <description>
+     <en>
+       Return the inode number of the file.
+       On error undef is returned and an error is logged.
+     </en>
+   </description>
+ </function>
+
+ <function>
+   <name>dir_temp_get</name>
+   <type>global</type>
+   <cb>nx_expr_func__xm_fileop_dir_temp_get</cb>
+   <rettype>string</rettype>
+   <description>
+     <en>
+       Return the name of a directory suitable as a temporary storage location.
+     </en>
+   </description>
+ </function>
+
+ <function>
+   <name>dir_exists</name>
+   <type>global</type>
+   <cb>nx_expr_func__xm_fileop_dir_exists</cb>
+   <rettype>boolean</rettype>
+   <arg>
+    <name>path</name>
+    <type>string</type>
+   </arg>
+   <description>
+     <en>
+       Return TRUE if the 'path' exists and is a directory.
+       On error undef is returned and an error is logged.
+     </en>
+   </description>
+ </function>
+
+</declarations>
+

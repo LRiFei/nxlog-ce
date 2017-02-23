@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="om_http">
+  <title>HTTP(s) (om_http)</title>
+  <para>
+    This module will connect to the <link linkend="om_http_config_url">url</link>
+    specified in the configuration in either plain HTTP or HTTPS mode.
+    Each event data is transferred in a single POST request. The module then waits for a
+    response containing a successful status code (200, 201 or 202).
+    It will reconnect and retry the delivery if the remote has closed the connection or
+    a timeout is exceeded while waiting for the repsponse. This HTTP-level acknowledgement
+    ensures that no messages are lost during transfer.
+  </para>
+
+  <section id="om_http_config">
+    <title>Configuration</title>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the om_http module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="om_http_config_url"/>Url</term>
+	  <listitem>
+	    <simpara>
+	      This mandatory directive specifies the URL where the module should
+	      POST the event data. The module checks the url whether to operate in plain HTTP
+	      or HTTPS mode. It connects to the hostname specified in the url. If the port number
+	      is not explicitly indicated it defaults to 80 and 443 for HTTP and HTTPS
+	      respectively.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="om_http_config_httpscertfile"/>HTTPSCertFile</term>
+	  <listitem>
+	    <simpara>
+	      This specifies the path of the certificate file to be used in
+	      the HTTPS handshake.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="om_http_config_httpscertkeyfile"/>HTTPSCertKeyFile</term>
+	  <listitem>
+	    <simpara>
+	      This specifies the path of the certificate key file to be used in
+	      the HTTPS handshake.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="om_http_config_httpskeypass"/>HTTPSKeyPass</term>
+	  <listitem>
+	    <simpara>
+	      Optional password of the certificate key file defined in 
+ 	      <link linkend="om_http_config_httpscertkeyfile">HTTPSCertKeyFile</link>.
+	      For passwordless private keys the directive is not needed.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="om_http_config_httpscafile"/>HTTPSCAFile</term>
+	  <listitem>
+	    <simpara>
+	      This specifies the path of the certificate of the CA which
+	      will be used to check the certificate of the remote HTTPS server.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="om_http_config_httpscadir"/>HTTPSCADir</term>
+	  <listitem>
+	    <simpara>
+	      This specifies the path of CA certificates which will be 
+	      used to check the certificate of the remote HTTPS server.
+	      The cert file names in this directory must be in the OpenSSL hashed format.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="om_http_config_httpscrlfile"/>HTTPSCRLFile</term>
+	  <listitem>
+	    <simpara>
+	      This specifies the path of the certificate revocation list (CRL) which
+	      will be used to check the certificate of the remote HTTPS server.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="om_http_config_httpscrldir"/>HTTPSCRLDir</term>
+	  <listitem>
+	    <simpara>
+	      This specifies the path of certificate revocation lists (CRLs) which will be
+	      used to check the certificate of the remote HTTPS server.
+	      The file names in this directory must be in the OpenSSL hashed format.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="om_http_config_httpsallowuntrusted"/>HTTPSAllowUntrusted</term>
+	  <listitem>
+	    <simpara>
+	      This takes a boolean value of TRUE or FALSE and specifies whether
+	      the connection should be allowed without certificate verification.
+
+	      If set to TRUE the connection will be allowed even if the remote HTTPS
+              server presents unknown and self-signed certificates.
+	      The default value is FALSE if this directive is not specified, meaning that
+	      the remote end must present a trusted certificate by default.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="om_http_config_contenttype"/>ContentType</term>
+	  <listitem>
+	    <simpara>
+	      Sets the Content-Type HTTP header to the string specified with this directive. The Content-Type is set to
+	      'text/plain' by default unless this directive is set.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../apidoc-om_http.xml" />
+
+  <section id="om_http_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Sending logs over HTTPS</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-om_http.xml" />
+      </example>
+    </para>
+  </section>
+
+</section>

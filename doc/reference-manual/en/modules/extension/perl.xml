@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="xm_perl">
+  <title>Perl (xm_perl)</title>
+  <para>
+    This module makes it possible to execute perl code and process event data using the 
+    <ulink url="http://json.org">perl language</ulink> via a built-in perl interpreter.
+    The perl interpreter is only loaded if the module is declared in the configuration.
+    While the <link linkend="lang">nxlog language</link> is already a powerful framework,
+    it is not intended to be a full featured programming language. For example it does
+    not provide lists, arrays, hashes and other features available in many high-level
+    languages. Perl is widely used for log processing and it comes with a broad
+    set of modules bundled or available from <ulink url="http://cpan.org">CPAN</ulink>.
+  </para>
+  <para>
+    You can sometimes write faster code in C, but you can always write code faster in Perl.
+    Code written in perl is also a lot safer because it is unlikely to crash.
+    Exceptions in the perl code (croak/die) are handled properly and this will only result
+    in an unfinished attempt at executing the log processing code but will not take down
+    the whole nxlog process.
+  </para>
+
+  <para>
+    The module will parse the file specified in the
+    <link linkend="xm_perl_config_perlcode">PerlCode</link> directive when nxlog and the module 
+    is started.
+    This file should contain one or more methods which can be called from the 
+    <link linkend="config_module_exec">Exec</link> directive of any module which
+    wants to do any log processing in perl. See the
+    <link linkend="xm_perl_config_examples">example</link> below which illustrates
+    the use of this module.
+  </para>
+
+  <para>
+    To acccess the fields and the event data from the perl code, you need to include
+    the <replaceable>Log::Nxlog</replaceable> module.
+    This exports the following methods:
+    <variablelist>
+      <varlistentry>
+	<term>set_field_integer(event, key, value)</term>
+	<listitem>
+	  <para>
+	    Sets the integer value in the field named 'key'.
+	  </para>
+	</listitem>
+      </varlistentry>
+       <varlistentry>
+	<term>set_field_string(event, key, value)</term>
+	<listitem>
+	  <para>
+	    Sets the string value in the field named 'key'.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term>set_field_boolean(event, key, value)</term>
+	<listitem>
+	  <para>
+	    Sets the boolean value in the field named 'key'.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term>get_field(event, key)</term>
+	<listitem>
+	  <para>
+	    Retreive the value associated with the field named 'key'.
+	    The method returns a scalar value if the key exist and the value is
+	    defined, otherwise it returns undef.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term>delete_field(event, key)</term>
+	<listitem>
+	  <para>
+	    Delete the value associated with the field named 'key'.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term>field_type(event, key)</term>
+	<listitem>
+	  <para>
+	    Return a string representing the type of the value associated with the
+	    field named 'key'. 
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term>field_names(event)</term>
+	<listitem>
+	  <para>
+	    Return a list of the field names contained in the event data. Can be used
+	    to iterate over all the fields.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term>log_debug(msg)</term>
+	<listitem>
+	  <para>
+	    Send the message in the argument to the internal logger on DEBUG loglevel.
+	    Does the same as the procedure named log_debug() in nxlog.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term>log_info(msg)</term>
+	<listitem>
+	  <para>
+	    Send the message in the argument to the internal logger on INFO loglevel.
+	    Does the same as the procedure named log_info() in nxlog.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term>log_warning(msg)</term>
+	<listitem>
+	  <para>
+	    Send the message in the argument to the internal logger on WARNING loglevel.
+	    Does the same as the procedure named log_warning() in nxlog.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term>log_error(msg)</term>
+	<listitem>
+	  <para>
+	    Send the message in the argument to the internal logger on ERROR loglevel.
+	    Does the same as the procedure named log_error() in nxlog.
+	  </para>
+	</listitem>
+      </varlistentry>
+   </variablelist>
+    You should be able to read the POD documentation contained in 
+    <filename>Nxlog.pm</filename> with <command>perldoc Log::Nxlog</command>.
+  </para>
+
+  <section id="xm_perl_config">
+    <title>Configuration</title>
+    <para>
+      The following directives can be used to configure the xm_perl module instance:
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="xm_perl_config_perlcode"/>PerlCode</term>
+	  <listitem>
+	    <para>
+	      This mandatory directive expects a file which contains valid perl code.
+	      This file is read and parsed by the perl interpreter.
+	      Methods defined in this file can be called with the 
+	      <link linkend="xm_perl_proc_call">call()</link> procedure.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../apidoc-xm_perl.xml" />
+
+  <section id="xm_perl_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      In this example logs are parsed as syslog then the data is passed to a perl method
+      which does a GeoIP lookup on the source address of the incoming message.
+      <example id="xm_perl_example1">
+	<title>Using the built-in perl interpreter</title>
+	<para>
+	  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_perl.conf.xml" />
+	  The contents of the <filename>processlogs.pl</filename> perl script is as follows:
+	  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-processlogs.pl.xml" />
+	</para>
+      </example>
+    </para>
+  </section>
+
+</section>

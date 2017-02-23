@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="pm_null">
+  <title>Null (pm_null)</title>
+  <para>
+    This module does not do any special processing, so basically it does nothing.
+    Though the <link linkend="config_module_exec">Exec</link> and the 
+    <link linkend="config_module_schedule">Schedule</link> directive is available
+    in this module just like in any other, thus it can be quite useful.
+    This module does not have any module specific configuration directives.
+    See <link linkend="xm_syslog_example2">this example</link> for usage.
+  </para>
+</section>

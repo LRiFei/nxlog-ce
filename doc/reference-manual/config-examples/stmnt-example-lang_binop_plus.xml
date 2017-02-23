@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programlisting><![CDATA[
+if 1 + "a" == "1a" log_info("this will be printed");
+]]></programlisting>

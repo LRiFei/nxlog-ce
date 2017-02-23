@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="offline">
+  <title>Offline log processing</title>
+
+  <section id="nxlog_processor">
+   <title>nxlog-processor</title>
+   <para>
+     The nxlog-processor tool is similar to the nxlog daemon, it uses the same configuration file.
+     The difference is that it runs in foreground and will exit if there are no more log messages
+     available from the input sources. The input sources are typically file and database sources.
+     This tool is useful for offline log processing tasks such as loading a bunch of files
+     into a database, converting between different formats (e.g. CSV and syslog), testing
+     patterns, doing offline event correlation or HMAC message integrity checking.
+   </para>
+
+   <para>
+     FIXME manpage and usage
+   </para>
+
+  </section>
+
+</chapter>

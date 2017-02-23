@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="im_file_funcproc"><title>Functions and procedures exported by im_file</title>
+
+<section id="im_file_functions"><title>Functions exported by im_file</title>
+  <variablelist>
+   <varlistentry>
+     <term>
+       <anchor id="im_file_func_file_name"/>
+       <function>string file_name();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>
+       Return the name of the file currently open which the log was read from.
+     </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_string">string</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+  </variablelist>
+</section>
+</section>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="im_null">
+  <title>Null (im_null)</title>
+  <para>
+    This module does not generate any input, so basically it does nothing.
+    Yet it can be useful for creating a dummy route, testing purposes, and it can have 
+    <link linkend="config_module_schedule">Scheduled</link> nxlog code execution as well,
+    so it is not completely useless.
+    This module does not have any module specific configuration directives.
+    See <link linkend="config_example_routes">this example</link> for usage.
+  </para>
+</section>

@@ -1,0 +1,158 @@
+<fields>
+  <module>xm_syslog</module>
+  <field>
+    <name>raw_event</name>
+    <type>string</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	Will be set to a syslog formatted string after to_syslog_bsd() or to_syslog_ietf() is called.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Message</name>
+    <type>string</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	The message part of the syslog line, filled after parse_syslog_bsd() or parse_syslog_ietf() is called.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>SyslogSeverityValue</name>
+    <type>integer</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	The severity part of the syslog line, filled after parse_syslog_bsd() or parse_syslog_ietf() is called.
+	The default severity is 5 (="notice").
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>SyslogSeverity</name>
+    <type>string</type>
+    <persist>FALSE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The severity part of the syslog line, filled after parse_syslog_bsd() or parse_syslog_ietf() is called.
+	The default severity is "notice".
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>SeverityValue</name>
+    <type>integer</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	Normalized severity number of the event.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Severity</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	Normalized severity name of the event.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>SyslogFacilityValue</name>
+    <type>integer</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	The facility part of the syslog line, filled after parse_syslog_bsd() or parse_syslog_ietf() is called.
+	The default facility is 1 (="user").
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>SyslogFacility</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The facility part of the syslog line, filled after parse_syslog_bsd() or parse_syslog_ietf() is called.
+	The default facility is "user".
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>EventTime</name>
+    <type>datetime</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	Will be set to the timestamp found in the syslog message after
+	parse_syslog_bsd() or parse_syslog_ietf() is called. If the year value is missing, it is set to the current
+	year.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Hostname</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The hostname part of the syslog line, filled after parse_syslog_bsd() or parse_syslog_ietf() is called.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>SourceName</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The application/program part of the syslog line, filled after parse_syslog_bsd() or parse_syslog_ietf() is called.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>MessageID</name>
+    <type>string</type>
+    <persist>FALSE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The MSGID part of the syslog message, filled after parse_syslog_ietf() is called.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>ProcessID</name>
+    <type>string</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	The process id in the syslog line, filled after parse_syslog_bsd() or parse_syslog_ietf() is called.
+      </en>
+    </description>
+  </field>
+
+</fields>

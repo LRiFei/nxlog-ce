@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programlisting><![CDATA[
+<Extension exec>
+    Module	xm_exec
+    <Schedule>
+	Every	1 sec
+	Exec	exec_async("/bin/true");
+    </Schedule>
+</Extension>
+]]></programlisting>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="om_blocker">
+  <title>Blocker (om_blocker)</title>
+  <para>
+    This module serves testing purposes mostly. It will block log messages in order to 
+    simulate a blocked route. This can easily create a similar situation when a network
+    transport output module such as <link linkend="om_tcp">om_tcp</link> blocks because
+    of a network problem.
+    See the <link linkend="core_proc_sleep">sleep()</link> procedure which can delay log message
+    output and can also help testing similar situations.
+  </para>
+
+
+  <section id="om_blocker_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Testing buffering with the om_blocker module</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-om_blocker.xml" />
+      </example>
+    </para>
+  </section>
+
+</section>

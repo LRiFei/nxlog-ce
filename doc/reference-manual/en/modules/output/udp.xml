@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="om_udp">
+  <title>UDP (om_udp)</title>
+  <para>
+    This module sends log messages as UDP datagrams to the address and port specified in the
+    configuration.
+    UDP is the transport protocol of the old BSD syslog standard as described in RFC 3164, 
+    so this module can be particularly useful to send such messages to devices or syslog
+    daemons which do not support other transports.
+  </para>
+
+  <section id="om_udp_config">
+    <title>Configuration</title>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the om_udp module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="om_udp_config_host"/>Host</term>
+	  <listitem>
+	    <simpara>
+	      This mandatory directive specifies the IP address or a dns hostname which the
+	      module will send UDP datagrams to.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="om_udp_config_port"/>Port</term>
+	  <listitem>
+	    <simpara>
+	      This specifies the port number which the module will send UDP packets to.
+	      The default port is 514 if this directive is not specified.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="om_udp_config_sockbufsize"/>SockBufSize</term>
+	  <listitem>
+	    <simpara>
+	      This optional directive sets the socket buffer size (SO_SNDBUF) to the value
+	      specified. Otherwise the OS defaults are used.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="om_udp_config_outputtype"/>OutputType</term>
+	  <listitem>
+	    <simpara>
+	      See the description about <link linkend="config_outputtype">OutputType</link>
+	      in the global module config section.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+      </variablelist>
+    </para>
+  </section>
+
+  <section id="om_udp_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Sending raw syslog over udp</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-om_udp.xml" />
+      </example>
+    </para>
+  </section>
+
+</section>

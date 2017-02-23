@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="xm_charconv">
+  <title>Character set conversion (xm_charconv)</title>
+  <para>
+    This module provides functions and procedures to convert strings between different 
+    character sets (codepages).
+    Reasons for the existence of this module are outlined in the
+    <link linkend="features_i18n">Character set and i18n support</link> section.
+  </para>
+  <para>
+    The <link linkend="xm_charconv_proc_convert_fields">convert_fields()</link> procedure
+    and the <link linkend="xm_charconv_func_convert">convert()</link> function supports
+    all encodings available to iconv.
+    See <command>iconv -l</command> for a list of encoding names.
+  </para>
+
+  <section id="xm_charconv_config">
+    <title>Configuration</title>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the xm_charconv module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="xm_charconv_config_autodetectcharsets"/>AutodetectCharsets</term>
+	  <listitem>
+	    <para>
+	      This optional directive takes a comma separated list of character set names.
+	      When 'auto' is specified as the source encoding for convert() or convert_fields(),
+	      these charsets will be tried for conversion.
+  	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../apidoc-xm_charconv.xml" />
+
+  <section id="xm_charconv_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      This configuration shows an example of character set autodetection. The input file can
+      contain differently encoded lines and using autodetection the module normalizes output
+      to utf-8.
+      <example id="xm_charconv_example">
+	<title>Character set autodetection of various input encodings</title>
+	<para>
+	</para>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_charconv.xml" />
+      </example>
+    </para>
+  </section>
+</section>

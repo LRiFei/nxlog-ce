@@ -1,0 +1,198 @@
+<fields>
+  <module>im_mseventlog</module>
+  <field>
+    <name>raw_event</name>
+    <type>string</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	Contains the timestamp, hostname, severity and message from the event
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Message</name>
+    <type>string</type>
+    <persist>FALSE</persist>
+    <lookup>FALSE</lookup>
+    <description>
+      <en>
+	Contains the message from the event
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>EventTime</name>
+    <type>datetime</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	Will be set to the TimeGenerated field of the EventRecord.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>EventTimeWritten</name>
+    <type>datetime</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	Will be set to the TimeWritten field of the EventRecord.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Hostname</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The host or computer name field of the EventRecord.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>SourceName</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	The event source which produced the event, this is the subsystem or application name.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>EventID</name>
+    <type>integer</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	The event id of the EventRecord.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>CategoryNumber</name>
+    <type>integer</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	The category number, stored as Category in the EventRecord.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Category</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	The category name resolved from CategoryNumber.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>FileName</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The logfile source (e.g. Security, Application) of the event.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>AccountName</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The username associated with the event.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>AccountType</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The type of the account. Possible values are: User, Group, Domain, Alias, Well Known Group, Deleted Account, Invalid, Unknown, Computer.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Domain</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The domain name of the user.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>SeverityValue</name>
+    <type>integer</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	Normalized severity number of the event.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Severity</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	Normalized severity name of the event.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>EventType</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The type of the event which is a string describing the severity.
+	It takes the following values: "ERROR", "AUDIT_FAILURE", "AUDIT_SUCCESS", "INFO", "WARNING", "UNKNOWN"
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>RecordNumber</name>
+    <type>integer</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	The number of the event record.
+      </en>
+    </description>
+  </field>
+
+</fields>

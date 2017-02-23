@@ -1,0 +1,25 @@
+<fields>
+  <module>im_tcp</module>
+  <field>
+    <name>raw_event</name>
+    <type>string</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	Will be set to the string received.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>MessageSourceAddress</name>
+    <type>string</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	Set to the IP address of the remote host.
+      </en>
+    </description>
+  </field>
+
+</fields>

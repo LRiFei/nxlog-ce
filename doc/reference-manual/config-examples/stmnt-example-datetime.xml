@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programlisting><![CDATA[
+$raw_event = ".... 1338872750.954349 .......";
+if $raw_event =~ /(\d+)\.(\d+)/
+{
+   $EventTime = datetime(integer($1) * 1000000 + integer($2));
+}
+
+]]></programlisting>

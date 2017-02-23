@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+
+<book id="nxlog_reference_manual" lang="en">
+<title>
+  NXLOG Community Edition Reference Manual for 
+   v<xi:include href="version.txt" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude" />
+</title>
+
+<bookinfo>
+ <authorgroup>
+  <author>
+   <firstname>Botond</firstname><surname>Botyanszki</surname>
+   <email>boti@nxlog.org</email>
+  </author>
+ </authorgroup>
+ <pubdate>2009-12-15</pubdate>
+ <edition>v<xi:include href="version.txt" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude" /></edition>
+
+ <copyright>
+   <year>2009-2013</year>
+   <holder>nxsec.com</holder>
+ </copyright>
+<!--
+ <legalnotice>
+  <para>
+   Permission to use, copy, modify and distribute
+   this Reference Manual and its accompanying documentation for any purpose and
+   without fee is hereby granted in perpetuity, provided that the above
+   copyright notice and this paragraph appear in all copies.
+  </para>
+ </legalnotice>
+-->
+</bookinfo>
+
+<!-- Introduction -->
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="introduction.xml" />
+<!-- Quickstart -->
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="quickstart.xml" />
+<!-- Architecture -->
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="architecture.xml" />
+<!-- Configuration -->
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="configuration.xml" />
+<!-- Language -->
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="language.xml" />
+<!-- Modules -->
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="modules.xml" /> 
+<!-- Offline -->
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="offline.xml" /> 
+<!-- Reading and collecting messages -->
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="sources.xml" /> 
+<!-- Processing messages -->
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="processing.xml" /> 
+<!-- Forwarding and storing messages -->
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="forwarding.xml" /> 
+<!-- Tips&Tricks -->
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="tips-tricks.xml" />
+ <!-- Troubleshooting -->
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="troubleshooting.xml" /> 
+
+<!--
+ FIXME: manpages for nxlog, nxlog-processor, nxlog-stmnt-verifier
+-->
+
+
+</book>
+

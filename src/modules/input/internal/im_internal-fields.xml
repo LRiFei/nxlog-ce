@@ -1,0 +1,106 @@
+<fields>
+  <module>im_internal</module>
+  <field>
+    <name>raw_event</name>
+    <type>string</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	Will be set to the string passed to the log_info() and other log() procedures.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Message</name>
+    <type>string</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	Set to the same value as $raw_event.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>SeverityValue</name>
+    <type>integer</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	Depending on the log level of the internal message, the syslog severity is
+	set to the value corresponding to "debug", "info", "warning", "error" or "critical".
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Severity</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The severity name of the event.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>EventTime</name>
+    <type>datetime</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	Will be set to the current time.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>SourceName</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	Will be set to 'nxlog'.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>ProcessID</name>
+    <type>integer</type>
+    <persist>FALSE</persist>
+    <description>
+      <en>
+	The field is filled with the process id of the nxlog process.
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>Hostname</name>
+    <type>string</type>
+    <persist>TRUE</persist>
+    <lookup>TRUE</lookup>
+    <description>
+      <en>
+	The hostname where the log is produced
+      </en>
+    </description>
+  </field>
+
+  <field>
+    <name>ErrorCode</name>
+    <type>integer</type>
+    <persist>TRUE</persist>
+    <description>
+      <en>
+	If an error is logged resulting from an OS error, this field contains
+	the error number provided by the Apache portable runtime library.
+      </en>
+    </description>
+  </field>
+
+</fields>

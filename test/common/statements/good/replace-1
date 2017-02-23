@@ -1,0 +1,9 @@
+$success = TRUE;
+if replace("testtest", "test", "x", 1) != "xtest" $success = FALSE;
+if replace("-testtest", "test", "x", 2) != "-xx" $success = FALSE;
+if replace("-testtest", "test", "x") != "-xx" $success = FALSE;
+if defined replace("", "test", "x")  $success = FALSE;
+if replace("-testtest-", "test", "x") != "-xx-" $success = FALSE;
+$field = "test";
+$field = replace($field, "x", "X");
+if $field != "test" $success = FALSE;

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="pm_pattern">
+  <title>Pattern matcher (pm_pattern)</title>
+  <para>
+    This module makes it possible to execute pattern matching efficiently using a pattern
+    database file in XML format.
+    Using this module is more efficient than having nxlog regular expression rules
+    listed in <link linkend="config_module_exec">Exec</link> directives, because the
+    pm_pattern module was designed in such a way that patterns need not to be matched linearly.
+    In addition, the module does an automatic on-the-fly pattern reordering internally for
+    further speed improvements and it has a feature which can be used to tag messages
+    with additional fields useful for message classification.
+    See the <link linkend="processing_pattern_matching">Pattern matching and message classification</link>
+    section for additional examples.
+  </para>
+
+  <para>
+    Regular expressions are the most widely used in pattern matching. Unfortunately 
+    using a large number of regular expression based patterns does not scale well, because
+    these need to be evaluated linearly. There are other techniques such as the radix tree
+    which solve the linearity problem, the drawback is that usually these require a special
+    syntax for specifying patterns which users must learn.
+    If the log message is already parsed and is not treated as single line of message,
+    then it is possible to process only a subset of the patterns which partially solves the 
+    linearity problem.
+    With the other performance improvement tricks employed within the pm_pattern module, its
+    speed can compare to the other techniques such as a radix tree based pattern matcher. Yet
+    the pm_pattern module can keep using regular expressions which all programmers and system
+    administrators are familiar with and this also provides an easy migration of regexp
+    patterns from other tools and already existing patterns.
+  </para>
+
+  <para>
+    Traditionally pattern matching on log messages has employed a technique where the 
+    log message was one string and the pattern (regular expression or radix tree based pattern)
+    was executed against it. To match patterns against logs which contain structured data
+    (such as the Windows EventLog), this structured data (the fields of the log) must be
+    converted to a single string. This is a simple but inefficient method used by many
+    tools.
+  </para>
+
+  <para>
+    The nxlog patterns defined in the XML pattern database file can contain more than one
+    field, this allows multi-dimensional pattern matching.
+    Thus with nxlog's pm_pattern module there is no need to convert all fields into a single
+    string as it can work with multiple fields.
+  </para>
+
+  <para>
+    Patterns can be grouped together under pattern groups. Pattern groups serve an optimization
+    purpose. The group can have an optional <replaceable>matchfield</replaceable> block which
+    can check a condition. If the condtion (such as <replaceable>$SourceName</replaceable> matches 
+    <replaceable>sshd</replaceable>) is satisfied, the pm_pattern module will dive into the group
+    and check each pattern against the log.
+    If the pattern group's condition didn't match (i.e. <replaceable>$SourceName</replaceable> wasn't
+    <replaceable>sshd</replaceable>), the module can thus skip all patterns in the group without
+    having to check each pattern one by one.
+  </para>
+
+  <para>
+    When the pm_pattern module finds a matching pattern, the <replaceable>PatternID</replaceable>
+    and <replaceable>PatternName</replaceable> fields are set on the log message.
+    These can be used later in conditional processing and correlation rules
+    for example.
+  </para>
+
+  <note>
+    <para>
+      The pm_pattern module does not process all patterns. It exits after the first
+      matching pattern is found. This means that at most one pattern can match a log message.
+      You should avoid writing a pattern to be used with pm_pattern which can match a subset
+      of logs that match another pattern. For example if you have two regular expression patterns
+      <replaceable>^\d+</replaceable> and <replaceable>^\d\d</replaceable>, the second may be
+      never matched because of the first. 
+      The internal order of patterns and pattern groups is changed dynamically by pm_pattern.
+      Those patterns are placed and tried first which have the highest match count.
+      Reasons for this operation mode are:
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    Performance optimization,
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Setting the value of <replaceable>$PatternID</replaceable> would be problematic with multiple values
+	    because the language does not support arrays.
+	  </para>
+	</listitem>
+      </itemizedlist>
+      If you want a strictly linearly executing mattern matcher, you should use the
+      <link linkend="config_module_exec">Exec</link>  directive and write your rules there.
+    </para>
+  </note>
+
+  <section id="pm_pattern_config">
+    <title>Configuration</title>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the pm_pattern module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="pm_pattern_config_patternfile"/>PatternFile</term>
+	  <listitem>
+	    <simpara>
+	      This mandatory directive specifies the name of the 
+	      <link linkend="pm_pattern_pattern_database">pattern database file</link>.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
+
+  <section id="pm_pattern_pattern_database">
+    <title>Pattern database file</title>
+    <para>
+      <example>
+	<title>A simple pattern database</title>
+	<para>
+	  This pattern database contains two patterns to match ssh authentication messages.
+	  The patterns are under a group named <replaceable>ssh</replaceable> which
+	  checks whether the field <replaceable>SourceName</replaceable> is
+	  <replaceable>sshd</replaceable> and only tries to match the patterns if the logs
+	  are indeed from sshd.
+	  The patterns both extract <replaceable>AuthMethod</replaceable>,
+	  <replaceable>AccountName</replaceable>
+	  and <replaceable>SourceIP4Address</replaceable> from the log message when the pattern
+	  matches the log. Additionally <replaceable>TaxonomyStatus</replaceable> and
+	  <replaceable>TaxonomyAction</replaceable> are set.
+	  The second pattern utilizes the <link linkend="config_module_exec">Exec</link> block
+	  which is evaluated when the pattern matches.
+	  <note>
+	    <para>
+	      For this pattern to work, the logs must be parsed with parse_syslog() prior to
+	      feeding it to the pm_pattern module because it uses
+	      the <replaceable>SourceName</replaceable> and <replaceable>Message</replaceable> fields.
+	    </para>
+	  </note>
+	</para>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-patterndb.xml.xml" />
+      </example>
+    </para>
+  </section>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../fields-pm_pattern.xml" />
+
+  <section id="pm_pattern_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Using the pm_pattern module</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-pm_pattern.xml" />
+      </example>
+    </para>
+  </section>
+
+</section>

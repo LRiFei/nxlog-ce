@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="xm_fileop">
+  <title>File operations (xm_fileop)</title>
+  <para>
+    This module provides functions and procedures to manipulate files. Coupled with a
+    <link linkend="config_module_schedule">Schedule</link> block, this allows to implement
+    various log rotation and retention policies, e.g.:
+    <itemizedlist>
+      <listitem>
+	<para>
+	  log file retention based on file size,
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  log file retention based on file age,
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  cyclic log file rotation and retention.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <note>
+      <para>
+	Rotating, renaming or removing the file written by <link linkend="om_file">om_file</link>
+	is also supported with the help of the <link linkend="om_file_proc_reopen">reopen</link>
+	procedure.
+      </para>
+    </note>
+  </para>
+
+  <section id="xm_fileop_config">
+    <title>Configuration</title>
+    <para>
+      The module does not have any module specific configuration directives.
+    </para>
+  </section>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../apidoc-xm_fileop.xml" />
+
+  <section id="xm_fileop_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example id="xm_fileop_example1">
+	<title>Rotation of the internal LogFile</title>
+	<para>
+	  This example shows how to rotate the internal logfile based on time and size.
+	</para>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-xm_fileop-logfile-rotate.xml" />
+      </example>
+    </para>
+  </section>
+
+</section>

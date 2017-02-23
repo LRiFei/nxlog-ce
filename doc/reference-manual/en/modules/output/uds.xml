@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="om_uds">
+  <title>UDS (om_uds)</title>
+  <para>
+    This module allows log messages to be sent to a unix domain socket.
+    Traditionally unix systems have a socket, typically /dev/log used by the system
+    logger to accept messages from. Applications wishing to send messages to the system log
+    use the syslog(3) system call. nxlog can use this module to send log messages to the
+    socket (=system logger) directly if another syslog daemon is in use.
+  </para>
+
+  <note>
+    <para>
+      This module supports SOCK_DGRAM type sockets only. SOCK_STREAM type sockets will be supported
+      in the future.
+    </para>
+  </note>
+
+  <section id="om_uds_config">
+    <title>Configuration</title>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the om_uds module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="om_uds_config_uds"/>UDS</term>
+	  <listitem>
+	    <simpara>
+	      This specifies the path of the unix domain socket.
+	      The default is /dev/log if this is not specified.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="om_uds_config_outputtype"/>OutputType</term>
+	  <listitem>
+	    <simpara>
+	      See the description about <link linkend="config_outputtype">OutputType</link>
+	      in the global module config section.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
+
+  <section id="om_uds_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Using the om_uds module</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-om_uds.xml" />
+      </example>
+    </para>
+  </section>
+
+</section>

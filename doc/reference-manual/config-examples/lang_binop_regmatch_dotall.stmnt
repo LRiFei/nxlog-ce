@@ -1,0 +1,1 @@
+if $Message =~ /failure/s log_info("failure string present in the message");

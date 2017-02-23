@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="pm_evcorr">
+  <title>Event correlator (pm_evcorr)</title>
+  <para>
+    The pm_evcorr module provides event correlation functionality in addition to
+    the already available nxlog language features such as
+    <link linkend="lang_variables">variables</link> and 
+    <link linkend="lang_stat">statistical counters</link> which can be also used for 
+    event correlation purposes.
+  </para>
+  <para>
+    This module was greatly inspired by the Perl based correlation tool
+    <ulink url="http://simple-evcorr.sourceforge.net/">SEC</ulink>. Some of the rules of the
+    pm_evcorr module were designed to mimic those available in SEC.
+    This module aims to be a better alternative to SEC with the following advantages:
+    <itemizedlist>
+      <listitem>
+	<para>
+	  The correlation rules in SEC work with the current time. With pm_evcorr it is possible
+	  to specify a time field wich is used for elapsed time calculation making
+	  <link linkend="features_offline_mode">offline</link> event correlation also possible.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  SEC uses regular expressions extensively which can become quite slow in case of
+	  many correlation rules. In contrast this module can correlate preprocessed
+	  messages using fields for example from the <link linkend="pm_pattern">pattern matcher</link>
+	  and the <link linkend="xm_syslog">syslog</link> parser without requiring the use of regular
+	  expressions (though these are also available for use by correlation rules). 
+	  Thus testing conditions can be significantly faster when simple comparison is used
+	  instead of regular expression based pattern matching.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  This module was designed to operate on fields thus making it possible to correlate
+	  structured logs in addition to simple free-form log messages.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Most importantly, this module is written in C and SEC is pure Perl which could have
+	  major performance benefits.
+	</para>
+      </listitem>
+    </itemizedlist>
+  </para>
+  <para>
+    The rulesets of this module can use a context. A context is an expression which is
+    evaluated during runtime to a value and the correlation rule is checked in the context
+    of this value. For example if we wanted to count the number of failed logins per user
+    and alert if the failed logins exceed 3 for the user, then we'd use the $AccountName
+    as the context.
+    There is a separate context storage is for each correlation rule instance. If you need
+    global contexts accessible from all rule instances, take a look at 
+    <link linkend="lang_variables">module variables</link> and 
+    <link linkend="lang_stat">statistical counters</link>.
+  </para>
+
+  <section id="pm_evcorr_config">
+    <title>Configuration</title>
+    <para>
+      The pm_evcorr configuration contains correlation rules which are evaluated for each 
+      log message processed by the module.
+      Currently there are five rule types supported by pm_evcorr:
+      <link linkend="pm_evcorr_config_simple">Simple</link>,
+      <link linkend="pm_evcorr_config_suppressed">Suppressed</link>,
+      <link linkend="pm_evcorr_config_pair">Pair</link>,
+      <link linkend="pm_evcorr_config_absence">Absence</link> and
+      <link linkend="pm_evcorr_config_thresholded">Thresholded</link>. These rules are defined
+      in config blocks.
+      The order of the rules is important because the rules are evaluated in the order they
+      are defined. For example a correlation rule can change a state, variable or field which
+      can be then used by a later rule.
+      <link linkend="config_include">File inclusion</link> can be useful to move the correlation
+      rules into a standalone file.
+    </para>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the pm_evcorr module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="pm_evcorr_config_timefield"/>TimeField</term>
+	  <listitem>
+	    <para>
+	      Specifies the name of the <link linkend="lang_fields">field</link> to use
+	      for calculating elapsed time such as 'EventTime'.
+	      The name of the field must be specified without the leading dollar "$" sign.
+	      If this parameter is not specified, the current time is assumed.
+	      This directive makes it possible to accurately correlate events based on the 
+	      event time recorded in the logs and to do non real-time event correlation also.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="pm_evcorr_config_contextcleantime"/>ContextCleanTime</term>
+	  <listitem>
+	    <para>
+	      When a Context is used in the correlation rules, these must be purged from
+	      memory after they are expired, otherwise using too many context values could
+	      result in a high memory usage.
+	      This optional directive specifies the interval between context cleanups in
+	      seconds.
+	      By default a 1 minute cleanup interval is used if any rules use a Context and
+	      this directive is not specified.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="pm_evcorr_config_simple"/>Simple</term>
+	  <listitem>
+	    <para>
+	      This rule is essentially the same as the
+	      <link linkend="config_module_exec">Exec</link> directive supported by all modules.
+	      Because <link linkend="config_module_exec">Exec</link>s are evaluated before
+	      the correlation rules, the Simple rule was also needed to be able to 
+	      evaluate a statement as the other rules do, following the rule order.
+	      The Simple block has one directive also with the same name.
+	      <variablelist>
+		<varlistentry>
+		  <term><anchor id="pm_evcorr_config_simple_exec"/>Exec</term>
+		  <listitem>
+		    <simpara>
+		      One or more Exec directives must be specified which takes
+		      a <link linkend="lang_statements">statement</link> as argument.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+	      </variablelist>
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="pm_evcorr_config_suppressed"/>Suppressed</term>
+	  <listitem>
+	    <para>
+	      This rule matches the given condition. If the condition evaluates to TRUE,
+	      the statement specified with the 
+	      <link linkend="pm_evcorr_config_suppressed_exec">Exec</link> directive is
+	      evaluated.
+	      The rule will then ignore any log messages for the time specified with
+	      <link linkend="pm_evcorr_config_suppressed_interval">Interval</link> directive.
+	      For example this rule is useful to suppress creating many alerts in a short
+	      period when a condition is satisfied.
+	      <variablelist>
+		<varlistentry>
+		  <term><anchor id="pm_evcorr_config_suppressed_condition"/>Condition</term>
+		  <listitem>
+		    <simpara>
+		      This mandatory directive takes an expression as argument which must
+		      evaluate to a <link linkend="lang_type_boolean">boolean</link> value.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+		<varlistentry>
+		  <term><anchor id="pm_evcorr_config_suppressed_interval"/>Interval</term>
+		  <listitem>
+		    <simpara>
+		      This mandatory directive takes an integer argument specifying the 
+		      number of seconds to ignore the condition.
+		      The <link linkend="pm_evcorr_config_timefield">TimeField</link>
+		      directive is used to calculate time.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+		<varlistentry>
+		  <term><anchor id="pm_evcorr_config_suppressed_context"/>Context</term>
+		  <listitem>
+		    <simpara>
+		      This optional directive specifies an expression to be used as the context.
+		      It must evaluate to a value. Most often a field is specified here.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+		<varlistentry>
+		  <term><anchor id="pm_evcorr_config_suppressed_exec"/>Exec</term>
+		  <listitem>
+		    <simpara>
+		      One or more Exec directives must be specified which takes
+		      a <link linkend="lang_statements">statement</link> as argument.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+	      </variablelist>
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="pm_evcorr_config_pair"/>Pair</term>
+	  <listitem>
+	    <para>
+	      When <link linkend="pm_evcorr_config_pair_triggercondition">TriggerCondition</link>
+	      evaluates to TRUE, this rule type will wait 
+	      <link linkend="pm_evcorr_config_pair_interval">Interval</link> seconds
+	      for <link linkend="pm_evcorr_config_pair_requiredcondition">RequiredCondition</link> to
+	      become TRUE, it then executes the statement(s) in the
+	      <link linkend="pm_evcorr_config_pair_exec">Exec</link> directive(s).
+	      <variablelist>
+		<varlistentry>
+		  <term><anchor id="pm_evcorr_config_pair_triggercondition"/>TriggerCondition</term>
+		  <listitem>
+		    <simpara>
+		      This mandatory directive takes an expression as argument which must
+		      evaluate to a <link linkend="lang_type_boolean">boolean</link> value.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+		<varlistentry>
+		  <term><anchor id="pm_evcorr_config_pair_requiredcondition"/>RequiredCondition</term>
+		  <listitem>
+		    <simpara>
+		      This mandatory directive takes an expression as argument which must
+		      evaluate to a <link linkend="lang_type_boolean">boolean</link> value.
+		      When this evaluates to TRUE after 
+		      <link linkend="pm_evcorr_config_pair_triggercondition">TriggerCondition</link> evaluated
+		      to TRUE within 
+		      <link linkend="pm_evcorr_config_pair_interval">Interval</link> seconds,
+		      the statement(s) in the
+		      <link linkend="pm_evcorr_config_pair_exec">Exec</link> directive(s) are
+		      executed.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+		<varlistentry>
+		  <term><anchor id="pm_evcorr_config_pair_interval"/>Interval</term>
+		  <listitem>
+		    <simpara>
+		      Thisdirective takes an integer argument specifying the 
+		      number of seconds to wait for 
+		      <link linkend="pm_evcorr_config_pair_requiredcondition">RequiredCondition</link>
+		      to become TRUE.
+		      If this directive is 0 or not specified, the rule will wait
+		      indefinitely for 
+		      <link linkend="pm_evcorr_config_pair_requiredcondition">RequiredCondition</link>
+		      to become TRUE.
+		      The <link linkend="pm_evcorr_config_timefield">TimeField</link>
+		      directive is used to calculate time.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+		<varlistentry>
+		  <term><anchor id="pm_evcorr_config_pair_context"/>Context</term>
+		  <listitem>
+		    <simpara>
+		      This optional directive specifies an expression to be used as the context.
+		      It must evaluate to a value. Most often a field is specified here.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+		<varlistentry>
+		  <term><anchor id="pm_evcorr_config_pair_exec"/>Exec</term>
+		  <listitem>
+		    <simpara>
+		      One or more Exec directives must be specified which takes
+		      a <link linkend="lang_statements">statement</link> as argument.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+	      </variablelist>
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="pm_evcorr_config_absence"/>Absence</term>
+	  <listitem>
+	    <para>
+	      This rule type does the opposite of <link linkend="pm_evcorr_config_pair">Pair</link>.
+	      When <link linkend="pm_evcorr_config_absence_triggercondition">TriggerCondition</link>
+	      evaluates to TRUE, this rule type will wait 
+	      <link linkend="pm_evcorr_config_absence_interval">Interval</link> seconds
+	      for <link linkend="pm_evcorr_config_absence_requiredcondition">RequiredCondition</link> to
+	      become TRUE. If it does not become TRUE it then executes the statement(s) in the
+	      <link linkend="pm_evcorr_config_absence_exec">Exec</link> directive(s).
+	      <variablelist>
+		<varlistentry>
+		  <term><anchor id="pm_evcorr_config_absence_triggercondition"/>TriggerCondition</term>
+		  <listitem>
+		    <simpara>
+		      This mandatory directive takes an expression as argument which must
+		      evaluate to a <link linkend="lang_type_boolean">boolean</link> value.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+		<varlistentry>
+		  <term><anchor id="pm_evcorr_config_absence_requiredcondition"/>RequiredCondition</term>
+		  <listitem>
+		    <simpara>
+		      This mandatory directive takes an expression as argument which must
+		      evaluate to a <link linkend="lang_type_boolean">boolean</link> value.
+		      When this evaluates to TRUE after 
+		      <link linkend="pm_evcorr_config_absence_triggercondition">TriggerCondition</link> evaluated
+		      to TRUE within 
+		      <link linkend="pm_evcorr_config_absence_interval">Interval</link> seconds,
+		      the statement(s) in the
+		      <link linkend="pm_evcorr_config_absence_exec">Exec</link> directive(s) are
+		      NOT executed.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+		<varlistentry>
+		  <term><anchor id="pm_evcorr_config_absence_interval"/>Interval</term>
+		  <listitem>
+		    <simpara>
+		      This mandatory directive takes an integer argument specifying the 
+		      number of seconds to wait for 
+		      <link linkend="pm_evcorr_config_absence_requiredcondition">RequiredCondition</link>
+		      to become TRUE. Its value must be greater than 0.
+		      The <link linkend="pm_evcorr_config_timefield">TimeField</link>
+		      directive is used to calculate time.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+		<varlistentry>
+		  <term><anchor id="pm_evcorr_config_absence_context"/>Context</term>
+		  <listitem>
+		    <simpara>
+		      This optional directive specifies an expression to be used as the context.
+		      It must evaluate to a value. Most often a field is specified here.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+		<varlistentry>
+		  <term><anchor id="pm_evcorr_config_absence_exec"/>Exec</term>
+		  <listitem>
+		    <para>
+		      One or more Exec directives must be specified which takes
+		      a <link linkend="lang_statements">statement</link> as argument.
+		      <note>
+			<para>
+			  The evaluation of this Exec is not triggered by a log event,
+			  thus it does not make sense to use log data related operations
+			  such as accessing fields.
+			</para>
+		      </note>
+		    </para>
+		  </listitem>
+		</varlistentry>
+	      </variablelist>
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="pm_evcorr_config_thresholded"/>Thresholded</term>
+	  <listitem>
+	    <para>
+	      This rule will execute the statement(s) in the
+	      <link linkend="pm_evcorr_config_thresholded_exec">Exec</link> directive(s)
+	      if the 
+	      <link linkend="pm_evcorr_config_thresholded_condition">Condition</link>
+	      evaluates to TRUE 
+	      <link linkend="pm_evcorr_config_thresholded_threshold">Threshold</link> or
+	      more times during the 
+	      <link linkend="pm_evcorr_config_thresholded_interval">Interval</link> specified.
+	      The advantage of this rule over the use of 
+	      <link linkend="lang_stat">statistical counters</link> is that the time window
+	      is dynamic and shifts as log messages are processed. Thus the problem described 
+	      <link linkend="lang_variable_example_corr_note">in this</link> example
+	      is not present with this rule.
+	      <variablelist>
+		<varlistentry>
+		  <term><anchor id="pm_evcorr_config_thresholded_condition"/>Condition</term>
+		  <listitem>
+		    <simpara>
+		      This mandatory directive takes an expression as argument which must
+		      evaluate to a <link linkend="lang_type_boolean">boolean</link> value.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+		<varlistentry>
+		  <term><anchor id="pm_evcorr_config_thresholded_interval"/>Interval</term>
+		  <listitem>
+		    <simpara>
+		      This mandatory directive takes an integer argument specifying a time
+		      window for 
+		      <link linkend="pm_evcorr_config_thresholded_condition">Condition</link>
+		      to become TRUE. Its value must be greater than 0.
+		      The <link linkend="pm_evcorr_config_timefield">TimeField</link>
+		      directive is used to calculate time.
+		      This time window is dynamic, meaning that it will shift.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+		<varlistentry>
+		  <term><anchor id="pm_evcorr_config_thresholded_threshold"/>Threshold</term>
+		  <listitem>
+		    <simpara>
+		      This mandatory directive takes an integer argument specifying the number
+		      of times 
+		      <link linkend="pm_evcorr_config_thresholded_condition">Condition</link>
+		      must evaluate to TRUE within the given time 
+		      <link linkend="pm_evcorr_config_thresholded_interval">Interval</link>.
+		      When the treshold is reached, the module executes the statement(s) in the
+		      <link linkend="pm_evcorr_config_thresholded_exec">Exec</link> directive(s).
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+		<varlistentry>
+		  <term><anchor id="pm_evcorr_config_thresholded_context"/>Context</term>
+		  <listitem>
+		    <simpara>
+		      This optional directive specifies an expression to be used as the context.
+		      It must evaluate to a value. Most often a field is specified here.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+		<varlistentry>
+		  <term><anchor id="pm_evcorr_config_thresholded_exec"/>Exec</term>
+		  <listitem>
+		    <simpara>
+		      One or more Exec directives must be specified which takes
+		      a <link linkend="lang_statements">statement</link> as argument.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+	      </variablelist>
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><anchor id="pm_evcorr_config_stop"/>Stop</term>
+	  <listitem>
+	    <para>
+	      This rule will stop evaluating successive rules if the
+	      <link linkend="pm_evcorr_config_stop_condition">Condition</link>
+	      evaluates to TRUE.
+	      The optional <link linkend="pm_evcorr_config_stop_exec">Exec</link> directive
+	      will be evaluated in this case.
+	      <variablelist>
+		<varlistentry>
+		  <term><anchor id="pm_evcorr_config_stop_condition"/>Condition</term>
+		  <listitem>
+		    <simpara>
+		      This mandatory directive takes an expression as argument which must
+		      evaluate to a <link linkend="lang_type_boolean">boolean</link> value.
+		      When it evaluates to TRUE, the correlation rule engine will stop
+		      checking any further rules.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+		<varlistentry>
+		  <term><anchor id="pm_evcorr_config_stop_exec"/>Exec</term>
+		  <listitem>
+		    <simpara>
+		      One or more Exec directives can be specified which takes
+		      a <link linkend="lang_statements">statement</link> as argument.
+		      This will be evaluated when the specified
+		      <link linkend="pm_evcorr_config_stop_condition">Condition</link> is
+		      satisfied. This Exec directive is optional.
+		    </simpara>
+		  </listitem>
+		</varlistentry>
+	      </variablelist>
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+      </variablelist>
+    </para>
+  </section>
+
+  <section id="pm_evcorr_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Correlation rules</title>
+	<para>
+	  This following configuration sample contains a rule for each type.
+	  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-evcorr2.conf.xml" />
+	  The contents of the input file are the following:
+	  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-testinput_evcorr2.txt.xml" />
+	  After this is processed, the resulting output will contain these lines:
+	  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../config-examples/config-example-testoutput_evcorr2.txt.xml" />
+	</para>
+      </example>
+    </para>
+  </section>
+</section>

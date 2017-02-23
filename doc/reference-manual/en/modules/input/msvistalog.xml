@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="im_msvistalog">
+  <title>MS EventLog for Windows 2008/Vista and later (im_msvistalog)</title>
+  <para>
+    This module can be used to collect EventLog messages on Microsoft Windows platforms which support
+    the newer EventLog API (also known as the Crimson Eventlog subsystem), namely Windows 2008/Vista
+    and later. 
+    You can refer to the official Microsoft documentation about 
+    <ulink url="http://technet.microsoft.com/en-us/library/cc722404.aspx">Event Logs</ulink>.
+    The module supports reading all System, Application and Custom events.
+    It looks up the available channels and monitors events in each unless the
+    <link linkend="im_msvistalog_config_query">Query</link> and the 
+    <link linkend="im_msvistalog_config_channel">Channel</link> directives are explicitely defined.
+    Event logs can be collected from remote servers over MS RPC (Note: Enterprise Edition only).
+  </para>
+  <note>
+    <para>
+      This module will not work on Windows 2003 and earlier because Windows Vista, Windows 2008
+      and later use a new EventLog API which is not available in earlier Windows versions.
+      If you need to collect EventLog messages on these platforms, you should use the 
+      <link linkend="im_mseventlog">im_mseventlog</link> module instead.
+    </para>
+  </note>
+  <note>
+    <para>
+      The Windows EventLog subsystem does not support subscriptions to Debug and Analytic channels,
+      thus it is not possible to collect these type of events with this module.
+    </para>
+  </note>
+  <para>
+    In addition to the standard set of <link linkend="im_msvistalog_fields">fields</link> which are
+    listed under the System section, event providers can define their own additional schema which
+    enables logging additional data under the EventData section.
+    The Security log makes use of this new feature and such additional fields can be seen as
+    in the following XML snippet:
+<programlisting><![CDATA[
+<EventData>
+  <Data Name="SubjectUserSid">S-1-5-18</Data> 
+  <Data Name="SubjectUserName">WIN-OUNNPISDHIG$</Data> 
+  <Data Name="SubjectDomainName">WORKGROUP</Data> 
+  <Data Name="SubjectLogonId">0x3e7</Data> 
+  <Data Name="TargetUserSid">S-1-5-18</Data> 
+  <Data Name="TargetUserName">SYSTEM</Data> 
+  <Data Name="TargetDomainName">NT AUTHORITY</Data> 
+  <Data Name="TargetLogonId">0x3e7</Data> 
+  <Data Name="LogonType">5</Data> 
+  <Data Name="LogonProcessName">Advapi</Data> 
+  <Data Name="AuthenticationPackageName">Negotiate</Data> 
+  <Data Name="WorkstationName" /> 
+  <Data Name="LogonGuid">{00000000-0000-0000-0000-000000000000}</Data> 
+  <Data Name="TransmittedServices">-</Data> 
+  <Data Name="LmPackageName">-</Data> 
+  <Data Name="KeyLength">0</Data> 
+  <Data Name="ProcessId">0x1dc</Data> 
+  <Data Name="ProcessName">C:\Windows\System32\services.exe</Data> 
+  <Data Name="IpAddress">-</Data> 
+  <Data Name="IpPort">-</Data> 
+</EventData>]]></programlisting>
+  nxlog can extract this data when fields are logged using this schema. The values will be available
+  in the fields of the internal nxlog log structure. This is especially useful because there is
+  no need to write pattern matching rules to extract this data from the message. These fields
+  can be used in filtering rules, writing them into SQL tables or to trigger actions.
+  Consider the following example which filters using the <link linkend="config_module_exec">Exec</link>
+  directive:
+<programlisting><![CDATA[
+<Input in>
+    Module       im_msvistalog
+    Exec         if ($TargetUserName == 'SYSTEM') OR ($EventType == 'VERBOSE') drop();
+</Input>]]></programlisting>
+  </para>
+
+  <section id="im_msvistalog_config">
+    <title>Configuration</title>
+    <para>
+      In addition to the <link linkend="config_module_common">common module directives</link>,
+      the following can be used to configure the im_msvistalog module instance.
+      <variablelist>
+	<varlistentry>
+	  <term><anchor id="im_msvistalog_config_savepos"/>SavePos</term>
+	  <listitem>
+	    <simpara>
+	      This directive takes a boolean value of TRUE or FALSE and specifies whether
+	      the file position should be saved when nxlog exits.
+	      The file position will be read from the cache file upon startup.
+	      The file position is saved by default if this directive is not specified
+	      in the configuration.
+	      Even if SavePos is enabled, it can be explicitly turned off with the
+	      <link linkend="config_global_nocache">NoCache</link> directive.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><anchor id="im_msvistalog_config_readfromlast"/>ReadFromLast</term>
+	  <listitem>
+	    <simpara>
+	      This optional directive takes a boolean value. If it is set to TRUE, it instructs
+	      the module to only read logs which arrived after nxlog was started in case the
+	      saved position could not be read (for example on first start).
+	      When SavePos is TRUE and a previously saved position value could be read,
+	      the module will resume reading from this saved position.
+	      If this is FALSE, the module will read all logs from the EventLog. This can result
+	      in quite a lot of messages which is usually not the expected behaviour.
+	      If this directive is not specified, it defaults to TRUE.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><anchor id="im_msvistalog_config_query"/>Query</term>
+	  <listitem>
+	    <para>
+	      This directive specifies the query if one wishes to pull only specific eventlog sources.
+	      See the MSDN docs about 
+	      <ulink url="http://msdn.microsoft.com/en-us/library/aa385231.aspx">Event Selection</ulink>.
+	      Note that this directive needs a single-line parameter, so multi-line query XML 
+	      should be specified with line continuation marks (\) as in the following example:
+<programlisting><![CDATA[
+     Query <QueryList>                                             \
+             <Query Id='1'>                                        \
+              <Select Path='Security'>*[Security/Level=4]</Select> \
+             </Query>                                              \
+           </QueryList>]]></programlisting>
+             When the Query contains an XPath style expression, the 
+             <link linkend="im_msvistalog_config_channel">Channel</link> must also be specified.
+	     Otherwise if an XML Query is specified, the
+	     <link linkend="im_msvistalog_config_channel">Channel</link> should not be used.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><anchor id="im_msvistalog_config_channel"/>Channel</term>
+	  <listitem>
+	    <simpara>
+	      The name of the Channel to query. If not specified, the module will read from all
+	      sources defined in the registry.
+	      See the MSDN docs about 
+	      <ulink url="http://msdn.microsoft.com/en-us/library/aa385231.aspx">Event Selection</ulink>.
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><anchor id="im_msvistalog_config_pollinterval"/>PollInterval</term>
+	  <listitem>
+	    <simpara>
+	      This directive specifies in seconds how frequently the module will check for
+	      new events. If this directive is not specified it defaults to 1 second.
+	      Fractional seconds may be specified, i.e. to check twice every second you should
+	      set the following: <replaceable>PollInterval 0.5</replaceable>
+	    </simpara>
+	  </listitem>
+	</varlistentry>
+
+      </variablelist>
+    </para>
+  </section>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../fields-im_msvistalog.xml" />
+
+  <section id="im_msvistalog_config_examples">
+    <title>Configuration examples</title>
+    <para>
+      <example>
+	<title>Forwarding EventLogs from a windows machine to a remote host</title>
+	<programlisting><![CDATA[
+<Input in>
+    Module       im_msvistalog
+    ReadFromLast TRUE
+</Input>
+
+<Output out>
+    Module       om_tcp
+    Host         192.168.1.1
+    Port         514
+</Output>
+
+<Route 1>
+    Path        in => out
+</Route>
+
+]]></programlisting>
+      </example>
+    </para>
+  </section>
+
+</section>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="xm_kvp_funcproc"><title>Functions and procedures exported by xm_kvp</title>
+
+<section id="xm_kvp_functions"><title>Functions exported by xm_kvp</title>
+  <variablelist>
+   <varlistentry>
+     <term>
+       <anchor id="xm_kvp_func_to_kvp"/>
+       <function>string to_kvp();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Convert the internal fields to a single KVP formatted string.</simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term>return type</term>
+         <listitem>
+           <simpara>
+            <link linkend="lang_type_string">string</link>
+           </simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+  </variablelist>
+</section>
+
+<section id="xm_kvp_procedures"><title>Procedures exported by xm_kvp</title>
+  <variablelist>
+   <varlistentry>
+     <term>
+       <anchor id="xm_kvp_proc_parse_kvp"/>
+       <function>parse_kvp();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Parse the raw_event field as key-value pairs and populate the internal fields using the key names.</simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <function>parse_kvp(string source);</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Parse the given string key-value pairs and populate the internal fields using the key names.</simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>arguments</term>
+          <listitem>
+           <variablelist>
+            <varlistentry>
+             <term>source</term>
+             <listitem>
+               <simpara>
+                type: <link linkend="lang_type_string">string</link>
+               </simpara>
+             </listitem>
+            </varlistentry>
+           </variablelist>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_kvp_proc_to_kvp"/>
+       <function>to_kvp();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Format the internal fields as KVP and put this into the 'raw_event' field.</simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+   <varlistentry>
+     <term>
+       <anchor id="xm_kvp_proc_reset_kvp"/>
+       <function>reset_kvp();</function>
+     </term>
+     <listitem>
+      <variablelist>
+        <varlistentry>
+         <term>description</term>
+         <listitem>
+          <simpara>Reset the kvp parser so that the autodetected KeyQuoteChar, ValueQouteChar, KVDelimiter and KVPDelimiter characters can be detected again.</simpara>
+         </listitem>
+        </varlistentry>
+      </variablelist>
+     </listitem>
+   </varlistentry>
+
+  </variablelist>
+</section>
+</section>
